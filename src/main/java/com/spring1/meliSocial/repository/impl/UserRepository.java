@@ -2,8 +2,6 @@ package com.spring1.meliSocial.repository.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.spring1.meliSocial.model.Post;
-import com.spring1.meliSocial.model.Product;
 import com.spring1.meliSocial.model.User;
 import com.spring1.meliSocial.repository.IUserRepository;
 import org.springframework.stereotype.Repository;
@@ -13,6 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Repository
 public class UserRepository implements IUserRepository {
@@ -44,6 +43,20 @@ public class UserRepository implements IUserRepository {
             user.setFollowed(updatedFollowed);
         }
         return isUnfollowed;
-        return false;
+    }
+
+    @Override
+    public int followersCount(int id) {
+        User user = getUser(id);
+        if(user != null){
+            return user.getFollowers().size();
+        }
+        return -1;
+    }
+
+    @Override
+    public User getUser(int id) {
+        return users.stream().filter(x -> x.getId() == id).findFirst().orElse(null);
     }
 }
+
