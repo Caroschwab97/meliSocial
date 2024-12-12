@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1,
+    "name": "Camiseta",
+    "type": "Ropa",
+    "brand": "Nike",
+    "color": "Rojo",
+    "notes": "Camiseta de entrenamiento de alta calidad."
+  },
+  {
+    "id": 2,
+    "name": "Zapatillas",
+    "type": "Calzado",
+    "brand": "Adidas",
+    "color": "Negro",
+    "notes": "Zapatillas cómodas para uso diario."
+  }
+]

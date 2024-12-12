@@ -1,0 +1,36 @@
+[
+  {
+    "id": 1,
+    "userId": 1,
+    "date": "20-01-2024",
+    "product": {
+      "id": 1,
+      "name": "Camiseta",
+      "type": "Ropa",
+      "brand": "Nike",
+      "color": "Rojo",
+      "notes": "Camiseta de entrenamiento de alta calidad."
+    },
+    "category": 1,
+    "price": 25.99,
+    "hasPromo": true,
+    "discount": 0.15
+  },
+  {
+    "id": 2,
+    "userId": 1,
+    "date": "20-01-2024",
+    "product": {
+      "id": 2,
+      "name": "Zapatillas",
+      "type": "Calzado",
+      "brand": "Adidas",
+      "color": "Negro",
+      "notes": "Zapatillas cómodas para uso diario."
+    },
+    "category": 2,
+    "price": 49.99,
+    "hasPromo": false,
+    "discount": 0.0
+  }
+]

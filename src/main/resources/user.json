@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1,
+    "userName": "vendedor",
+    "seller": true,
+    "followers": [2,3],
+    "followed": [],
+    "products": [1,2]
+  },
+  {
+    "id": 2,
+    "userName": "comprador2",
+    "seller": false,
+    "followers": [],
+    "followed": [1],
+    "products": []
+  },
+  {
+    "id": 3,
+    "userName": "comprador3",
+    "seller": false,
+    "followers": [],
+    "followed": [1],
+    "products": []
+  },
+  {
+    "id": 4,
+    "userName": "comprador4",
+    "seller": false,
+    "followers": [],
+    "followed": [],
+    "products": []
+  },
+  {
+    "id": 5,
+    "userName": "comprador5",
+    "seller": false,
+    "followers": [],
+    "followed": [],
+    "products": []
+  }
+]
