@@ -32,4 +32,19 @@ public class UserRepository implements IUserRepository {
         users= objectMapper.readValue(file,new TypeReference<List<User>>(){});
 
     }
+
+    @Override
+    public int followersCount(int id) {
+        User user = getUser(id);
+        if(user != null){
+            return user.getFollowers().size();
+        }
+        return -1;
+    }
+
+    @Override
+    public User getUser(int id) {
+        return users.stream().filter(x -> x.getId() == id).findFirst().orElse(null);
+    }
 }
+
