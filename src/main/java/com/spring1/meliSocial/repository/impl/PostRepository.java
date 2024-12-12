@@ -2,6 +2,8 @@ package com.spring1.meliSocial.repository.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.spring1.meliSocial.model.Post;
 import com.spring1.meliSocial.model.Product;
 import com.spring1.meliSocial.repository.IPostRepository;
@@ -13,6 +15,8 @@ import org.springframework.util.ResourceUtils;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +33,13 @@ public class PostRepository implements IPostRepository {
         File file;
         ObjectMapper objectMapper = new ObjectMapper();
         List<Post> posteos ;
+
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        JavaTimeModule javaTimeModule = new JavaTimeModule();
+        javaTimeModule.addDeserializer(LocalDate.class, new LocalDateDeserializer(dateFormatter));
+
+        // Registrar el módulo en el ObjectMapper
+        objectMapper.registerModule(javaTimeModule);
 
         file= ResourceUtils.getFile("classpath:post.json");
         posteos= objectMapper.readValue(file,new TypeReference<List<Post>>(){});
