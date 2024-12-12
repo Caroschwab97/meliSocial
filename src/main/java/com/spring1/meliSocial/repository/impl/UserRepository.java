@@ -17,7 +17,7 @@ import java.util.List;
 @Repository
 public class UserRepository implements IUserRepository {
 
-    private List<User> users= new ArrayList<>();
+    private List<User> users = new ArrayList<>();
 
     public UserRepository() throws IOException {
         this.loadDataBase();
@@ -31,5 +31,19 @@ public class UserRepository implements IUserRepository {
         file= ResourceUtils.getFile("classpath:user.json");
         users= objectMapper.readValue(file,new TypeReference<List<User>>(){});
 
+    }
+
+    @Override
+    public boolean unfollowUser(int userId, int userIdToUnfollow) {
+        User user = getUser(userId);
+        List<Integer> updatedFollowed = user.getFollowed().stream()
+                .filter(id -> id != userIdToUnfollow)
+                .collect(Collectors.toList());
+        boolean isUnfollowed = updatedFollowed.size() < user.getFollowed().size();
+        if (isUnfollowed) {
+            user.setFollowed(updatedFollowed);
+        }
+        return isUnfollowed;
+        return false;
     }
 }
