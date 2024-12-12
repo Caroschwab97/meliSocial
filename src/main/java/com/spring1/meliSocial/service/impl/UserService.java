@@ -1,10 +1,15 @@
 package com.spring1.meliSocial.service.impl;
 
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spring1.meliSocial.dto.FollowerDto;
 import com.spring1.meliSocial.dto.SellerFollowedDto;
 import com.spring1.meliSocial.exception.NotFoundException;
 import com.spring1.meliSocial.exception.NotSellerException;
+
+import com.spring1.meliSocial.dto.UserFollowersDto;
+import com.spring1.meliSocial.exception.NotFoundException;
+
 import com.spring1.meliSocial.model.User;
 import com.spring1.meliSocial.repository.IPostRepository;
 import com.spring1.meliSocial.repository.IUserRepository;
@@ -55,4 +60,15 @@ public class UserService implements IUserService {
                 userId -> repository.getUserById(userId).get()).
                 toList();
     }
+
+    @Override
+    public UserFollowersDto findFollowers(int id) {
+        int res = repository.followersCount(id);
+        Optional<User> user = repository.getUserById(id);
+        if(res != -1){
+            return new UserFollowersDto(id,user.get().getUserName(),res);
+        }
+        throw new NotFoundException("El id que busca no existe ");
+    }
+
 }

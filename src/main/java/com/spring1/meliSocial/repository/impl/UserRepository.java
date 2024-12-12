@@ -43,4 +43,15 @@ public class UserRepository implements IUserRepository {
     public Optional<User> getUserById(int id) {
         return users.stream().filter(x -> x.getId() == id).findFirst();
     }
+
+    @Override
+    public int followersCount(int id) {
+        Optional<User> user = getUserById(id);
+        if(user.isPresent()){
+            return user.get().getFollowers().size();
+        }
+        return -1;
+    }
+
 }
+

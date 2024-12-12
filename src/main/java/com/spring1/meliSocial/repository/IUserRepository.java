@@ -7,5 +7,8 @@ import java.util.Optional;
 
 public interface IUserRepository {
     List<User> getUsers();
+
     Optional<User> getUserById(int id);
+
+    int followersCount(int id);
 }
