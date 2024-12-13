@@ -1,6 +1,7 @@
 package com.spring1.meliSocial.dto;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import java.util.List;
@@ -9,9 +10,11 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SellerFollowedDto {
-    @JsonAlias("user_id")
+    @JsonProperty("user_id")
     private int userId;
-    @JsonAlias("user_name")
+
+    @JsonProperty("user_name")
     private String userName;
+
     private List<FollowerDto> followers;
 }
