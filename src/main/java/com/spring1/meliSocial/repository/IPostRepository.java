@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface IPostRepository {
     List<Post> getPosts();
+
+    int countProductsOnPromo(int userId);
 }

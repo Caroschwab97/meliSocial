@@ -3,6 +3,8 @@ package com.spring1.meliSocial.service.impl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spring1.meliSocial.dto.PostDto;
 import com.spring1.meliSocial.dto.PostIndexDto;
+import com.spring1.meliSocial.dto.PostPromoDto;
+import com.spring1.meliSocial.exception.BadRequestException;
 import com.spring1.meliSocial.exception.NotFoundException;
 import com.spring1.meliSocial.model.Post;
 import com.spring1.meliSocial.model.User;
@@ -54,5 +56,24 @@ public class PostService implements IPostService {
         return new PostIndexDto(userId, filteredPosts.stream()
                 .map(fp -> objectMapper.convertValue(fp, PostDto.class))
                 .toList());
+    }
+
+    @Override
+    public PostPromoDto getProductsOnPromo(int userId) {
+        Optional<User> userO = userRepository.getUserById(userId);
+
+        if (userO.isEmpty()) {
+            throw new BadRequestException("El usuario con ese ID no existe.");
+        }
+
+        User user = userO.get();
+
+        int promoProductsCount = postRepository.countProductsOnPromo(userId);
+
+        return new PostPromoDto(
+                user.getId(),
+                user.getUserName(),
+                promoProductsCount
+        );
     }
 }
