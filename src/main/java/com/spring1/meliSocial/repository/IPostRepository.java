@@ -13,4 +13,6 @@ public interface IPostRepository {
     boolean findById(int id);
 
     List<Post> getPosts();
+
+    int countProductsOnPromo(int userId);
 }
