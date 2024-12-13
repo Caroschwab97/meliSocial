@@ -79,18 +79,18 @@ public class UserService implements IUserService {
 
     @Override
     public ResponseDto unfollowUser(int userId, int userIdToUnfollow) {
-        if(repository.getUser(userId).getFollowed()
+        if(repository.getUserById(userId).get().getFollowed()
                 .stream().filter(u -> u == userIdToUnfollow).findFirst().orElse(null) == null)
             throw new NotFoundException("El usuario no contiene ese seguido");
 
-        if(repository.getUser(userId) == null || repository.getUser(userIdToUnfollow) == null)
+        if(repository.getUserById(userId).isEmpty() || repository.getUserById(userIdToUnfollow).isEmpty())
             throw new NotFoundException("No se encontraron los usuarios");
 
         if(repository.followedCount(userId) == 0)
             throw new NotFoundException("El usuario no tiene seguidos");
 
         if(repository.unfollowUser(userId,userIdToUnfollow))
-            return "El usuario se borro con exito.";
+            return new ResponseDto("El usuario se borro con exito.");
 
         return new ResponseDto("Ocurrió un problema al eliminar seguido");
     }

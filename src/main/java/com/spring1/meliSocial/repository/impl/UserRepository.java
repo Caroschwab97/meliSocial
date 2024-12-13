@@ -45,13 +45,13 @@ public class UserRepository implements IUserRepository {
 
     @Override
     public boolean unfollowUser(int userId, int userIdToUnfollow) {
-        User user = getUser(userId);
-        User userUnfollowed = getUser(userIdToUnfollow);
+        Optional<User> user = getUserById(userId);
+        Optional<User> userUnfollowed = getUserById(userIdToUnfollow);
         int countFollowed = followedCount(userId);
         int countFollower = followersCount(userIdToUnfollow);
 
-        boolean followed = user.getFollowed().remove(Integer.valueOf(userIdToUnfollow));
-        boolean followers = userUnfollowed.getFollowers().remove(Integer.valueOf(userId));
+        boolean followed = user.get().getFollowed().remove(Integer.valueOf(userIdToUnfollow));
+        boolean followers = userUnfollowed.get().getFollowers().remove(Integer.valueOf(userId));
 
         return  followed && followers ;
     }
@@ -63,17 +63,9 @@ public class UserRepository implements IUserRepository {
     }
 
     @Override
-    public User getUser(int id) {
-        return users.stream().filter(x -> x.getId() == id).findFirst().orElse(null);
-    }
-
-    @Override
     public int followedCount(int userId) {
-        User user = getUser(userId);
-        if(user != null){
-            return user.getFollowed().size();
-        }
-        return -1;
+        Optional<User> user = getUserById(userId);
+        return user.map(value -> value.getFollowed().size()).orElse(-1);
     }
 
     @Override
