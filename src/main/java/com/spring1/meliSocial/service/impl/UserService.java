@@ -48,7 +48,7 @@ public class UserService implements IUserService {
         Stream<FollowerDto> userFollowersDtoStream = userFollowers.
                 stream().
                 map(
-                follower -> mapper.convertValue(follower, FollowerDto.class));
+                follower -> new FollowerDto(follower.getId(), follower.getUserName()));
 
         if (orderMethod.equalsIgnoreCase("name_desc")) {
             userFollowersDtoStream = userFollowersDtoStream.sorted(Comparator.comparing(FollowerDto::getUserName).reversed());
@@ -79,7 +79,7 @@ public class UserService implements IUserService {
         Stream<FollowedDto> usersFollowedByUserStream = usersFollowedByUser.
                 stream().
                 map(
-                        followed -> mapper.convertValue(followed, FollowedDto.class));
+                        followed -> new FollowedDto(followed.getId(), followed.getUserName()));
 
         if (orderMethod.equalsIgnoreCase("name_desc")) {
             usersFollowedByUserStream = usersFollowedByUserStream.sorted(Comparator.comparing(FollowedDto::getUserName).reversed());

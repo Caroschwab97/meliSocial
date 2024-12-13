@@ -2,6 +2,7 @@ package com.spring1.meliSocial.dto;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,11 +10,10 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class FollowedDto {
-    @JsonAlias("user_id")
+    @JsonProperty("user_id")
     private int id;
 
-    @JsonAlias("user_name")
+    @JsonProperty("user_name")
     private String userName;
 }
