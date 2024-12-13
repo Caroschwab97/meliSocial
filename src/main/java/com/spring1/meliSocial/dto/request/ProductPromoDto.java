@@ -1,4 +1,4 @@
-package com.spring1.meliSocial.dto;
+package com.spring1.meliSocial.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.spring1.meliSocial.model.Product;

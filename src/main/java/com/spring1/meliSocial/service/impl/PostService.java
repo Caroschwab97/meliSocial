@@ -1,30 +1,22 @@
 package com.spring1.meliSocial.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.spring1.meliSocial.dto.PostDto;
+import com.spring1.meliSocial.dto.request.PostDto;
 import com.spring1.meliSocial.exception.ExistingDataException;
 import com.spring1.meliSocial.model.Post;
 import com.spring1.meliSocial.model.Product;
 import com.spring1.meliSocial.model.User;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
-import com.spring1.meliSocial.dto.ProductPromoDto;
+import com.spring1.meliSocial.dto.request.ProductPromoDto;
 import com.spring1.meliSocial.exception.BadRequestException;
-import com.spring1.meliSocial.model.Post;
-import com.spring1.meliSocial.model.Product;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.spring1.meliSocial.dto.PostDto;
-import com.spring1.meliSocial.dto.PostIndexDto;
-import com.spring1.meliSocial.dto.PostPromoDto;
-import com.spring1.meliSocial.exception.BadRequestException;
+import com.spring1.meliSocial.dto.response.PostIndexDto;
+import com.spring1.meliSocial.dto.response.PostPromoDto;
 import com.spring1.meliSocial.exception.NotFoundException;
 import com.spring1.meliSocial.repository.IPostRepository;
 import com.spring1.meliSocial.repository.IProductRepository;
 import com.spring1.meliSocial.repository.IUserRepository;
-import com.spring1.meliSocial.repository.IUserRepository;
 import com.spring1.meliSocial.service.IPostService;
-import com.spring1.meliSocial.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -51,14 +43,14 @@ public class PostService implements IPostService {
     private ObjectMapper mapper;
 
     @Override
-    public String saveNewPost(PostDto postDto) {
+    public void saveNewPost(PostDto postDto) {
         Optional<User> idUser = userRepository.getUserById(postDto.getUserId());
-        if(!idUser.isPresent()){
-            throw new ExistingDataException("el usuario con id: " + postDto.getUserId() + " no existe");
+        if(idUser.isEmpty()){
+            throw new ExistingDataException("El usuario con id: " + postDto.getUserId() + " no existe");
         }
         Post post = mapper.convertValue(postDto,Post.class);
         saveNewProduct(post);
-        return repository.saveNewPost(post);
+        repository.saveNewPost(post);
     }
 
     public void saveNewProduct(Post post){
@@ -75,7 +67,7 @@ public class PostService implements IPostService {
     @Override
     public void addNewProductPromo(ProductPromoDto productDto) {
         if(repository.findById(productDto.getId()))
-            throw new BadRequestException("el id del producto ya existe");
+            throw new BadRequestException("El id del producto ya existe");
 
         ObjectMapper objectMapper = new ObjectMapper();
 
@@ -83,7 +75,6 @@ public class PostService implements IPostService {
         JavaTimeModule javaTimeModule = new JavaTimeModule();
         javaTimeModule.addDeserializer(LocalDate.class, new LocalDateDeserializer(dateFormatter));
 
-        // Registrar el módulo en el ObjectMapper
         objectMapper.registerModule(javaTimeModule);
 
         Post aux = objectMapper.convertValue(productDto, Post.class);
@@ -92,6 +83,7 @@ public class PostService implements IPostService {
 
     @Override
     public PostIndexDto getPostsByUser(int userId, String order) {
+        validateGetPostsByUserParams(userId, order);
         Optional<User> user = userRepository.getUserById(userId);
 
         if (user.isEmpty()) {
@@ -115,15 +107,24 @@ public class PostService implements IPostService {
                 .toList());
     }
 
+    private void validateGetPostsByUserParams(int userId, String order) {
+        if (userId == 0 ||
+                (order != null && !order.isEmpty() &&
+                        !order.equalsIgnoreCase("date_asc") &&
+                        !order.equalsIgnoreCase("date_desc"))) {
+            throw new BadRequestException("Parámetros inválidos.");
+        }
+    }
+
     @Override
     public PostPromoDto getProductsOnPromo(int userId) {
-        Optional<User> userO = userRepository.getUserById(userId);
+        Optional<User> optionalUser = userRepository.getUserById(userId);
 
-        if (userO.isEmpty()) {
+        if (optionalUser.isEmpty()) {
             throw new BadRequestException("El usuario con ese ID no existe.");
         }
 
-        User user = userO.get();
+        User user = optionalUser.get();
 
         int promoProductsCount = repository.countProductsOnPromo(userId);
 

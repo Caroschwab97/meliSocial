@@ -31,4 +31,10 @@ public class ExceptionController {
         ExceptionDto exceptionDto = new ExceptionDto(e.getMessage());
         return new ResponseEntity<>(exceptionDto, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(InternalServerErrorException.class)
+    public ResponseEntity<?> internalServerError(InternalServerErrorException e){
+        ExceptionDto exceptionDto = new ExceptionDto(e.getMessage());
+        return new ResponseEntity<>(exceptionDto, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 }

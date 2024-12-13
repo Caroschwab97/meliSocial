@@ -26,11 +26,9 @@ public class UserRepository implements IUserRepository {
     private void loadDataBase() throws IOException {
         File file;
         ObjectMapper objectMapper = new ObjectMapper();
-        List<User> usuarios;
 
         file= ResourceUtils.getFile("classpath:user.json");
         users= objectMapper.readValue(file,new TypeReference<List<User>>(){});
-
     }
 
     @Override
@@ -68,10 +66,8 @@ public class UserRepository implements IUserRepository {
 
     @Override
     public void addFollow(int userId, int userIdToFollow) {
-        // usuario actual
         User user = getUserById(userId)
                 .orElseThrow(() -> new BadRequestException("El usuario con ID " + userId + " no existe."));
-
 
         if (userId == userIdToFollow) {
             throw new BadRequestException("Un usuario no puede seguirse a sí mismo.");
@@ -81,11 +77,9 @@ public class UserRepository implements IUserRepository {
             throw new BadRequestException("El usuario con ID " + userId + " ya sigue al usuario con ID " + userIdToFollow);
         }
 
-        // usuario a seguir
         User userToFollow = getUserById(userIdToFollow)
                 .orElseThrow(() -> new BadRequestException("El usuario con ID " + userIdToFollow + " no existe."));
 
-        // usuario a seguir es un vendedor?
         if (!userToFollow.isSeller()) {
             throw new BadRequestException("Solo se puede seguir a un usuario vendedor.");
         }
