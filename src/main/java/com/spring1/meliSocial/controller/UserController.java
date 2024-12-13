@@ -35,10 +35,9 @@ public class UserController {
     public ResponseEntity<UserFollowersDto> getFollowerCount(@PathVariable int userId) {
         return ResponseEntity.ok(userService.findFollowers(userId));
     }
-    private IUserService service;
 
     @PostMapping("/{userId}/follow/{userIdToFollow}")
     public ResponseEntity<?> followUser(@PathVariable int userId, @PathVariable int userIdToFollow){
-        return ResponseEntity.ok(userService.followUser(userId, userIdToFollow));
+        return ResponseEntity.ok(userService.followUser(userId, userIdToFollow).getMessage());
     }
 }

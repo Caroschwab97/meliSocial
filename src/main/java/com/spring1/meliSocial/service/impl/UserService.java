@@ -90,8 +90,8 @@ public class UserService implements IUserService {
 
 
     @Override
-    public String followUser(int userId, int userIdToFollow) {
+    public ResponseDto followUser(int userId, int userIdToFollow) {
         repository.addFollow(userId,userIdToFollow);
-        return "Siguiendo a " + userIdToFollow;
+        return new ResponseDto("Siguiendo a " + userIdToFollow);
     }
 }
