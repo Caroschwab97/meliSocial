@@ -21,4 +21,6 @@ public class Post {
     private double price; //precio original
     private boolean hasPromo;
     private double discount;
+
+
 }
