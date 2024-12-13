@@ -21,13 +21,13 @@ public class PostController {
     @Autowired
     private IPostService service;
 
-    @PostMapping("/products/promo-post")
+    @PostMapping("products/promo-post")
     public ResponseEntity<?> post(@RequestBody ProductPromoDto dto) {
         service.addNewProductPromo(dto);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @GetMapping("/products/followed/{userId}/list")
+    @GetMapping("products/followed/{userId}/list")
     public ResponseEntity<?> getPostsByUser(@PathVariable int userId,
                                             @RequestParam(required = false, defaultValue = "") String order) {
         validateGetPostsByUserParams(userId, order);

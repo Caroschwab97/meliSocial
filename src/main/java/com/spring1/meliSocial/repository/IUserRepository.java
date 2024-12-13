@@ -6,9 +6,14 @@ import java.util.Optional;
 
 public interface IUserRepository {
     boolean unfollowUser(int userId, int userIdToUnfollow);
+
     List<User> getUsers();
+
     Optional<User> getUserById(int id);
+
     int followersCount(int id);
+
     int followedCount(int userId);
+
     void addFollow(int userId, int userIdToFollow);
 }
