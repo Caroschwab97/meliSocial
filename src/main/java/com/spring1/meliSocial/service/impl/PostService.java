@@ -53,7 +53,7 @@ public class PostService implements IPostService {
         repository.addNewProductPromo(aux);
     }
 
-
+    @Autowired
     private IPostRepository postRepository;
 
     @Autowired
