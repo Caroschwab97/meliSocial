@@ -1,9 +1,16 @@
 package com.spring1.meliSocial.controller;
 
+import com.spring1.meliSocial.dto.PostDto;
+import com.spring1.meliSocial.dto.ResponseDto;
+import com.spring1.meliSocial.model.Post;
 import com.spring1.meliSocial.dto.ProductPromoDto;
 import com.spring1.meliSocial.exception.BadRequestException;
 import com.spring1.meliSocial.service.IPostService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,6 +27,13 @@ public class PostController {
 
     @Autowired
     private IPostService service;
+
+    @PostMapping("products/post")
+    public ResponseEntity<?> addNewPost(@RequestBody PostDto postDto){
+        service.saveNewPost(postDto);
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseDto("Publicación creada"));
+
+    }
 
     @PostMapping("products/promo-post")
     public ResponseEntity<?> post(@RequestBody ProductPromoDto dto) {

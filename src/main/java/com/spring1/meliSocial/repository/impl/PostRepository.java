@@ -4,10 +4,15 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
+import com.spring1.meliSocial.dto.PostDto;
+import com.spring1.meliSocial.exception.ExistingDataException;
 import com.spring1.meliSocial.exception.BadRequestException;
 import com.spring1.meliSocial.model.Post;
 import com.spring1.meliSocial.model.User;
 import com.spring1.meliSocial.repository.IPostRepository;
+import com.spring1.meliSocial.repository.IProductRepository;
+import com.spring1.meliSocial.service.IPostService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.ResourceUtils;
 
@@ -17,10 +22,15 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class PostRepository implements IPostRepository {
 
+    @Autowired
+    private IProductRepository productRepository;
+
+    private int countId=0;
     private List<Post> posts = new ArrayList<>();
 
     public PostRepository() throws IOException {
@@ -44,6 +54,21 @@ public class PostRepository implements IPostRepository {
 
         posts = posteos;
     }
+
+    @Override
+    public String saveNewPost(Post post) {
+        int countId = lastId()+1;
+        post.setId(countId);
+        posts.add(post);
+        return post.toString();
+    }
+
+    @Override
+    public int lastId() {
+        return posts.stream().mapToInt(Post::getId).max().orElse(0);
+    }
+
+
 
     @Override
     public void addNewProductPromo(Post product) {

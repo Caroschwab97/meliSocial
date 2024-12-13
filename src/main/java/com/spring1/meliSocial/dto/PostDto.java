@@ -1,11 +1,15 @@
 package com.spring1.meliSocial.dto;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+
+
+import com.fasterxml.jackson.annotation.*;
 
 @Data
 @AllArgsConstructor
@@ -13,13 +17,16 @@ import java.time.LocalDate;
 @JsonPropertyOrder({"user_id", "post_id", "date", "product", "category", "price"})
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PostDto {
-    @JsonAlias("userId")
-    private int user_id;
-    @JsonAlias("id")
-    private int post_id;
+    private int id;
+    @JsonAlias("user_id")
+    private int userId;
+
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     private LocalDate date;
     private ProductDto product;
     private int category;
-    private double price;
+    private double price; //precio original
+    private boolean hasPromo;
+    private double discount;
+
 }

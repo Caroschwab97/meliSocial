@@ -1,6 +1,12 @@
 package com.spring1.meliSocial.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.spring1.meliSocial.dto.PostDto;
+import com.spring1.meliSocial.exception.ExistingDataException;
+import com.spring1.meliSocial.model.Post;
+import com.spring1.meliSocial.model.Product;
+import com.spring1.meliSocial.model.User;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.spring1.meliSocial.dto.ProductPromoDto;
@@ -13,29 +19,58 @@ import com.spring1.meliSocial.dto.PostIndexDto;
 import com.spring1.meliSocial.dto.PostPromoDto;
 import com.spring1.meliSocial.exception.BadRequestException;
 import com.spring1.meliSocial.exception.NotFoundException;
-import com.spring1.meliSocial.model.Post;
-import com.spring1.meliSocial.model.User;
 import com.spring1.meliSocial.repository.IPostRepository;
+import com.spring1.meliSocial.repository.IProductRepository;
+import com.spring1.meliSocial.repository.IUserRepository;
 import com.spring1.meliSocial.repository.IUserRepository;
 import com.spring1.meliSocial.service.IPostService;
+import com.spring1.meliSocial.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import java.util.List;
+import java.util.Optional;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-
-import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 
-import java.util.List;
-import java.util.Optional;
 
 @Service
 public class PostService implements IPostService {
 
     @Autowired
     private IPostRepository repository;
+
+    @Autowired
+    private IProductRepository productRepository;
+
+    @Autowired
+    private IUserRepository userRepository;
+
+    @Autowired
+    private ObjectMapper mapper;
+
+    @Override
+    public String saveNewPost(PostDto postDto) {
+        Optional<User> idUser = userRepository.getUserById(postDto.getUserId());
+        if(!idUser.isPresent()){
+            throw new ExistingDataException("el usuario con id: " + postDto.getUserId() + " no existe");
+        }
+        Post post = mapper.convertValue(postDto,Post.class);
+        saveNewProduct(post);
+        return repository.saveNewPost(post);
+    }
+
+    public void saveNewProduct(Post post){
+        Optional<Product> idProduct= productRepository.findId(post.getProduct().getId());
+        if(idProduct.isPresent()){
+            throw new ExistingDataException("El producto con el id " + post.getProduct().getId() + " ya existe");
+        }
+
+        List<Product> productList = productRepository.getProducts();
+        productList.add(post.getProduct());
+    }
+
 
     @Override
     public void addNewProductPromo(ProductPromoDto productDto) {
@@ -55,15 +90,6 @@ public class PostService implements IPostService {
         repository.addNewProductPromo(aux);
     }
 
-    @Autowired
-    private IPostRepository postRepository;
-
-    @Autowired
-    private IUserRepository userRepository;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
     @Override
     public PostIndexDto getPostsByUser(int userId, String order) {
         Optional<User> user = userRepository.getUserById(userId);
@@ -78,14 +104,14 @@ public class PostService implements IPostService {
                 ? Comparator.comparing(Post::getDate)
                 : Comparator.comparing(Post::getDate).reversed();
 
-        List<Post> filteredPosts = postRepository.getPosts().stream()
+        List<Post> filteredPosts = repository.getPosts().stream()
                 .filter(p -> followedIds.contains(p.getUserId()))
                 .filter(p -> p.getDate() != null && ChronoUnit.DAYS.between(p.getDate(), LocalDate.now()) <= 14)
                 .sorted(comparator)
                 .toList();
 
         return new PostIndexDto(userId, filteredPosts.stream()
-                .map(fp -> objectMapper.convertValue(fp, PostDto.class))
+                .map(fp -> mapper.convertValue(fp, PostDto.class))
                 .toList());
     }
 
@@ -99,7 +125,7 @@ public class PostService implements IPostService {
 
         User user = userO.get();
 
-        int promoProductsCount = postRepository.countProductsOnPromo(userId);
+        int promoProductsCount = repository.countProductsOnPromo(userId);
 
         return new PostPromoDto(
                 user.getId(),
