@@ -8,9 +8,14 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
+
+import com.fasterxml.jackson.annotation.*;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@JsonPropertyOrder({"user_id", "post_id", "date", "product", "category", "price"})
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PostDto {
     private int id;
     @JsonAlias("user_id")
@@ -23,4 +28,5 @@ public class PostDto {
     private double price; //precio original
     private boolean hasPromo;
     private double discount;
+
 }

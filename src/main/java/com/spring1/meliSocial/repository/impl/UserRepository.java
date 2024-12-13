@@ -7,11 +7,11 @@ import com.spring1.meliSocial.model.User;
 import com.spring1.meliSocial.repository.IUserRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.ResourceUtils;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.Optional;
 
 @Repository
@@ -44,12 +44,26 @@ public class UserRepository implements IUserRepository {
     }
 
     @Override
+    public boolean unfollowUser(int userId, int userIdToUnfollow) {
+        Optional<User> user = getUserById(userId);
+        Optional<User> userUnfollowed = getUserById(userIdToUnfollow);
+
+        boolean followed = user.get().getFollowed().remove(Integer.valueOf(userIdToUnfollow));
+        boolean followers = userUnfollowed.get().getFollowers().remove(Integer.valueOf(userId));
+
+        return  followed && followers ;
+    }
+
+    @Override
     public int followersCount(int id) {
         Optional<User> user = getUserById(id);
-        if(user.isPresent()){
-            return user.get().getFollowers().size();
-        }
-        return -1;
+        return user.map(value -> value.getFollowers().size()).orElse(-1);
+    }
+
+    @Override
+    public int followedCount(int userId) {
+        Optional<User> user = getUserById(userId);
+        return user.map(value -> value.getFollowed().size()).orElse(-1);
     }
 
     @Override

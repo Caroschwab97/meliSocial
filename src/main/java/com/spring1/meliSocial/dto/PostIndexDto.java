@@ -1,19 +1,21 @@
 package com.spring1.meliSocial.dto;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class FollowedDto {
-    @JsonProperty("user_id")
-    private int id;
+import java.util.List;
 
-    @JsonProperty("user_name")
-    private String userName;
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@JsonPropertyOrder({"user_id", "posts"})
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class PostIndexDto {
+    @JsonProperty("user_id")
+    private int userId;
+    private List<PostDto> posts;
 }
