@@ -43,7 +43,7 @@
     "id": 6,
     "userName": "Fausto Smith",
     "seller": true,
-    "followers": [],
+    "followers": [5],
     "followed": [1],
     "products": [3]
   }

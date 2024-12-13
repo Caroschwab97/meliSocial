@@ -42,4 +42,9 @@ public class PostController {
             throw new BadRequestException("Parámetros inválidos.");
         }
     }
+
+    @GetMapping("/products/promo-post/count")
+    public ResponseEntity<?> getProductsOnPromo(@RequestParam("user_id") int userId){
+        return ResponseEntity.ok(service.getProductsOnPromo(userId));
+    }
 }
