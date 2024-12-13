@@ -19,7 +19,6 @@ public class UserRepository implements IUserRepository {
 
     private List<User> users = new ArrayList<>();
 
-
     public UserRepository() throws IOException {
         this.loadDataBase();
     }
@@ -29,15 +28,28 @@ public class UserRepository implements IUserRepository {
         ObjectMapper objectMapper = new ObjectMapper();
         List<User> usuarios;
 
-        file = ResourceUtils.getFile("classpath:user.json");
-        users = objectMapper.readValue(file, new TypeReference<List<User>>() {
-        });
+        file= ResourceUtils.getFile("classpath:user.json");
+        users= objectMapper.readValue(file,new TypeReference<List<User>>(){});
 
+    }
+
+    @Override
+    public List<User> getUsers() {
+        return users;
     }
 
     @Override
     public Optional<User> getUserById(int id) {
         return users.stream().filter(x -> x.getId() == id).findFirst();
+    }
+
+    @Override
+    public int followersCount(int id) {
+        Optional<User> user = getUserById(id);
+        if(user.isPresent()){
+            return user.get().getFollowers().size();
+        }
+        return -1;
     }
 
     @Override
@@ -68,5 +80,5 @@ public class UserRepository implements IUserRepository {
         userToFollow.getFollowers().add(userId);
     }
 
-
 }
+
