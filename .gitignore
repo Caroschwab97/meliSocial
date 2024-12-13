@@ -32,5 +32,3 @@ build/
 ### VS Code ###
 .vscode/
 
-### Pre-commit
-.pre-commit-config.yaml
