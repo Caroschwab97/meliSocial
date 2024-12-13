@@ -6,10 +6,7 @@ import com.spring1.meliSocial.dto.*;
 import com.spring1.meliSocial.exception.NotFoundException;
 import com.spring1.meliSocial.exception.NotSellerException;
 
-import com.spring1.meliSocial.exception.NotFoundException;
-
 import com.spring1.meliSocial.model.User;
-import com.spring1.meliSocial.repository.IPostRepository;
 import com.spring1.meliSocial.repository.IUserRepository;
 import com.spring1.meliSocial.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +39,12 @@ public class UserService implements IUserService {
         }
 
         List<User> userFollowers = getUsersByListOfId(userFound.getFollowers());
+        List<FollowerDto> userFollowersDto = getFollowerDtoSortedList(orderMethod, userFollowers);
+
+        return new SellerFollowedDto(userFound.getId(), userFound.getUserName(), userFollowersDto);
+    }
+
+    private List<FollowerDto> getFollowerDtoSortedList(String orderMethod, List<User> userFollowers) {
         Stream<FollowerDto> userFollowersDtoStream = userFollowers.
                 stream().
                 map(
@@ -52,8 +55,7 @@ public class UserService implements IUserService {
         } else {
             userFollowersDtoStream = userFollowersDtoStream.sorted(Comparator.comparing(FollowerDto::getUserName));
         }
-
-        return new SellerFollowedDto(userFound.getId(), userFound.getUserName(), userFollowersDtoStream.toList());
+        return userFollowersDtoStream.toList();
     }
 
     @Override
@@ -68,6 +70,12 @@ public class UserService implements IUserService {
 
         List<User> usersFollowedByUser = getUsersByListOfId(userFound.getFollowed());
 
+        List<FollowedDto> usersFollowedByUserDto = getFollowedDtoSortedList(orderMethod, usersFollowedByUser);
+
+        return new FollowedByUserDto(userFound.getId(), userFound.getUserName(), usersFollowedByUserDto);
+    }
+
+    private List<FollowedDto> getFollowedDtoSortedList(String orderMethod, List<User> usersFollowedByUser) {
         Stream<FollowedDto> usersFollowedByUserStream = usersFollowedByUser.
                 stream().
                 map(
@@ -78,8 +86,7 @@ public class UserService implements IUserService {
         } else {
             usersFollowedByUserStream = usersFollowedByUserStream.sorted(Comparator.comparing(FollowedDto::getUserName));
         }
-
-        return new FollowedByUserDto(userFound.getId(), userFound.getUserName(), usersFollowedByUserStream.toList());
+        return usersFollowedByUserStream.toList();
     }
 
     private List<User> getUsersByListOfId(List<Integer> usersId) {
