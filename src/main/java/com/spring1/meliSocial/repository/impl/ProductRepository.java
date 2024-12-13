@@ -43,11 +43,9 @@ public class ProductRepository implements IProductRepository {
                 .findFirst();
     }
 
-    public void saveNewProduct(Post post){
-        Optional<Product> idProduct= findId(post.getProduct().getId());
-        if(idProduct.isPresent()){
-            throw new ExistingDataException("El producto con el id " + post.getProduct().getId() + " ya existe");
-        }
-        products.add(post.getProduct());
+    @Override
+    public List<Product> getProducts() {
+        return products;
     }
+
 }

@@ -59,7 +59,6 @@ public class PostRepository implements IPostRepository {
     public String saveNewPost(Post post) {
         int countId = lastId()+1;
         post.setId(countId);
-        productRepository.saveNewProduct(post);
         posts.add(post);
         return post.toString();
     }
