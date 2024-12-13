@@ -28,8 +28,7 @@ public class UserService implements IUserService {
 
     @Override
     public SellerFollowedDto getFollowersFromSeller(int sellerId) {
-        List<User> users = repository.getUsers();
-        Optional<User> optionalUser = users.stream().filter(seller -> seller.getId() == sellerId).findFirst();
+        Optional<User> optionalUser = repository.getUserById(sellerId);
 
         if (optionalUser.isEmpty()) {
             throw new NotFoundException("El id ingresado no se corresponde a un user existente");
@@ -52,8 +51,7 @@ public class UserService implements IUserService {
 
     @Override
     public FollowedByUserDto getFollowedByUser(int userId) {
-        List<User> users = repository.getUsers();
-        Optional<User> optionalUser = users.stream().filter(seller -> seller.getId() == userId).findFirst();
+        Optional<User> optionalUser = repository.getUserById(userId);
 
         if (optionalUser.isEmpty()) {
             throw new NotFoundException("El id ingresado no se corresponde a un user existente");
@@ -73,7 +71,6 @@ public class UserService implements IUserService {
     }
 
     private List<User> getUsersByListOfId(List<Integer> usersId) {
-        List<User> users = repository.getUsers();
         return usersId.
                 stream().
                 map(
