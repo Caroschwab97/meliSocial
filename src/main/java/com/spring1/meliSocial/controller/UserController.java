@@ -17,11 +17,6 @@ public class UserController {
     @Autowired
     private IUserService service;
 
-    @GetMapping("users")
-    public ResponseEntity<?> getUsers() {
-        return ResponseEntity.ok(service.getUsers());
-    }
-
     @PostMapping("/users/{userId}/follow/{userIdToFollow}")
     public ResponseEntity<?> followUser(@PathVariable int userId, @PathVariable int userIdToFollow){
         return ResponseEntity.ok(service.followUser(userId, userIdToFollow));
