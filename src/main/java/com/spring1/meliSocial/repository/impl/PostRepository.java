@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
+import com.spring1.meliSocial.exception.BadRequestException;
 import com.spring1.meliSocial.model.Post;
 import com.spring1.meliSocial.repository.IPostRepository;
 import org.springframework.stereotype.Repository;
@@ -41,6 +42,18 @@ public class PostRepository implements IPostRepository {
         posteos= objectMapper.readValue(file,new TypeReference<List<Post>>(){});
 
         posts = posteos;
+    }
+
+    @Override
+    public void addNewProductPromo(Post product) {
+        posts.add(product);
+    }
+
+    @Override
+    public boolean findById(int id) {
+        if (posts.stream().filter(x ->x.getId() == id).findFirst().isPresent())
+            throw new BadRequestException("el id del producto ya existe");
+        return false;
     }
 
     @Override
