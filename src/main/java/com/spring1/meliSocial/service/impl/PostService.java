@@ -17,6 +17,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class PostService implements IPostService {
@@ -32,13 +33,13 @@ public class PostService implements IPostService {
 
     @Override
     public PostIndexDto getPostsByUser(int userId, String order) {
-        User user = userRepository.getUser(userId);
+        Optional<User> user = userRepository.getUserById(userId);
 
-        if (user == null) {
+        if (user.isEmpty()) {
             throw new NotFoundException("No se encontro el usuario.");
         }
 
-        List<Integer> followedIds = user.getFollowed();
+        List<Integer> followedIds = user.get().getFollowed();
 
         Comparator<Post> comparator = (order.equalsIgnoreCase("date_asc"))
                 ? Comparator.comparing(Post::getDate)
