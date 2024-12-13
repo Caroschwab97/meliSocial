@@ -47,24 +47,15 @@ public class UserRepository implements IUserRepository {
     public boolean unfollowUser(int userId, int userIdToUnfollow) {
         User user = getUser(userId);
         User userUnfollowed = getUser(userIdToUnfollow);
-        System.out.println("4 -" + user.getFollowed());
-        System.out.println("5 -" + userUnfollowed.getFollowers());
 
         List<Integer> updatedFollowed = listWithoutUnfolllowUser(user.getFollowed(), userIdToUnfollow);
         List<Integer> updatedFollowers = listWithoutUnfolllowUser(userUnfollowed.getFollowers(), userId);
-
-        System.out.println("6 -" + updatedFollowed);
-        System.out.println("7 -" + updatedFollowers);
-
 
         if (updatedFollowed.size() < user.getFollowed().size())
             user.setFollowed(updatedFollowed);
 
         if (updatedFollowers.size() < userUnfollowed.getFollowers().size())
             user.setFollowed(updatedFollowed);
-
-        System.out.println("8 -" + getUser(userId));
-        System.out.println("9 -" + getUser(userIdToUnfollow));
 
         return true;
     }

@@ -9,4 +9,5 @@ public interface IUserService {
     SellerFollowedDto getFollowersFromSeller(int sellerId);
     FollowedByUserDto getFollowedByUser(int userId);
     UserFollowersDto findFollowers(int id);
+    String unfollowUser(int userId, int userIdToUnfollow);
 }

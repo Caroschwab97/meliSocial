@@ -79,16 +79,12 @@ public class UserService implements IUserService {
 
     @Override
     public String unfollowUser(int userId, int userIdToUnfollow) {
-        System.out.println("1 -" + repository.getUser(userId));
-        System.out.println("2 -" + repository.getUser(userIdToUnfollow));
         if(repository.getUser(userId).getFollowed()
                 .stream().filter(u -> u == userIdToUnfollow).findFirst().orElse(null) == null)
             throw new NotFoundException("El usuario no contiene ese seguido");
 
         if(repository.getUser(userId) == null || repository.getUser(userIdToUnfollow) == null)
             throw new NotFoundException("No se encontraron los usuarios");
-
-        System.out.println("3 -" + repository.followedCount(userId));
 
         if(repository.followedCount(userId) == 0)
             throw new NotFoundException("El usuario no tiene seguidos");
