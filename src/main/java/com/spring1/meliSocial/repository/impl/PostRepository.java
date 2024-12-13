@@ -6,16 +6,12 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.spring1.meliSocial.exception.BadRequestException;
 import com.spring1.meliSocial.model.Post;
-import com.spring1.meliSocial.model.Product;
 import com.spring1.meliSocial.repository.IPostRepository;
-import com.spring1.meliSocial.service.IPostService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.ResourceUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -58,5 +54,10 @@ public class PostRepository implements IPostRepository {
         if (posts.stream().filter(x ->x.getId() == id).findFirst().isPresent())
             throw new BadRequestException("el id del producto ya existe");
         return false;
+    }
+
+    @Override
+    public List<Post> getPosts() {
+        return posts;
     }
 }
