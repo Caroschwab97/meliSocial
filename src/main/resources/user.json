@@ -3,7 +3,7 @@
     "id": 1,
     "userName": "Agustina Lopez",
     "seller": true,
-    "followers": [2,3],
+    "followers": [2,3,5],
     "followed": [],
     "products": [1,2]
   },
