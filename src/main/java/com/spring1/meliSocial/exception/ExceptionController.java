@@ -26,4 +26,9 @@ public class ExceptionController {
         return new ResponseEntity<>(exceptionDto, HttpStatus.CONFLICT);
     }
 
+    @ExceptionHandler(NotSellerException.class)
+    public ResponseEntity<?> notSeller(NotSellerException e){
+        ExceptionDto exceptionDto = new ExceptionDto(e.getMessage());
+        return new ResponseEntity<>(exceptionDto, HttpStatus.BAD_REQUEST);
+    }
 }

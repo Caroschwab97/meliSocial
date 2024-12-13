@@ -1,7 +1,7 @@
 [
   {
     "id": 1,
-    "userName": "vendedor",
+    "userName": "vendedor1",
     "seller": true,
     "followers": [2,3],
     "followed": [],
@@ -36,7 +36,15 @@
     "userName": "comprador5",
     "seller": false,
     "followers": [],
-    "followed": [],
+    "followed": [1, 6],
     "products": []
+  },
+  {
+    "id": 6,
+    "userName": "vendedor2",
+    "seller": true,
+    "followers": [],
+    "followed": [1],
+    "products": [3]
   }
 ]
