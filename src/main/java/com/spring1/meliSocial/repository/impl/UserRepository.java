@@ -35,14 +35,33 @@ public class UserRepository implements IUserRepository {
     @Override
     public boolean unfollowUser(int userId, int userIdToUnfollow) {
         User user = getUser(userId);
-        List<Integer> updatedFollowed = user.getFollowed().stream()
-                .filter(id -> id != userIdToUnfollow)
-                .collect(Collectors.toList());
-        boolean isUnfollowed = updatedFollowed.size() < user.getFollowed().size();
-        if (isUnfollowed) {
+        User userUnfollowed = getUser(userIdToUnfollow);
+        System.out.println("4 -" + user.getFollowed());
+        System.out.println("5 -" + userUnfollowed.getFollowers());
+
+        List<Integer> updatedFollowed = listWithoutUnfolllowUser(user.getFollowed(), userIdToUnfollow);
+        List<Integer> updatedFollowers = listWithoutUnfolllowUser(userUnfollowed.getFollowers(), userId);
+
+        System.out.println("6 -" + updatedFollowed);
+        System.out.println("7 -" + updatedFollowers);
+
+
+        if (updatedFollowed.size() < user.getFollowed().size())
             user.setFollowed(updatedFollowed);
-        }
-        return isUnfollowed;
+
+        if (updatedFollowers.size() < userUnfollowed.getFollowers().size())
+            user.setFollowed(updatedFollowed);
+
+        System.out.println("8 -" + getUser(userId));
+        System.out.println("9 -" + getUser(userIdToUnfollow));
+
+        return true;
+    }
+
+    public List<Integer> listWithoutUnfolllowUser(List<Integer> listUser, int UserUnfollow){
+        return listUser.stream()
+                .filter(id -> id != UserUnfollow)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -57,6 +76,15 @@ public class UserRepository implements IUserRepository {
     @Override
     public User getUser(int id) {
         return users.stream().filter(x -> x.getId() == id).findFirst().orElse(null);
+    }
+
+    @Override
+    public int followedCount(int userId) {
+        User user = getUser(userId);
+        if(user != null){
+            return user.getFollowed().size();
+        }
+        return -1;
     }
 }
 
