@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class UserRepository implements IUserRepository {
@@ -34,17 +35,23 @@ public class UserRepository implements IUserRepository {
     }
 
     @Override
+    public List<User> getUsers() {
+        return users;
+    }
+
+    @Override
+    public Optional<User> getUserById(int id) {
+        return users.stream().filter(x -> x.getId() == id).findFirst();
+    }
+
+    @Override
     public int followersCount(int id) {
-        User user = getUser(id);
-        if(user != null){
-            return user.getFollowers().size();
+        Optional<User> user = getUserById(id);
+        if(user.isPresent()){
+            return user.get().getFollowers().size();
         }
         return -1;
     }
 
-    @Override
-    public User getUser(int id) {
-        return users.stream().filter(x -> x.getId() == id).findFirst().orElse(null);
-    }
 }
 
