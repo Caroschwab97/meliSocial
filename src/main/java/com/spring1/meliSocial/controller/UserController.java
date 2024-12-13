@@ -1,5 +1,6 @@
 package com.spring1.meliSocial.controller;
 
+import com.spring1.meliSocial.dto.ResponseDto;
 import com.spring1.meliSocial.dto.UserFollowersDto;
 import com.spring1.meliSocial.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +24,8 @@ public class UserController {
     }
 
     @PostMapping("/{userId}/unfollow/{userIdToUnfollow}")
-    public ResponseEntity<?> unfollowUser(@PathVariable int userId, @PathVariable int userIdToUnfollow){
-        return new ResponseEntity<String>(userService.unfollowUser(userId,userIdToUnfollow), HttpStatus.OK);
+    public ResponseEntity<ResponseDto> unfollowUser(@PathVariable int userId, @PathVariable int userIdToUnfollow){
+        return new ResponseEntity<ResponseDto>(userService.unfollowUser(userId,userIdToUnfollow), HttpStatus.OK);
     }
 
     @GetMapping("/users/{userId}/followers/count")

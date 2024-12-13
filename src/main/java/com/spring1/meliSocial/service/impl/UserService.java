@@ -78,7 +78,7 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public String unfollowUser(int userId, int userIdToUnfollow) {
+    public ResponseDto unfollowUser(int userId, int userIdToUnfollow) {
         if(repository.getUser(userId).getFollowed()
                 .stream().filter(u -> u == userIdToUnfollow).findFirst().orElse(null) == null)
             throw new NotFoundException("El usuario no contiene ese seguido");
@@ -92,7 +92,7 @@ public class UserService implements IUserService {
         if(repository.unfollowUser(userId,userIdToUnfollow))
             return "El usuario se borro con exito.";
 
-        return "Ocurrió un problema al eliminar seguido";
+        return new ResponseDto("Ocurrió un problema al eliminar seguido");
     }
 
     @Override
