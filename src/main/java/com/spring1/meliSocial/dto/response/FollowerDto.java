@@ -1,7 +1,5 @@
-package com.spring1.meliSocial.dto;
+package com.spring1.meliSocial.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 

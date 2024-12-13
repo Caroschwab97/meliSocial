@@ -1,15 +1,15 @@
 package com.spring1.meliSocial.service;
 
-import com.spring1.meliSocial.dto.PostDto;
+import com.spring1.meliSocial.dto.request.PostDto;
 
-import com.spring1.meliSocial.dto.ProductPromoDto;
+import com.spring1.meliSocial.dto.request.ProductPromoDto;
 
-import com.spring1.meliSocial.dto.PostIndexDto;
-import com.spring1.meliSocial.dto.PostPromoDto;
+import com.spring1.meliSocial.dto.response.PostIndexDto;
+import com.spring1.meliSocial.dto.response.PostPromoDto;
 
 public interface IPostService {
 
-    String saveNewPost(PostDto postDto);
+    void saveNewPost(PostDto postDto);
 
     void addNewProductPromo(ProductPromoDto product);
 

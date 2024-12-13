@@ -1,8 +1,8 @@
 package com.spring1.meliSocial.service.impl;
 
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.spring1.meliSocial.dto.*;
+import com.spring1.meliSocial.dto.response.*;
+import com.spring1.meliSocial.exception.BadRequestException;
+import com.spring1.meliSocial.exception.InternalServerErrorException;
 import com.spring1.meliSocial.exception.NotFoundException;
 import com.spring1.meliSocial.exception.NotSellerException;
 
@@ -22,8 +22,6 @@ public class UserService implements IUserService {
 
     @Autowired
     private IUserRepository repository;
-
-    private ObjectMapper mapper = new ObjectMapper();
 
     @Override
     public SellerFollowedDto getFollowersFromSeller(int sellerId, String orderMethod) {
@@ -45,9 +43,9 @@ public class UserService implements IUserService {
     }
 
     private List<FollowerDto> getFollowerDtoSortedList(String orderMethod, List<User> userFollowers) {
-        Stream<FollowerDto> userFollowersDtoStream = userFollowers.
-                stream().
-                map(
+        Stream<FollowerDto> userFollowersDtoStream = userFollowers
+                .stream()
+                .map(
                 follower -> new FollowerDto(follower.getId(), follower.getUserName()));
 
         if (orderMethod.equalsIgnoreCase("name_desc")) {
@@ -76,9 +74,9 @@ public class UserService implements IUserService {
     }
 
     private List<FollowedDto> getFollowedDtoSortedList(String orderMethod, List<User> usersFollowedByUser) {
-        Stream<FollowedDto> usersFollowedByUserStream = usersFollowedByUser.
-                stream().
-                map(
+        Stream<FollowedDto> usersFollowedByUserStream = usersFollowedByUser
+                .stream()
+                .map(
                         followed -> new FollowedDto(followed.getId(), followed.getUserName()));
 
         if (orderMethod.equalsIgnoreCase("name_desc")) {
@@ -90,11 +88,18 @@ public class UserService implements IUserService {
     }
 
     private List<User> getUsersByListOfId(List<Integer> usersId) {
-        return usersId.
-                stream().
-                map(
-                userId -> repository.getUserById(userId).get()).
-                toList();
+        return usersId
+                .stream()
+                .map(
+                        userId -> repository.getUserById(userId)
+                )
+                .filter(
+                        Optional::isPresent
+                )
+                .map(
+                        Optional::get
+                )
+                .toList();
     }
 
     @Override
@@ -109,22 +114,23 @@ public class UserService implements IUserService {
         if(repository.followedCount(userId) == 0)
             throw new NotFoundException("El usuario no tiene seguidos");
 
-        if(repository.unfollowUser(userId,userIdToUnfollow))
-            return new ResponseDto("El usuario se borro con exito.");
-
-        return new ResponseDto("Ocurrió un problema al eliminar seguido");
+        if(!repository.unfollowUser(userId,userIdToUnfollow)) {
+           throw new InternalServerErrorException("Ocurrió un problema al eliminar seguido");
+        }
+        return new ResponseDto("El usuario se borro con exito.");
     }
 
     @Override
     public UserFollowersDto findFollowers(int id) {
-        int res = repository.followersCount(id);
+        int followersCount = repository.followersCount(id);
         Optional<User> user = repository.getUserById(id);
-        if(res != -1){
-            return new UserFollowersDto(id,user.get().getUserName(),res);
-        }
-        throw new NotFoundException("El id que busca no existe");
-    }
 
+        if(user.isEmpty()) {
+            throw new NotFoundException("El id que busca no existe");
+        }
+
+        return new UserFollowersDto(id,user.get().getUserName(), followersCount);
+    }
 
     @Override
     public ResponseDto followUser(int userId, int userIdToFollow) {

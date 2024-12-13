@@ -1,7 +1,8 @@
-package com.spring1.meliSocial.dto;
+package com.spring1.meliSocial.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.spring1.meliSocial.dto.response.ProductDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

@@ -1,10 +1,10 @@
 package com.spring1.meliSocial.service;
 
 
-import com.spring1.meliSocial.dto.FollowedByUserDto;
-import com.spring1.meliSocial.dto.SellerFollowedDto;
-import com.spring1.meliSocial.dto.UserFollowersDto;
-import com.spring1.meliSocial.dto.*;
+import com.spring1.meliSocial.dto.response.FollowedByUserDto;
+import com.spring1.meliSocial.dto.response.ResponseDto;
+import com.spring1.meliSocial.dto.response.SellerFollowedDto;
+import com.spring1.meliSocial.dto.response.UserFollowersDto;
 
 public interface IUserService {
     SellerFollowedDto getFollowersFromSeller(int sellerId, String orderMethod);

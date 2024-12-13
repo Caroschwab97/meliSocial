@@ -1,4 +1,4 @@
-package com.spring1.meliSocial.dto;
+package com.spring1.meliSocial.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

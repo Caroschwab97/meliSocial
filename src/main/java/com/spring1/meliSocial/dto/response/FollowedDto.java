@@ -1,4 +1,4 @@
-package com.spring1.meliSocial.dto;
+package com.spring1.meliSocial.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -8,12 +8,10 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class PostPromoDto {
-
+public class FollowedDto {
     @JsonProperty("user_id")
-    private int userId;
+    private int id;
+
     @JsonProperty("user_name")
     private String userName;
-    @JsonProperty("promo_products_count")
-    private int promoProductsCount;
 }

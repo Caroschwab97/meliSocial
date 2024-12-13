@@ -1,7 +1,7 @@
 package com.spring1.meliSocial.controller;
 
-import com.spring1.meliSocial.dto.ResponseDto;
-import com.spring1.meliSocial.dto.UserFollowersDto;
+import com.spring1.meliSocial.dto.response.ResponseDto;
+import com.spring1.meliSocial.dto.response.UserFollowersDto;
 import com.spring1.meliSocial.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,7 +25,7 @@ public class UserController {
 
     @PostMapping("{userId}/unfollow/{userIdToUnfollow}")
     public ResponseEntity<ResponseDto> unfollowUser(@PathVariable int userId, @PathVariable int userIdToUnfollow){
-        return new ResponseEntity<ResponseDto>(userService.unfollowUser(userId,userIdToUnfollow), HttpStatus.OK);
+        return new ResponseEntity<>(userService.unfollowUser(userId,userIdToUnfollow), HttpStatus.OK);
     }
 
     @GetMapping("{userId}/followed/list")
@@ -35,11 +35,11 @@ public class UserController {
 
     @GetMapping("{userId}/followers/count")
     public ResponseEntity<UserFollowersDto> getFollowerCount(@PathVariable int userId) {
-        return ResponseEntity.ok(userService.findFollowers(userId));
+        return new ResponseEntity<>(userService.findFollowers(userId), HttpStatus.OK);
     }
 
     @PostMapping("{userId}/follow/{userIdToFollow}")
     public ResponseEntity<?> followUser(@PathVariable int userId, @PathVariable int userIdToFollow){
-        return ResponseEntity.ok(userService.followUser(userId, userIdToFollow).getMessage());
+        return new ResponseEntity<>(userService.followUser(userId, userIdToFollow), HttpStatus.OK);
     }
 }

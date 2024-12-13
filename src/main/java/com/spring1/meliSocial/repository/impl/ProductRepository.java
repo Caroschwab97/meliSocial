@@ -2,8 +2,6 @@ package com.spring1.meliSocial.repository.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.spring1.meliSocial.exception.ExistingDataException;
-import com.spring1.meliSocial.model.Post;
 import com.spring1.meliSocial.model.Product;
 import com.spring1.meliSocial.repository.IProductRepository;
 import org.springframework.stereotype.Repository;
@@ -27,12 +25,10 @@ public class ProductRepository implements IProductRepository {
     private void loadDataBase() throws IOException {
         File file;
         ObjectMapper objectMapper = new ObjectMapper();
-        List<Product> productos ;
 
-        file= ResourceUtils.getFile("classpath:product.json");
-        productos= objectMapper.readValue(file,new TypeReference<List<Product>>(){});
+        file = ResourceUtils.getFile("classpath:product.json");
 
-        products=productos;
+        products = objectMapper.readValue(file,new TypeReference<List<Product>>(){});
     }
 
 
