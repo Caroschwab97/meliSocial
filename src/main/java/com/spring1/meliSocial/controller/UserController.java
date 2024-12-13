@@ -1,10 +1,7 @@
 package com.spring1.meliSocial.controller;
 
 import com.spring1.meliSocial.dto.UserFollowersDto;
-import com.spring1.meliSocial.service.IPostService;
 import com.spring1.meliSocial.service.IUserService;
-import com.spring1.meliSocial.service.impl.UserService;
-import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.http.HttpStatus;
@@ -27,8 +24,13 @@ public class UserController {
         return new ResponseEntity<>(userService.getFollowersFromSeller(userId), HttpStatus.OK);
     }
 
+    @GetMapping("{userId}/followed/list")
+    public ResponseEntity<?> getFollowedByUser(@PathVariable int userId) {
+        return new ResponseEntity<>(userService.getFollowedByUser(userId), HttpStatus.OK);
+    }
+
     @GetMapping("{userId}/followers/count")
-    public ResponseEntity<UserFollowersDto> get(@PathVariable int userId) {
+    public ResponseEntity<UserFollowersDto> getFollowerCount(@PathVariable int userId) {
         return ResponseEntity.ok(userService.findFollowers(userId));
     }
 }

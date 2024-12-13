@@ -2,12 +2,10 @@ package com.spring1.meliSocial.service.impl;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.spring1.meliSocial.dto.FollowerDto;
-import com.spring1.meliSocial.dto.SellerFollowedDto;
+import com.spring1.meliSocial.dto.*;
 import com.spring1.meliSocial.exception.NotFoundException;
 import com.spring1.meliSocial.exception.NotSellerException;
 
-import com.spring1.meliSocial.dto.UserFollowersDto;
 import com.spring1.meliSocial.exception.NotFoundException;
 
 import com.spring1.meliSocial.model.User;
@@ -50,6 +48,28 @@ public class UserService implements IUserService {
                 toList();
 
         return new SellerFollowedDto(userFound.getId(), userFound.getUserName(), userFollowersDto);
+    }
+
+    @Override
+    public FollowedByUserDto getFollowedByUser(int userId) {
+        List<User> users = repository.getUsers();
+        Optional<User> optionalUser = users.stream().filter(seller -> seller.getId() == userId).findFirst();
+
+        if (optionalUser.isEmpty()) {
+            throw new NotFoundException("El id ingresado no se corresponde a un user existente");
+        }
+
+        User userFound = optionalUser.get();
+
+        List<User> usersFollowedByUser = getUsersByListOfId(userFound.getFollowed());
+
+        List<FollowedDto> usersFollowedByUserDto = usersFollowedByUser.
+                stream().
+                map(
+                        followed -> mapper.convertValue(followed, FollowedDto.class)).
+                toList();
+
+        return new FollowedByUserDto(userFound.getId(), userFound.getUserName(), usersFollowedByUserDto);
     }
 
     private List<User> getUsersByListOfId(List<Integer> usersId) {
