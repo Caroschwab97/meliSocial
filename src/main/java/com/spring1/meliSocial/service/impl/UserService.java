@@ -88,4 +88,10 @@ public class UserService implements IUserService {
         throw new NotFoundException("El id que busca no existe ");
     }
 
+
+    @Override
+    public ResponseDto followUser(int userId, int userIdToFollow) {
+        repository.addFollow(userId,userIdToFollow);
+        return new ResponseDto("Siguiendo a " + userIdToFollow);
+    }
 }

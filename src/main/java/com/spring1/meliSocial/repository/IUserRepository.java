@@ -11,4 +11,6 @@ public interface IUserRepository {
     Optional<User> getUserById(int id);
 
     int followersCount(int id);
+
+    void addFollow(int userId, int userIdToFollow);
 }
