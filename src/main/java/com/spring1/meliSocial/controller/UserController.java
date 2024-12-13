@@ -6,11 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("users")
@@ -20,13 +16,13 @@ public class UserController {
     private IUserService userService;
 
     @GetMapping("{userId}/followers/list")
-    public ResponseEntity<?> getFollowersFromSeller(@PathVariable int userId) {
-        return new ResponseEntity<>(userService.getFollowersFromSeller(userId), HttpStatus.OK);
+    public ResponseEntity<?> getFollowersFromSeller(@PathVariable int userId, @RequestParam(value = "order", defaultValue = "name_asc") String orderMethod) {
+        return new ResponseEntity<>(userService.getFollowersFromSeller(userId, orderMethod), HttpStatus.OK);
     }
 
     @GetMapping("{userId}/followed/list")
-    public ResponseEntity<?> getFollowedByUser(@PathVariable int userId) {
-        return new ResponseEntity<>(userService.getFollowedByUser(userId), HttpStatus.OK);
+    public ResponseEntity<?> getFollowedByUser(@PathVariable int userId, @RequestParam(value = "order", defaultValue = "name_asc") String orderMethod) {
+        return new ResponseEntity<>(userService.getFollowedByUser(userId, orderMethod), HttpStatus.OK);
     }
 
     @GetMapping("{userId}/followers/count")

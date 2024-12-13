@@ -15,8 +15,10 @@ import com.spring1.meliSocial.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Service
 public class UserService implements IUserService {
@@ -27,7 +29,7 @@ public class UserService implements IUserService {
     private ObjectMapper mapper = new ObjectMapper();
 
     @Override
-    public SellerFollowedDto getFollowersFromSeller(int sellerId) {
+    public SellerFollowedDto getFollowersFromSeller(int sellerId, String orderMethod) {
         Optional<User> optionalUser = repository.getUserById(sellerId);
 
         if (optionalUser.isEmpty()) {
@@ -40,17 +42,22 @@ public class UserService implements IUserService {
         }
 
         List<User> userFollowers = getUsersByListOfId(userFound.getFollowers());
-        List<FollowerDto> userFollowersDto = userFollowers.
+        Stream<FollowerDto> userFollowersDtoStream = userFollowers.
                 stream().
                 map(
-                follower -> mapper.convertValue(follower, FollowerDto.class)).
-                toList();
+                follower -> mapper.convertValue(follower, FollowerDto.class));
 
-        return new SellerFollowedDto(userFound.getId(), userFound.getUserName(), userFollowersDto);
+        if (orderMethod.equalsIgnoreCase("name_desc")) {
+            userFollowersDtoStream = userFollowersDtoStream.sorted(Comparator.comparing(FollowerDto::getUserName).reversed());
+        } else {
+            userFollowersDtoStream = userFollowersDtoStream.sorted(Comparator.comparing(FollowerDto::getUserName));
+        }
+
+        return new SellerFollowedDto(userFound.getId(), userFound.getUserName(), userFollowersDtoStream.toList());
     }
 
     @Override
-    public FollowedByUserDto getFollowedByUser(int userId) {
+    public FollowedByUserDto getFollowedByUser(int userId, String orderMethod) {
         Optional<User> optionalUser = repository.getUserById(userId);
 
         if (optionalUser.isEmpty()) {
@@ -61,13 +68,18 @@ public class UserService implements IUserService {
 
         List<User> usersFollowedByUser = getUsersByListOfId(userFound.getFollowed());
 
-        List<FollowedDto> usersFollowedByUserDto = usersFollowedByUser.
+        Stream<FollowedDto> usersFollowedByUserStream = usersFollowedByUser.
                 stream().
                 map(
-                        followed -> mapper.convertValue(followed, FollowedDto.class)).
-                toList();
+                        followed -> mapper.convertValue(followed, FollowedDto.class));
 
-        return new FollowedByUserDto(userFound.getId(), userFound.getUserName(), usersFollowedByUserDto);
+        if (orderMethod.equalsIgnoreCase("name_desc")) {
+            usersFollowedByUserStream = usersFollowedByUserStream.sorted(Comparator.comparing(FollowedDto::getUserName).reversed());
+        } else {
+            usersFollowedByUserStream = usersFollowedByUserStream.sorted(Comparator.comparing(FollowedDto::getUserName));
+        }
+
+        return new FollowedByUserDto(userFound.getId(), userFound.getUserName(), usersFollowedByUserStream.toList());
     }
 
     private List<User> getUsersByListOfId(List<Integer> usersId) {
