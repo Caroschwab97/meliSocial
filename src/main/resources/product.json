@@ -14,5 +14,13 @@
     "brand": "Adidas",
     "color": "Negro",
     "notes": "Zapatillas cómodas para uso diario."
+  },
+  {
+    "id": 3,
+    "name": "Remera",
+    "type": "Ropa",
+    "brand": "Lacoste",
+    "color": "Negro",
+    "notes": "Remera negra ideal para fiestas"
   }
 ]

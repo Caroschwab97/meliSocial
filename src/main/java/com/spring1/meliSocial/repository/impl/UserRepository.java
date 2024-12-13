@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Repository
 public class UserRepository implements IUserRepository {
@@ -30,6 +31,16 @@ public class UserRepository implements IUserRepository {
         file= ResourceUtils.getFile("classpath:user.json");
         users= objectMapper.readValue(file,new TypeReference<List<User>>(){});
 
+    }
+
+    @Override
+    public List<User> getUsers() {
+        return users;
+    }
+
+    @Override
+    public Optional<User> getUserById(int id) {
+        return users.stream().filter(x -> x.getId() == id).findFirst();
     }
 
     @Override
@@ -66,11 +77,8 @@ public class UserRepository implements IUserRepository {
 
     @Override
     public int followersCount(int id) {
-        User user = getUser(id);
-        if(user != null){
-            return user.getFollowers().size();
-        }
-        return -1;
+        Optional<User> user = getUserById(id);
+        return user.map(value -> value.getFollowers().size()).orElse(-1);
     }
 
     @Override
