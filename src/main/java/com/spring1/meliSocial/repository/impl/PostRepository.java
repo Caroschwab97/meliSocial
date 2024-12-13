@@ -46,6 +46,18 @@ public class PostRepository implements IPostRepository {
     }
 
     @Override
+    public void addNewProductPromo(Post product) {
+        posts.add(product);
+    }
+
+    @Override
+    public boolean findById(int id) {
+        if (posts.stream().filter(x ->x.getId() == id).findFirst().isPresent())
+            throw new BadRequestException("el id del producto ya existe");
+        return false;
+    }
+
+    @Override
     public List<Post> getPosts() {
         return posts;
     }

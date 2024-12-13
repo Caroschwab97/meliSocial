@@ -6,17 +6,16 @@ import com.spring1.meliSocial.dto.*;
 import com.spring1.meliSocial.exception.NotFoundException;
 import com.spring1.meliSocial.exception.NotSellerException;
 
-import com.spring1.meliSocial.exception.NotFoundException;
-
 import com.spring1.meliSocial.model.User;
-import com.spring1.meliSocial.repository.IPostRepository;
 import com.spring1.meliSocial.repository.IUserRepository;
 import com.spring1.meliSocial.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Service
 public class UserService implements IUserService {
@@ -27,7 +26,7 @@ public class UserService implements IUserService {
     private ObjectMapper mapper = new ObjectMapper();
 
     @Override
-    public SellerFollowedDto getFollowersFromSeller(int sellerId) {
+    public SellerFollowedDto getFollowersFromSeller(int sellerId, String orderMethod) {
         Optional<User> optionalUser = repository.getUserById(sellerId);
 
         if (optionalUser.isEmpty()) {
@@ -40,17 +39,27 @@ public class UserService implements IUserService {
         }
 
         List<User> userFollowers = getUsersByListOfId(userFound.getFollowers());
-        List<FollowerDto> userFollowersDto = userFollowers.
-                stream().
-                map(
-                follower -> mapper.convertValue(follower, FollowerDto.class)).
-                toList();
+        List<FollowerDto> userFollowersDto = getFollowerDtoSortedList(orderMethod, userFollowers);
 
         return new SellerFollowedDto(userFound.getId(), userFound.getUserName(), userFollowersDto);
     }
 
+    private List<FollowerDto> getFollowerDtoSortedList(String orderMethod, List<User> userFollowers) {
+        Stream<FollowerDto> userFollowersDtoStream = userFollowers.
+                stream().
+                map(
+                follower -> mapper.convertValue(follower, FollowerDto.class));
+
+        if (orderMethod.equalsIgnoreCase("name_desc")) {
+            userFollowersDtoStream = userFollowersDtoStream.sorted(Comparator.comparing(FollowerDto::getUserName).reversed());
+        } else {
+            userFollowersDtoStream = userFollowersDtoStream.sorted(Comparator.comparing(FollowerDto::getUserName));
+        }
+        return userFollowersDtoStream.toList();
+    }
+
     @Override
-    public FollowedByUserDto getFollowedByUser(int userId) {
+    public FollowedByUserDto getFollowedByUser(int userId, String orderMethod) {
         Optional<User> optionalUser = repository.getUserById(userId);
 
         if (optionalUser.isEmpty()) {
@@ -61,13 +70,23 @@ public class UserService implements IUserService {
 
         List<User> usersFollowedByUser = getUsersByListOfId(userFound.getFollowed());
 
-        List<FollowedDto> usersFollowedByUserDto = usersFollowedByUser.
-                stream().
-                map(
-                        followed -> mapper.convertValue(followed, FollowedDto.class)).
-                toList();
+        List<FollowedDto> usersFollowedByUserDto = getFollowedDtoSortedList(orderMethod, usersFollowedByUser);
 
         return new FollowedByUserDto(userFound.getId(), userFound.getUserName(), usersFollowedByUserDto);
+    }
+
+    private List<FollowedDto> getFollowedDtoSortedList(String orderMethod, List<User> usersFollowedByUser) {
+        Stream<FollowedDto> usersFollowedByUserStream = usersFollowedByUser.
+                stream().
+                map(
+                        followed -> mapper.convertValue(followed, FollowedDto.class));
+
+        if (orderMethod.equalsIgnoreCase("name_desc")) {
+            usersFollowedByUserStream = usersFollowedByUserStream.sorted(Comparator.comparing(FollowedDto::getUserName).reversed());
+        } else {
+            usersFollowedByUserStream = usersFollowedByUserStream.sorted(Comparator.comparing(FollowedDto::getUserName));
+        }
+        return usersFollowedByUserStream.toList();
     }
 
     private List<User> getUsersByListOfId(List<Integer> usersId) {
@@ -79,13 +98,31 @@ public class UserService implements IUserService {
     }
 
     @Override
+    public ResponseDto unfollowUser(int userId, int userIdToUnfollow) {
+        if(repository.getUserById(userId).isEmpty() || repository.getUserById(userIdToUnfollow).isEmpty())
+            throw new NotFoundException("No se encontraron los usuarios");
+
+        if(repository.getUserById(userId).get().getFollowed()
+                .stream().filter(u -> u == userIdToUnfollow).findFirst().orElse(null) == null)
+            throw new NotFoundException("El usuario no contiene ese seguido");
+
+        if(repository.followedCount(userId) == 0)
+            throw new NotFoundException("El usuario no tiene seguidos");
+
+        if(repository.unfollowUser(userId,userIdToUnfollow))
+            return new ResponseDto("El usuario se borro con exito.");
+
+        return new ResponseDto("Ocurrió un problema al eliminar seguido");
+    }
+
+    @Override
     public UserFollowersDto findFollowers(int id) {
         int res = repository.followersCount(id);
         Optional<User> user = repository.getUserById(id);
         if(res != -1){
             return new UserFollowersDto(id,user.get().getUserName(),res);
         }
-        throw new NotFoundException("El id que busca no existe ");
+        throw new NotFoundException("El id que busca no existe");
     }
 
 
