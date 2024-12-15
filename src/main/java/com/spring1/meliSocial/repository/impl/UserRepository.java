@@ -12,7 +12,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.Optional;
 
 @Repository
@@ -41,6 +40,16 @@ public class UserRepository implements IUserRepository {
     public Optional<User> getUserById(int id) {
         return users.stream().filter(x -> x.getId() == id).findFirst();
     }
+
+    @Override
+    public String getUserNameById(int id) {
+        return users.stream()
+                .filter(x -> x.getId() == id)
+                .map(User::getUserName)
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("Usuario con ID: " + id + " no encontrado."));
+    }
+
 
     @Override
     public boolean unfollowUser(int userId, int userIdToUnfollow) {
