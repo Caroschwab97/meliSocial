@@ -139,6 +139,7 @@ public class UserService implements IUserService {
         }
 
         repository.addFollow(userId,userIdToFollow);
-        return new ResponseDto("Siguiendo al usuario:  "  + " con ID: " + userIdToFollow);
+
+        return new ResponseDto("Siguiendo al usuario: " + repository.getUserNameById(userIdToFollow) + " con ID: " + userIdToFollow);
     }
 }
