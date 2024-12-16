@@ -23,4 +23,7 @@ public interface IPostRepository {
     boolean existsById (int id);
 
     List<Post> getBestProductsOnPromo();
+
+    void updatePrice(int id, double newPrice);
+
 }

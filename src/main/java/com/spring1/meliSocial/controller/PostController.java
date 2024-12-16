@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
+
 @RestController
 @RequestMapping("products")
 public class PostController {
@@ -55,4 +56,10 @@ public class PostController {
     public ResponseEntity<List<PostDto>> getAll() {
         return ResponseEntity.ok(service.getAll());
     }
+
+    @PatchMapping("post/update-price/{id}/{price}")
+    public ResponseEntity<?> updatePrice (@PathVariable int id, @PathVariable double price){
+        return new ResponseEntity<>(service.updatePrice(id,price), HttpStatus.OK);
+    }
+
 }

@@ -105,4 +105,13 @@ public class PostRepository implements IPostRepository {
     public List<Post> getBestProductsOnPromo() {
         return posts.stream().filter(Post::isHasPromo).toList();
     }
+
+    @Override
+    public void updatePrice(int id, double newPrice) {
+        posts.stream()
+                .filter(post -> post.getId() == id)
+                .findFirst()
+                .ifPresent(post -> post.setPrice(newPrice));
+    }
+
 }

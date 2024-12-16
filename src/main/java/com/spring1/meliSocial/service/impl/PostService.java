@@ -3,6 +3,7 @@ package com.spring1.meliSocial.service.impl;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spring1.meliSocial.dto.request.PostDto;
+import com.spring1.meliSocial.dto.response.ResponseDto;
 import com.spring1.meliSocial.exception.ExistingDataException;
 import com.spring1.meliSocial.model.Post;
 import com.spring1.meliSocial.model.Product;
@@ -162,4 +163,14 @@ public class PostService implements IPostService {
                 .map(post -> this.mapper.convertValue(post, PostDto.class))
                 .toList();
     }
+
+    @Override
+    public ResponseDto updatePrice(int id, double price) {
+        if (!repository.existsById(id))
+            throw new NotFoundException ("La publicación que quiere modificar con ID: " + id + " no existe.");
+
+        repository.updatePrice(id,price);
+        return new ResponseDto("Se actualizó el precio del posteo con ID: " + id);
+    }
+
 }
