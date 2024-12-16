@@ -42,7 +42,17 @@ public class PostService implements IPostService {
     private IUserRepository userRepository;
 
     @Autowired
-    private ObjectMapper mapper;
+    final private ObjectMapper mapper;
+
+    public PostService() {
+        this.mapper = new ObjectMapper();
+
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        JavaTimeModule javaTimeModule = new JavaTimeModule();
+        javaTimeModule.addDeserializer(LocalDate.class, new LocalDateDeserializer(dateFormatter));
+
+        this.mapper.registerModule(javaTimeModule);
+    }
 
     @Override
     public void saveNewPost(PostDto postDto) {
@@ -71,15 +81,7 @@ public class PostService implements IPostService {
         if(repository.findById(productDto.getId()))
             throw new BadRequestException("El id del producto ya existe");
 
-        ObjectMapper objectMapper = new ObjectMapper();
-
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-        JavaTimeModule javaTimeModule = new JavaTimeModule();
-        javaTimeModule.addDeserializer(LocalDate.class, new LocalDateDeserializer(dateFormatter));
-
-        objectMapper.registerModule(javaTimeModule);
-
-        Post aux = objectMapper.convertValue(productDto, Post.class);
+        Post aux = this.mapper.convertValue(productDto, Post.class);
         repository.addNewProductPromo(aux);
     }
 
@@ -144,4 +146,21 @@ public class PostService implements IPostService {
     }
 
 
+
+    @Override
+    public List<PostDto> getBestProductsOnPromo(Integer category) {
+        List<Post> bestProductsOnPromo = repository.getBestProductsOnPromo();
+
+        if (bestProductsOnPromo.isEmpty()) {
+            throw new NotFoundException("No hay productos en promo");
+        }
+
+        return bestProductsOnPromo.stream()
+                .filter(post -> post.getDiscount() > 0)
+                .filter(post -> category == null || post.getCategory() == (int) category)
+                .sorted((p1, p2) -> Double.compare(p2.getDiscount(), p1.getDiscount()))
+                .limit(10)
+                .map(post -> this.mapper.convertValue(post, PostDto.class))
+                .toList();
+    }
 }

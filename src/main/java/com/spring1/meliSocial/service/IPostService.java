@@ -20,6 +20,8 @@ public interface IPostService {
 
     PostPromoDto getProductsOnPromo(int userId);
 
+    List<PostDto> getBestProductsOnPromo(Integer category);
+
     void updatePromoDiscount(int id, double discount);
 
     public List<PostDto> getAll();

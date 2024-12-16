@@ -100,4 +100,9 @@ public class PostRepository implements IPostRepository {
             post.setHasPromo(true);
     }
 
+
+    @Override
+    public List<Post> getBestProductsOnPromo() {
+        return posts.stream().filter(Post::isHasPromo).toList();
+    }
 }
