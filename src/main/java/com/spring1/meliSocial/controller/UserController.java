@@ -52,4 +52,9 @@ public class UserController {
     public ResponseEntity<?> removeFavouritePost(@PathVariable int userId, @PathVariable int postId){
         return new ResponseEntity<>(userService.removeFavouritePost(userId, postId), HttpStatus.OK);
     }
+
+    @GetMapping("{userId}/favourite-post")
+    public ResponseEntity<?> getFavouritesPosts(@PathVariable int userId){
+        return new ResponseEntity<>(userService.getFavouritePostsFromUser(userId), HttpStatus.OK);
+    }
 }
