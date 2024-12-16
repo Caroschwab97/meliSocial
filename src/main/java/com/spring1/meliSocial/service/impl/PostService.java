@@ -1,5 +1,6 @@
 package com.spring1.meliSocial.service.impl;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spring1.meliSocial.dto.request.PostDto;
 import com.spring1.meliSocial.dto.response.ResponseDto;
@@ -42,7 +43,17 @@ public class PostService implements IPostService {
     private IUserRepository userRepository;
 
     @Autowired
-    private ObjectMapper mapper;
+    final private ObjectMapper mapper;
+
+    public PostService() {
+        this.mapper = new ObjectMapper();
+
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        JavaTimeModule javaTimeModule = new JavaTimeModule();
+        javaTimeModule.addDeserializer(LocalDate.class, new LocalDateDeserializer(dateFormatter));
+
+        this.mapper.registerModule(javaTimeModule);
+    }
 
     @Override
     public void saveNewPost(PostDto postDto) {
@@ -71,15 +82,7 @@ public class PostService implements IPostService {
         if(repository.findById(productDto.getId()))
             throw new BadRequestException("El id del producto ya existe");
 
-        ObjectMapper objectMapper = new ObjectMapper();
-
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-        JavaTimeModule javaTimeModule = new JavaTimeModule();
-        javaTimeModule.addDeserializer(LocalDate.class, new LocalDateDeserializer(dateFormatter));
-
-        objectMapper.registerModule(javaTimeModule);
-
-        Post aux = objectMapper.convertValue(productDto, Post.class);
+        Post aux = this.mapper.convertValue(productDto, Post.class);
         repository.addNewProductPromo(aux);
     }
 
@@ -132,13 +135,43 @@ public class PostService implements IPostService {
         );
     }
 
+    public List<PostDto> getAll(){
+        return mapper.convertValue(repository.getPosts(), new TypeReference<List<PostDto>>() {});
+    }
+
+    @Override
+    public void updatePromoDiscount(int id, double discount) {
+        if(!repository.existsById(id))
+            throw new NotFoundException("La publicación que quiere modificar no existe");
+        repository.updatePromoDiscount(id, discount);
+    }
+
+
+
+    @Override
+    public List<PostDto> getBestProductsOnPromo(Integer category) {
+        List<Post> bestProductsOnPromo = repository.getBestProductsOnPromo();
+
+        if (bestProductsOnPromo.isEmpty()) {
+            throw new NotFoundException("No hay productos en promo");
+        }
+
+        return bestProductsOnPromo.stream()
+                .filter(post -> post.getDiscount() > 0)
+                .filter(post -> category == null || post.getCategory() == (int) category)
+                .sorted((p1, p2) -> Double.compare(p2.getDiscount(), p1.getDiscount()))
+                .limit(10)
+                .map(post -> this.mapper.convertValue(post, PostDto.class))
+                .toList();
+    }
+
     @Override
     public ResponseDto updatePrice(int id, double price) {
         if (!repository.existsById(id))
-            throw new NotFoundException ("No existe posteo con el ID: " + id);
+            throw new NotFoundException ("La publicacón que quiere modificar con ID: " + id + " no existe.");
 
         repository.updatePrice(id,price);
-        return new ResponseDto("Se actualizó el precio del posteo con ID: "+ id);
+        return new ResponseDto("Se actualizó el precio del posteo con ID: " + id);
     }
 
 }
