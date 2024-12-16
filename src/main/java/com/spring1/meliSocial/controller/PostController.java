@@ -26,7 +26,7 @@ public class PostController {
     @PostMapping("promo-post")
     public ResponseEntity<?> post(@RequestBody ProductPromoDto dto) {
         service.addNewProductPromo(dto);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(new ResponseDto("Publicación con promoción creada"), HttpStatus.OK);
     }
 
     @GetMapping("followed/{userId}/list")

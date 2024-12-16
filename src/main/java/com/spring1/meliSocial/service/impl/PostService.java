@@ -64,8 +64,7 @@ public class PostService implements IPostService {
     }
 
     public void saveNewProduct(Post post){
-        Optional<Product> idProduct= productRepository.findId(post.getProduct().getId());
-        if(idProduct.isPresent()){
+        if(productRepository.findId(post.getProduct().getId())){
             throw new ExistingDataException("El producto con el id " + post.getProduct().getId() + " ya existe");
         }
 
@@ -75,9 +74,10 @@ public class PostService implements IPostService {
 
     @Override
     public void addNewProductPromo(ProductPromoDto productDto) {
-        if(repository.findById(productDto.getId()))
+        if(productRepository.findId(productDto.getProduct().getId()))
             throw new BadRequestException("El id del producto ya existe");
 
+        productRepository.add(mapper.convertValue(productDto.getProduct(), Product.class));
         Post aux = this.mapper.convertValue(productDto, Post.class);
         repository.addNewProductPromo(aux);
     }

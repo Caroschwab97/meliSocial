@@ -2,6 +2,7 @@ package com.spring1.meliSocial.repository.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.spring1.meliSocial.exception.BadRequestException;
 import com.spring1.meliSocial.model.Product;
 import com.spring1.meliSocial.repository.IProductRepository;
 import org.springframework.stereotype.Repository;
@@ -31,12 +32,9 @@ public class ProductRepository implements IProductRepository {
         products = objectMapper.readValue(file,new TypeReference<List<Product>>(){});
     }
 
-
     @Override
-    public Optional<Product> findId(Integer id) {
-        return products.stream()
-                .filter(p->p.getId()==id)
-                .findFirst();
+    public boolean findId(Integer id) {
+        return products.stream().anyMatch(x ->x.getId() == id);
     }
 
     @Override
@@ -44,4 +42,8 @@ public class ProductRepository implements IProductRepository {
         return products;
     }
 
+    @Override
+    public void add(Product product) {
+        products.add(product);
+    }
 }
