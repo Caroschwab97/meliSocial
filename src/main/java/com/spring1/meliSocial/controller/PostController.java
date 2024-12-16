@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @RestController
 @RequestMapping("products")
@@ -37,5 +38,10 @@ public class PostController {
     @GetMapping("promo-post/count")
     public ResponseEntity<?> getProductsOnPromo(@RequestParam("user_id") int userId){
         return new ResponseEntity<>(service.getProductsOnPromo(userId), HttpStatus.OK);
+    }
+
+    @GetMapping("best/promo-post")
+    public ResponseEntity<?> getBestProductsOnPromo(@RequestParam(required = false) Integer category){
+        return new ResponseEntity<List<PostDto>>(service.getBestProductsOnPromo(category), HttpStatus.OK);
     }
 }

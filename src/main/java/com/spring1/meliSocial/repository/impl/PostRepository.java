@@ -86,4 +86,9 @@ public class PostRepository implements IPostRepository {
                 .toList()
                 .size();
     }
+
+    @Override
+    public List<Post> getBestProductsOnPromo() {
+        return posts.stream().filter(Post::isHasPromo).toList();
+    }
 }
