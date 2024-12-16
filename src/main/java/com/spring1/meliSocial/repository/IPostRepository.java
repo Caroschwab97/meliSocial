@@ -18,5 +18,9 @@ public interface IPostRepository {
 
     int countProductsOnPromo(int userId);
 
+    void updatePromoDiscount(int id, double discount);
+
+    boolean existsById (int id);
+
     List<Post> getBestProductsOnPromo();
 }

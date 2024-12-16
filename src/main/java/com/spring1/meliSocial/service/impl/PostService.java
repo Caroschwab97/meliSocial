@@ -1,5 +1,6 @@
 package com.spring1.meliSocial.service.impl;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spring1.meliSocial.dto.request.PostDto;
 import com.spring1.meliSocial.exception.ExistingDataException;
@@ -26,6 +27,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
+
 
 @Service
 public class PostService implements IPostService {
@@ -131,6 +133,19 @@ public class PostService implements IPostService {
                 promoProductsCount
         );
     }
+
+    public List<PostDto> getAll(){
+        return mapper.convertValue(repository.getPosts(), new TypeReference<List<PostDto>>() {});
+    }
+
+    @Override
+    public void updatePromoDiscount(int id, double discount) {
+        if(!repository.existsById(id))
+            throw new NotFoundException("La publicación que quiere modificar no existe");
+        repository.updatePromoDiscount(id, discount);
+    }
+
+
 
     @Override
     public List<PostDto> getBestProductsOnPromo(Integer category) {

@@ -44,4 +44,15 @@ public class PostController {
     public ResponseEntity<?> getBestProductsOnPromo(@RequestParam(required = false) Integer category){
         return new ResponseEntity<List<PostDto>>(service.getBestProductsOnPromo(category), HttpStatus.OK);
     }
+
+    @PatchMapping("update-promo/{id}/{discount}")
+    public ResponseEntity<String> updatePromoDiscount(@PathVariable int id, @PathVariable double discount) {
+        service.updatePromoDiscount(id, discount);
+        return new ResponseEntity<>("La promoción se actualizó correctamente", HttpStatus.OK);
+    }
+
+    @GetMapping("all")
+    public ResponseEntity<List<PostDto>> getAll() {
+        return ResponseEntity.ok(service.getAll());
+    }
 }
