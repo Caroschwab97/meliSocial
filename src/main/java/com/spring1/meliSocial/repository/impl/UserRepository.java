@@ -3,7 +3,9 @@ package com.spring1.meliSocial.repository.impl;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spring1.meliSocial.exception.BadRequestException;
+import com.spring1.meliSocial.exception.InternalServerErrorException;
 import com.spring1.meliSocial.exception.NotFoundException;
+import com.spring1.meliSocial.model.Post;
 import com.spring1.meliSocial.model.User;
 import com.spring1.meliSocial.repository.IUserRepository;
 import org.springframework.stereotype.Repository;
@@ -13,6 +15,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 public class UserRepository implements IUserRepository {
@@ -39,6 +42,11 @@ public class UserRepository implements IUserRepository {
     @Override
     public Optional<User> getUserById(int id) {
         return users.stream().filter(x -> x.getId() == id).findFirst();
+    }
+
+    @Override
+    public boolean existsUserWithId(int id) {
+        return users.stream().anyMatch(u -> u.getId() == id);
     }
 
     @Override
@@ -96,6 +104,34 @@ public class UserRepository implements IUserRepository {
 
         user.getFollowed().add(userIdToFollow);
         userToFollow.getFollowers().add(userId);
+    }
+
+    @Override
+    public void addFavouritePost(int userId, int postId) {
+        User user = getUserById(userId)
+                .orElseThrow(() -> new NotFoundException("El usuario con ID: " + userId + " no existe."));
+
+        Set<Integer> userFavouritesPosts = user.getFavouritesPosts();
+        boolean succesfulAdd = userFavouritesPosts.add(postId);
+        if (!succesfulAdd) {
+            throw new InternalServerErrorException("No se pudo agregar el post con id " + postId + " como favorito para el user con id " + userId);
+        }
+
+        user.setFavouritesPosts(userFavouritesPosts);
+    }
+
+    @Override
+    public void removeFavouritePost(int userId, int postId) {
+        User user = getUserById(userId)
+                .orElseThrow(() -> new NotFoundException("El usuario con ID: " + userId + " no existe."));
+
+        Set<Integer> userFavouritesPosts = user.getFavouritesPosts();
+        boolean succesfulRemove = userFavouritesPosts.remove(postId);
+        if (!succesfulRemove) {
+            throw new InternalServerErrorException("No se pudo remover el post con id " + postId + " como favorito para el user con id " + userId);
+        }
+
+        user.setFavouritesPosts(userFavouritesPosts);
     }
 
 }

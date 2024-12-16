@@ -42,4 +42,14 @@ public class UserController {
     public ResponseEntity<?> followUser(@PathVariable int userId, @PathVariable int userIdToFollow){
         return new ResponseEntity<>(userService.followUser(userId, userIdToFollow), HttpStatus.OK);
     }
+
+    @PatchMapping("{userId}/favourite-post/{postId}/add")
+    public ResponseEntity<?> addFavouritePost(@PathVariable int userId, @PathVariable int postId){
+        return new ResponseEntity<>(userService.addFavouritePost(userId, postId), HttpStatus.OK);
+    }
+
+    @PatchMapping("{userId}/favourite-post/{postId}/remove")
+    public ResponseEntity<?> removeFavouritePost(@PathVariable int userId, @PathVariable int postId){
+        return new ResponseEntity<>(userService.removeFavouritePost(userId, postId), HttpStatus.OK);
+    }
 }

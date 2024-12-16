@@ -16,4 +16,8 @@ public interface IUserService {
     ResponseDto unfollowUser(int userId, int userIdToUnfollow);
 
     ResponseDto followUser(int userId, int userIdToFollow);
+
+    ResponseDto addFavouritePost(int userId, int postId);
+
+    ResponseDto removeFavouritePost(int userId, int postId);
 }
