@@ -116,8 +116,6 @@ public class UserRepository implements IUserRepository {
         if (!succesfulAdd) {
             throw new InternalServerErrorException("No se pudo agregar el post con id " + postId + " como favorito para el user con id " + userId);
         }
-
-        user.setFavouritesPosts(userFavouritesPosts);
     }
 
     @Override
