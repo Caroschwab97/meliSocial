@@ -20,4 +20,11 @@ public interface IPostRepository {
     List<Post> getPosts();
 
     int countProductsOnPromo(int userId);
+
+    void updatePromoDiscount(int id, double discount);
+
+    List<Post> getBestProductsOnPromo();
+
+    void updatePrice(int id, double newPrice);
+
 }

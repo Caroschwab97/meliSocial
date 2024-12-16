@@ -1,7 +1,9 @@
 package com.spring1.meliSocial.service.impl;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spring1.meliSocial.dto.request.PostDto;
+import com.spring1.meliSocial.dto.response.ResponseDto;
 import com.spring1.meliSocial.exception.ExistingDataException;
 import com.spring1.meliSocial.model.Post;
 import com.spring1.meliSocial.model.Product;
@@ -41,13 +43,23 @@ public class PostService implements IPostService {
     private IUserRepository userRepository;
 
     @Autowired
-    private ObjectMapper mapper;
+    final private ObjectMapper mapper;
+
+    public PostService() {
+        this.mapper = new ObjectMapper();
+
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        JavaTimeModule javaTimeModule = new JavaTimeModule();
+        javaTimeModule.addDeserializer(LocalDate.class, new LocalDateDeserializer(dateFormatter));
+
+        this.mapper.registerModule(javaTimeModule);
+    }
 
     @Override
     public void saveNewPost(PostDto postDto) {
         Optional<User> idUser = userRepository.getUserById(postDto.getUserId());
         if(idUser.isEmpty()){
-            throw new ExistingDataException("El usuario con id: " + postDto.getUserId() + " no existe");
+            throw new NotFoundException("El usuario con id: " + postDto.getUserId() + " no existe");
         }
         Post post = mapper.convertValue(postDto,Post.class);
         saveNewProduct(post);
@@ -62,21 +74,12 @@ public class PostService implements IPostService {
         productRepository.addProduct(post.getProduct());
     }
 
-
     @Override
     public void addNewProductPromo(ProductPromoDto productDto) {
         if(productRepository.existsProductWithId(productDto.getId()))
             throw new BadRequestException("El id del producto ya existe");
 
-        ObjectMapper objectMapper = new ObjectMapper();
-
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-        JavaTimeModule javaTimeModule = new JavaTimeModule();
-        javaTimeModule.addDeserializer(LocalDate.class, new LocalDateDeserializer(dateFormatter));
-
-        objectMapper.registerModule(javaTimeModule);
-
-        Post aux = objectMapper.convertValue(productDto, Post.class);
+        Post aux = this.mapper.convertValue(productDto, Post.class);
         postRepository.addNewProductPromo(aux);
     }
 
@@ -128,4 +131,44 @@ public class PostService implements IPostService {
                 promoProductsCount
         );
     }
+
+    public List<PostDto> getAll(){
+        return mapper.convertValue(postRepository.getPosts(), new TypeReference<List<PostDto>>() {});
+    }
+
+    @Override
+    public void updatePromoDiscount(int id, double discount) {
+        if(!postRepository.existsPost(id))
+            throw new NotFoundException("La publicación que quiere modificar no existe");
+        postRepository.updatePromoDiscount(id, discount);
+    }
+
+
+
+    @Override
+    public List<PostDto> getBestProductsOnPromo(Integer category) {
+        List<Post> bestProductsOnPromo = postRepository.getBestProductsOnPromo();
+
+        if (bestProductsOnPromo.isEmpty()) {
+            throw new NotFoundException("No hay productos en promo");
+        }
+
+        return bestProductsOnPromo.stream()
+                .filter(post -> post.getDiscount() > 0)
+                .filter(post -> category == null || post.getCategory() == (int) category)
+                .sorted((p1, p2) -> Double.compare(p2.getDiscount(), p1.getDiscount()))
+                .limit(10)
+                .map(post -> this.mapper.convertValue(post, PostDto.class))
+                .toList();
+    }
+
+    @Override
+    public ResponseDto updatePrice(int id, double price) {
+        if (!postRepository.existsPost(id))
+            throw new NotFoundException ("La publicación que quiere modificar con ID: " + id + " no existe.");
+
+        postRepository.updatePrice(id,price);
+        return new ResponseDto("Se actualizó el precio del posteo con ID: " + id);
+    }
+
 }

@@ -67,6 +67,8 @@ public class UserService implements IUserService {
     }
 
     private List<FollowerDto> getFollowerDtoSortedList(String orderMethod, List<User> userFollowers) {
+        validateOrderMethodParam(orderMethod);
+
         Stream<FollowerDto> userFollowersDtoStream = userFollowers
                 .stream()
                 .map(
@@ -98,12 +100,13 @@ public class UserService implements IUserService {
     }
 
     private List<FollowedDto> getFollowedDtoSortedList(String orderMethod, List<User> usersFollowedByUser) {
+        validateOrderMethodParam(orderMethod);
+
         Stream<FollowedDto> usersFollowedByUserStream = usersFollowedByUser
                 .stream()
-                .map(
-                        followed -> new FollowedDto(followed.getId(), followed.getUserName()));
+                .map(followed -> new FollowedDto(followed.getId(), followed.getUserName()));
 
-        if (orderMethod.equalsIgnoreCase("name_desc")) {
+        if (orderMethod != null && orderMethod.equalsIgnoreCase("name_desc")) {
             usersFollowedByUserStream = usersFollowedByUserStream.sorted(Comparator.comparing(FollowedDto::getUserName).reversed());
         } else {
             usersFollowedByUserStream = usersFollowedByUserStream.sorted(Comparator.comparing(FollowedDto::getUserName));
@@ -227,5 +230,13 @@ public class UserService implements IUserService {
                         .map(post -> mapper.convertValue(post, PostDto.class))
                         .toList()
         );
+    }
+
+
+    private void validateOrderMethodParam(String orderMethod) {
+        if (orderMethod != null && !orderMethod.isEmpty() && !orderMethod.equalsIgnoreCase("name_asc") &&
+                !orderMethod.equalsIgnoreCase("name_desc")) {
+            throw new BadRequestException("Parámetros inválidos.");
+        }
     }
 }
