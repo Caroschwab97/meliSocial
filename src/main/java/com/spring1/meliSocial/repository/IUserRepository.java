@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface IUserRepository {
+    String getUserNameById(int id);
+
     boolean unfollowUser(int userId, int userIdToUnfollow);
 
     List<User> getUsers();

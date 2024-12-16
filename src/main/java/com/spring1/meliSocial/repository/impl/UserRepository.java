@@ -3,6 +3,7 @@ package com.spring1.meliSocial.repository.impl;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spring1.meliSocial.exception.BadRequestException;
+import com.spring1.meliSocial.exception.NotFoundException;
 import com.spring1.meliSocial.model.User;
 import com.spring1.meliSocial.repository.IUserRepository;
 import org.springframework.stereotype.Repository;
@@ -11,7 +12,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.Optional;
 
 @Repository
@@ -42,6 +42,16 @@ public class UserRepository implements IUserRepository {
     }
 
     @Override
+    public String getUserNameById(int id) {
+        return users.stream()
+                .filter(x -> x.getId() == id)
+                .map(User::getUserName)
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("Usuario con ID: " + id + " no encontrado."));
+    }
+
+
+    @Override
     public boolean unfollowUser(int userId, int userIdToUnfollow) {
         Optional<User> user = getUserById(userId);
         Optional<User> userUnfollowed = getUserById(userIdToUnfollow);
@@ -67,18 +77,18 @@ public class UserRepository implements IUserRepository {
     @Override
     public void addFollow(int userId, int userIdToFollow) {
         User user = getUserById(userId)
-                .orElseThrow(() -> new BadRequestException("El usuario con ID " + userId + " no existe."));
-
-        if (userId == userIdToFollow) {
-            throw new BadRequestException("Un usuario no puede seguirse a sí mismo.");
-        }
-
-        if (user.getFollowed().contains(userIdToFollow)) {
-            throw new BadRequestException("El usuario con ID " + userId + " ya sigue al usuario con ID " + userIdToFollow);
-        }
+                .orElseThrow(() -> new NotFoundException("El usuario con ID: " + userId + " no existe."));
 
         User userToFollow = getUserById(userIdToFollow)
-                .orElseThrow(() -> new BadRequestException("El usuario con ID " + userIdToFollow + " no existe."));
+                .orElseThrow(() -> new NotFoundException("El usuario a seguir con ID: " + userIdToFollow + " no existe."));
+
+        if (user.getFollowed().contains(userIdToFollow)) {
+            throw new BadRequestException("El usuario con ID: " + userId + " ya sigue al usuario con ID: " + userIdToFollow);
+        }
+
+        if (!user.isSeller() && !userToFollow.isSeller()) {
+            throw new BadRequestException("Un comprador solo puede seguir a un usuario vendedor.");
+        }
 
         if (!userToFollow.isSeller()) {
             throw new BadRequestException("Solo se puede seguir a un usuario vendedor.");

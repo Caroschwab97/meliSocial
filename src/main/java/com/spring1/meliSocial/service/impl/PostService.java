@@ -17,6 +17,7 @@ import com.spring1.meliSocial.repository.IPostRepository;
 import com.spring1.meliSocial.repository.IProductRepository;
 import com.spring1.meliSocial.repository.IUserRepository;
 import com.spring1.meliSocial.service.IPostService;
+import com.spring1.meliSocial.validation.UserValidation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -83,7 +84,7 @@ public class PostService implements IPostService {
 
     @Override
     public PostIndexDto getPostsByUser(int userId, String order) {
-        validateGetPostsByUserParams(userId, order);
+        UserValidation.validateGetPostsByUserParams(userId, order);
         Optional<User> user = userRepository.getUserById(userId);
 
         if (user.isEmpty()) {
@@ -105,15 +106,6 @@ public class PostService implements IPostService {
         return new PostIndexDto(userId, filteredPosts.stream()
                 .map(fp -> mapper.convertValue(fp, PostDto.class))
                 .toList());
-    }
-
-    private void validateGetPostsByUserParams(int userId, String order) {
-        if (userId == 0 ||
-                (order != null && !order.isEmpty() &&
-                        !order.equalsIgnoreCase("date_asc") &&
-                        !order.equalsIgnoreCase("date_desc"))) {
-            throw new BadRequestException("Parámetros inválidos.");
-        }
     }
 
     @Override
