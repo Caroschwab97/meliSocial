@@ -1,5 +1,10 @@
 package com.spring1.meliSocial.service.impl;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
+import com.spring1.meliSocial.dto.request.PostDto;
 import com.spring1.meliSocial.dto.response.*;
 import com.spring1.meliSocial.exception.BadRequestException;
 import com.spring1.meliSocial.exception.InternalServerErrorException;
@@ -7,11 +12,15 @@ import com.spring1.meliSocial.exception.NotFoundException;
 import com.spring1.meliSocial.exception.NotSellerException;
 
 import com.spring1.meliSocial.model.User;
+import com.spring1.meliSocial.repository.IPostRepository;
 import com.spring1.meliSocial.repository.IUserRepository;
+import com.spring1.meliSocial.service.IPostService;
 import com.spring1.meliSocial.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -20,12 +29,27 @@ import java.util.stream.Stream;
 @Service
 public class UserService implements IUserService {
 
-    @Autowired
-    private IUserRepository repository;
+    private IUserRepository userRepository;
+
+    private IPostRepository postRepository;
+
+    ObjectMapper mapper;
+
+    public UserService(IUserRepository userRepository, IPostRepository postRepository) {
+        this.userRepository = userRepository;
+        this.postRepository = postRepository;
+        mapper = new ObjectMapper();
+
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        JavaTimeModule javaTimeModule = new JavaTimeModule();
+        javaTimeModule.addDeserializer(LocalDate.class, new LocalDateDeserializer(dateFormatter));
+
+        mapper.registerModule(javaTimeModule);
+    }
 
     @Override
     public SellerFollowedDto getFollowersFromSeller(int sellerId, String orderMethod) {
-        Optional<User> optionalUser = repository.getUserById(sellerId);
+        Optional<User> optionalUser = userRepository.getUserById(sellerId);
 
         if (optionalUser.isEmpty()) {
             throw new NotFoundException("El id ingresado no se corresponde a un user existente");
@@ -60,7 +84,7 @@ public class UserService implements IUserService {
 
     @Override
     public FollowedByUserDto getFollowedByUser(int userId, String orderMethod) {
-        Optional<User> optionalUser = repository.getUserById(userId);
+        Optional<User> optionalUser = userRepository.getUserById(userId);
 
         if (optionalUser.isEmpty()) {
             throw new NotFoundException("El id ingresado no se corresponde a un user existente");
@@ -94,7 +118,7 @@ public class UserService implements IUserService {
         return usersId
                 .stream()
                 .map(
-                        userId -> repository.getUserById(userId)
+                        userId -> userRepository.getUserById(userId)
                 )
                 .filter(
                         Optional::isPresent
@@ -107,17 +131,17 @@ public class UserService implements IUserService {
 
     @Override
     public ResponseDto unfollowUser(int userId, int userIdToUnfollow) {
-        if(repository.getUserById(userId).isEmpty() || repository.getUserById(userIdToUnfollow).isEmpty())
+        if(userRepository.getUserById(userId).isEmpty() || userRepository.getUserById(userIdToUnfollow).isEmpty())
             throw new NotFoundException("No se encontraron los usuarios");
 
-        if(repository.getUserById(userId).get().getFollowed()
+        if(userRepository.getUserById(userId).get().getFollowed()
                 .stream().filter(u -> u == userIdToUnfollow).findFirst().orElse(null) == null)
             throw new NotFoundException("El usuario no contiene ese seguido");
 
-        if(repository.followedCount(userId) == 0)
+        if(userRepository.followedCount(userId) == 0)
             throw new NotFoundException("El usuario no tiene seguidos");
 
-        if(!repository.unfollowUser(userId,userIdToUnfollow)) {
+        if(!userRepository.unfollowUser(userId,userIdToUnfollow)) {
            throw new InternalServerErrorException("Ocurrió un problema al eliminar seguido");
         }
         return new ResponseDto("El usuario se borro con exito.");
@@ -125,8 +149,8 @@ public class UserService implements IUserService {
 
     @Override
     public UserFollowersDto findFollowers(int id) {
-        int followersCount = repository.followersCount(id);
-        Optional<User> user = repository.getUserById(id);
+        int followersCount = userRepository.followersCount(id);
+        Optional<User> user = userRepository.getUserById(id);
 
         if(user.isEmpty()) {
             throw new NotFoundException("El id que busca no existe");
@@ -141,9 +165,71 @@ public class UserService implements IUserService {
             throw new BadRequestException("Un usuario no puede seguirse a sí mismo.");
         }
 
-        repository.addFollow(userId,userIdToFollow);
+        userRepository.addFollow(userId,userIdToFollow);
 
-        return new ResponseDto("Siguiendo al usuario: " + repository.getUserNameById(userIdToFollow) + " con ID: " + userIdToFollow);
+        return new ResponseDto("Siguiendo al usuario: " + userRepository.getUserNameById(userIdToFollow) + " con ID: " + userIdToFollow);
+    }
+
+    @Override
+    public ResponseDto addFavouritePost(int userId, int postId) {
+        if (!userRepository.existsUserWithId(userId)) {
+            throw new NotFoundException("El usuario con ID: " + userId + " no existe.");
+        }
+        if (!postRepository.existsPost(postId)) {
+            throw new NotFoundException("El post con ID: " + postId + " no existe.");
+        }
+
+        User user = userRepository.getUserById(userId).get();
+        if (user.getFavouritesPosts().stream().anyMatch(p -> p == postId)) {
+            throw new BadRequestException("El post con id " + postId + " ya está agregado a favoritos");
+        }
+
+        userRepository.addFavouritePost(userId, postId);
+
+        return new ResponseDto("El post fue agregado a favoritos de forma exitosa");
+    }
+
+    @Override
+    public ResponseDto removeFavouritePost(int userId, int postId) {
+        if (!userRepository.existsUserWithId(userId)) {
+            throw new NotFoundException("El usuario con ID: " + userId + " no existe.");
+        }
+
+        User user = userRepository.getUserById(userId).get();
+        if (user.getFavouritesPosts().stream().noneMatch(p -> p == postId)) {
+            throw new BadRequestException("El post con id " + postId + " no está agregado a favoritos para el usuario");
+        }
+
+        userRepository.removeFavouritePost(userId, postId);
+
+        return new ResponseDto("El post fue removido de favoritos de forma exitosa");
+    }
+
+    @Override
+    public FavouritePostsDto getFavouritePostsFromUser(int userId) {
+        User user = userRepository.getUserById(userId)
+                .orElseThrow(() -> new NotFoundException("El usuario con ID: " + userId + " no existe."));
+
+        if(user.getFavouritesPosts().isEmpty()) {
+            throw new NotFoundException("El usuario no posee ningun post en favoritos");
+        }
+
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        JavaTimeModule javaTimeModule = new JavaTimeModule();
+        javaTimeModule.addDeserializer(LocalDate.class, new LocalDateDeserializer(dateFormatter));
+
+        objectMapper.registerModule(javaTimeModule);
+
+        return new FavouritePostsDto(
+                userId,
+                user.getFavouritesPosts()
+                        .stream()
+                        .map(postId -> postRepository.getPostById(postId))
+                        .map(post -> mapper.convertValue(post, PostDto.class))
+                        .toList()
+        );
     }
 
 

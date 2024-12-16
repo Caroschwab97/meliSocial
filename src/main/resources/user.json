@@ -13,7 +13,8 @@
     "seller": false,
     "followers": [],
     "followed": [1],
-    "products": []
+    "products": [],
+    "favouritesPosts": [1]
   },
   {
     "id": 3,
@@ -21,7 +22,8 @@
     "seller": false,
     "followers": [],
     "followed": [1],
-    "products": []
+    "products": [],
+    "favouritesPosts": [1,2]
   },
   {
     "id": 4,

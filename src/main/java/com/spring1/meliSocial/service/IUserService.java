@@ -1,10 +1,9 @@
 package com.spring1.meliSocial.service;
 
 
-import com.spring1.meliSocial.dto.response.FollowedByUserDto;
-import com.spring1.meliSocial.dto.response.ResponseDto;
-import com.spring1.meliSocial.dto.response.SellerFollowedDto;
-import com.spring1.meliSocial.dto.response.UserFollowersDto;
+import com.spring1.meliSocial.dto.response.*;
+
+import java.util.List;
 
 public interface IUserService {
     SellerFollowedDto getFollowersFromSeller(int sellerId, String orderMethod);
@@ -16,4 +15,10 @@ public interface IUserService {
     ResponseDto unfollowUser(int userId, int userIdToUnfollow);
 
     ResponseDto followUser(int userId, int userIdToFollow);
+
+    ResponseDto addFavouritePost(int userId, int postId);
+
+    ResponseDto removeFavouritePost(int userId, int postId);
+
+    FavouritePostsDto getFavouritePostsFromUser(int userId);
 }

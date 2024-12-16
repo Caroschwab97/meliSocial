@@ -3,6 +3,7 @@ package com.spring1.meliSocial.repository;
 import com.spring1.meliSocial.model.Post;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface IPostRepository {
 
@@ -12,15 +13,15 @@ public interface IPostRepository {
 
     void addNewProductPromo(Post product);
 
-    boolean findById(int id);
+    Post getPostById(int id);
+
+    boolean existsPost(int id);
 
     List<Post> getPosts();
 
     int countProductsOnPromo(int userId);
 
     void updatePromoDiscount(int id, double discount);
-
-    boolean existsById (int id);
 
     List<Post> getBestProductsOnPromo();
 

@@ -34,7 +34,7 @@ import java.util.Comparator;
 public class PostService implements IPostService {
 
     @Autowired
-    private IPostRepository repository;
+    private IPostRepository postRepository;
 
     @Autowired
     private IProductRepository productRepository;
@@ -63,26 +63,24 @@ public class PostService implements IPostService {
         }
         Post post = mapper.convertValue(postDto,Post.class);
         saveNewProduct(post);
-        repository.saveNewPost(post);
+        postRepository.saveNewPost(post);
     }
 
     public void saveNewProduct(Post post){
-        Optional<Product> idProduct= productRepository.findId(post.getProduct().getId());
-        if(idProduct.isPresent()){
+        if(productRepository.existsProductWithId(post.getProduct().getId())){
             throw new ExistingDataException("El producto con el id " + post.getProduct().getId() + " ya existe");
         }
 
-        List<Product> productList = productRepository.getProducts();
-        productList.add(post.getProduct());
+        productRepository.addProduct(post.getProduct());
     }
 
     @Override
     public void addNewProductPromo(ProductPromoDto productDto) {
-        if(repository.findById(productDto.getId()))
+        if(productRepository.existsProductWithId(productDto.getId()))
             throw new BadRequestException("El id del producto ya existe");
 
         Post aux = this.mapper.convertValue(productDto, Post.class);
-        repository.addNewProductPromo(aux);
+        postRepository.addNewProductPromo(aux);
     }
 
     @Override
@@ -100,7 +98,7 @@ public class PostService implements IPostService {
                 ? Comparator.comparing(Post::getDate)
                 : Comparator.comparing(Post::getDate).reversed();
 
-        List<Post> filteredPosts = repository.getPosts().stream()
+        List<Post> filteredPosts = postRepository.getPosts().stream()
                 .filter(p -> followedIds.contains(p.getUserId()))
                 .filter(p -> p.getDate() != null && ChronoUnit.DAYS.between(p.getDate(), LocalDate.now()) <= 14)
                 .sorted(comparator)
@@ -125,7 +123,7 @@ public class PostService implements IPostService {
             throw new BadRequestException("El usuario con ID: " + userId + " no es un vendedor.");
         }
 
-        int promoProductsCount = repository.countProductsOnPromo(userId);
+        int promoProductsCount = postRepository.countProductsOnPromo(userId);
 
         return new PostPromoDto(
                 user.getId(),
@@ -135,21 +133,21 @@ public class PostService implements IPostService {
     }
 
     public List<PostDto> getAll(){
-        return mapper.convertValue(repository.getPosts(), new TypeReference<List<PostDto>>() {});
+        return mapper.convertValue(postRepository.getPosts(), new TypeReference<List<PostDto>>() {});
     }
 
     @Override
     public void updatePromoDiscount(int id, double discount) {
-        if(!repository.existsById(id))
+        if(!postRepository.existsPost(id))
             throw new NotFoundException("La publicación que quiere modificar no existe");
-        repository.updatePromoDiscount(id, discount);
+        postRepository.updatePromoDiscount(id, discount);
     }
 
 
 
     @Override
     public List<PostDto> getBestProductsOnPromo(Integer category) {
-        List<Post> bestProductsOnPromo = repository.getBestProductsOnPromo();
+        List<Post> bestProductsOnPromo = postRepository.getBestProductsOnPromo();
 
         if (bestProductsOnPromo.isEmpty()) {
             throw new NotFoundException("No hay productos en promo");
@@ -166,10 +164,10 @@ public class PostService implements IPostService {
 
     @Override
     public ResponseDto updatePrice(int id, double price) {
-        if (!repository.existsById(id))
+        if (!postRepository.existsPost(id))
             throw new NotFoundException ("La publicación que quiere modificar con ID: " + id + " no existe.");
 
-        repository.updatePrice(id,price);
+        postRepository.updatePrice(id,price);
         return new ResponseDto("Se actualizó el precio del posteo con ID: " + id);
     }
 
