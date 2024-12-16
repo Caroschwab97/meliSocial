@@ -10,4 +10,8 @@ public interface IProductRepository {
     Optional<Product> findId(Integer id);
 
     List<Product> getProducts();
+
+    void addProduct(Product product);
+
+    boolean existsProductWithId(int id);
 }

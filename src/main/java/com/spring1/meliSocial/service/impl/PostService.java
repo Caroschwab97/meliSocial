@@ -32,7 +32,7 @@ import java.util.Comparator;
 public class PostService implements IPostService {
 
     @Autowired
-    private IPostRepository repository;
+    private IPostRepository postRepository;
 
     @Autowired
     private IProductRepository productRepository;
@@ -51,23 +51,21 @@ public class PostService implements IPostService {
         }
         Post post = mapper.convertValue(postDto,Post.class);
         saveNewProduct(post);
-        repository.saveNewPost(post);
+        postRepository.saveNewPost(post);
     }
 
     public void saveNewProduct(Post post){
-        Optional<Product> idProduct= productRepository.findId(post.getProduct().getId());
-        if(idProduct.isPresent()){
+        if(productRepository.existsProductWithId(post.getProduct().getId())){
             throw new ExistingDataException("El producto con el id " + post.getProduct().getId() + " ya existe");
         }
 
-        List<Product> productList = productRepository.getProducts();
-        productList.add(post.getProduct());
+        productRepository.addProduct(post.getProduct());
     }
 
 
     @Override
     public void addNewProductPromo(ProductPromoDto productDto) {
-        if(repository.findById(productDto.getId()))
+        if(productRepository.existsProductWithId(productDto.getId()))
             throw new BadRequestException("El id del producto ya existe");
 
         ObjectMapper objectMapper = new ObjectMapper();
@@ -79,7 +77,7 @@ public class PostService implements IPostService {
         objectMapper.registerModule(javaTimeModule);
 
         Post aux = objectMapper.convertValue(productDto, Post.class);
-        repository.addNewProductPromo(aux);
+        postRepository.addNewProductPromo(aux);
     }
 
     @Override
@@ -97,7 +95,7 @@ public class PostService implements IPostService {
                 ? Comparator.comparing(Post::getDate)
                 : Comparator.comparing(Post::getDate).reversed();
 
-        List<Post> filteredPosts = repository.getPosts().stream()
+        List<Post> filteredPosts = postRepository.getPosts().stream()
                 .filter(p -> followedIds.contains(p.getUserId()))
                 .filter(p -> p.getDate() != null && ChronoUnit.DAYS.between(p.getDate(), LocalDate.now()) <= 14)
                 .sorted(comparator)
@@ -122,7 +120,7 @@ public class PostService implements IPostService {
             throw new BadRequestException("El usuario con ID: " + userId + " no es un vendedor.");
         }
 
-        int promoProductsCount = repository.countProductsOnPromo(userId);
+        int promoProductsCount = postRepository.countProductsOnPromo(userId);
 
         return new PostPromoDto(
                 user.getId(),

@@ -17,6 +17,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class PostRepository implements IPostRepository {
@@ -60,10 +61,17 @@ public class PostRepository implements IPostRepository {
     }
 
     @Override
-    public boolean findById(int id) {
-        if (posts.stream().anyMatch(x ->x.getId() == id))
-            throw new BadRequestException("el id del producto ya existe");
-        return false;
+    public Post getPostById(int id) {
+        return posts
+                .stream()
+                .filter(p -> p.getId() == id)
+                .findFirst()
+                .orElseThrow(() ->new NotFoundException("El post para el id proporcionado no existe"));
+    }
+
+    @Override
+    public boolean existsPost(int id) {
+        return posts.stream().anyMatch(p -> p.getId() == id);
     }
 
     @Override
