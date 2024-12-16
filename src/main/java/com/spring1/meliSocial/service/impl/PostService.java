@@ -167,7 +167,7 @@ public class PostService implements IPostService {
     @Override
     public ResponseDto updatePrice(int id, double price) {
         if (!repository.existsById(id))
-            throw new NotFoundException ("La publicacón que quiere modificar con ID: " + id + " no existe.");
+            throw new NotFoundException ("La publicación que quiere modificar con ID: " + id + " no existe.");
 
         repository.updatePrice(id,price);
         return new ResponseDto("Se actualizó el precio del posteo con ID: " + id);
