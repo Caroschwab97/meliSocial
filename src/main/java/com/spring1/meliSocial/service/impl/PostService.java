@@ -56,7 +56,7 @@ public class PostService implements IPostService {
     public void saveNewPost(PostDto postDto) {
         Optional<User> idUser = userRepository.getUserById(postDto.getUserId());
         if(idUser.isEmpty()){
-            throw new ExistingDataException("El usuario con id: " + postDto.getUserId() + " no existe");
+            throw new NotFoundException("El usuario con id: " + postDto.getUserId() + " no existe");
         }
         Post post = mapper.convertValue(postDto,Post.class);
         saveNewProduct(post);
@@ -72,7 +72,6 @@ public class PostService implements IPostService {
         List<Product> productList = productRepository.getProducts();
         productList.add(post.getProduct());
     }
-
 
     @Override
     public void addNewProductPromo(ProductPromoDto productDto) {
