@@ -43,6 +43,8 @@ public class UserService implements IUserService {
     }
 
     private List<FollowerDto> getFollowerDtoSortedList(String orderMethod, List<User> userFollowers) {
+        validateOrderMethodParam(orderMethod);
+
         Stream<FollowerDto> userFollowersDtoStream = userFollowers
                 .stream()
                 .map(
@@ -74,11 +76,7 @@ public class UserService implements IUserService {
     }
 
     private List<FollowedDto> getFollowedDtoSortedList(String orderMethod, List<User> usersFollowedByUser) {
-        if (orderMethod != null && !orderMethod.isEmpty() &&
-                !orderMethod.equalsIgnoreCase("name_asc") &&
-                !orderMethod.equalsIgnoreCase("name_desc")) {
-            throw new BadRequestException("Parámetros inválidos.");
-        }
+        validateOrderMethodParam(orderMethod);
 
         Stream<FollowedDto> usersFollowedByUserStream = usersFollowedByUser
                 .stream()
@@ -146,5 +144,13 @@ public class UserService implements IUserService {
         repository.addFollow(userId,userIdToFollow);
 
         return new ResponseDto("Siguiendo al usuario: " + repository.getUserNameById(userIdToFollow) + " con ID: " + userIdToFollow);
+    }
+
+
+    private void validateOrderMethodParam(String orderMethod) {
+        if (orderMethod != null && !orderMethod.isEmpty() && !orderMethod.equalsIgnoreCase("name_asc") &&
+                !orderMethod.equalsIgnoreCase("name_desc")) {
+            throw new BadRequestException("Parámetros inválidos.");
+        }
     }
 }
