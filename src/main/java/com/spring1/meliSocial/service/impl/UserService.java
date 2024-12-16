@@ -181,12 +181,12 @@ public class UserService implements IUserService {
 
         User user = userRepository.getUserById(userId).get();
         if (user.getFavouritesPosts().stream().anyMatch(p -> p == postId)) {
-            throw new BadRequestException("El post con id " + postId + " ya esta agregado como favorito");
+            throw new BadRequestException("El post con id " + postId + " ya está agregado a favoritos");
         }
 
         userRepository.addFavouritePost(userId, postId);
 
-        return new ResponseDto("El post fue agregado como favorito de forma exitosa");
+        return new ResponseDto("El post fue agregado a favoritos de forma exitosa");
     }
 
     @Override
@@ -197,12 +197,12 @@ public class UserService implements IUserService {
 
         User user = userRepository.getUserById(userId).get();
         if (user.getFavouritesPosts().stream().noneMatch(p -> p == postId)) {
-            throw new BadRequestException("El post con id " + postId + " no esta agregado como favorito para el usuario");
+            throw new BadRequestException("El post con id " + postId + " no está agregado a favoritos para el usuario");
         }
 
         userRepository.removeFavouritePost(userId, postId);
 
-        return new ResponseDto("El post fue removido como favorito de forma exitosa");
+        return new ResponseDto("El post fue removido de favoritos de forma exitosa");
     }
 
     @Override
@@ -211,7 +211,7 @@ public class UserService implements IUserService {
                 .orElseThrow(() -> new NotFoundException("El usuario con ID: " + userId + " no existe."));
 
         if(user.getFavouritesPosts().isEmpty()) {
-            throw new NotFoundException("El usuario no posee ningun post como favorito");
+            throw new NotFoundException("El usuario no posee ningun post en favoritos");
         }
 
         ObjectMapper objectMapper = new ObjectMapper();

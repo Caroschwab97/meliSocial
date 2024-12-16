@@ -114,7 +114,7 @@ public class UserRepository implements IUserRepository {
         Set<Integer> userFavouritesPosts = user.getFavouritesPosts();
         boolean succesfulAdd = userFavouritesPosts.add(postId);
         if (!succesfulAdd) {
-            throw new InternalServerErrorException("No se pudo agregar el post con id " + postId + " como favorito para el user con id " + userId);
+            throw new InternalServerErrorException("No se pudo agregar el post con id " + postId + " a los favoritos para el user con id " + userId);
         }
     }
 
@@ -126,7 +126,7 @@ public class UserRepository implements IUserRepository {
         Set<Integer> userFavouritesPosts = user.getFavouritesPosts();
         boolean succesfulRemove = userFavouritesPosts.remove(postId);
         if (!succesfulRemove) {
-            throw new InternalServerErrorException("No se pudo remover el post con id " + postId + " como favorito para el user con id " + userId);
+            throw new InternalServerErrorException("No se pudo remover el post con id " + postId + " de los favoritos para el user con id " + userId);
         }
 
         user.setFavouritesPosts(userFavouritesPosts);
