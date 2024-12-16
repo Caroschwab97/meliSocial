@@ -114,10 +114,14 @@ public class PostService implements IPostService {
         Optional<User> optionalUser = userRepository.getUserById(userId);
 
         if (optionalUser.isEmpty()) {
-            throw new BadRequestException("El usuario con ese ID no existe.");
+            throw new NotFoundException("El usuario con ID: " + userId + " no existe.");
         }
 
         User user = optionalUser.get();
+
+        if (!user.isSeller()) {
+            throw new BadRequestException("El usuario con ID: " + userId + " no es un vendedor.");
+        }
 
         int promoProductsCount = repository.countProductsOnPromo(userId);
 

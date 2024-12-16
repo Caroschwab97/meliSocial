@@ -134,7 +134,12 @@ public class UserService implements IUserService {
 
     @Override
     public ResponseDto followUser(int userId, int userIdToFollow) {
+        if (userId == userIdToFollow) {
+            throw new BadRequestException("Un usuario no puede seguirse a sí mismo.");
+        }
+
         repository.addFollow(userId,userIdToFollow);
-        return new ResponseDto("Siguiendo a " + userIdToFollow);
+
+        return new ResponseDto("Siguiendo al usuario: " + repository.getUserNameById(userIdToFollow) + " con ID: " + userIdToFollow);
     }
 }
