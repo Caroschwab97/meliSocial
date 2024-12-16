@@ -74,12 +74,17 @@ public class UserService implements IUserService {
     }
 
     private List<FollowedDto> getFollowedDtoSortedList(String orderMethod, List<User> usersFollowedByUser) {
+        if (orderMethod != null && !orderMethod.isEmpty() &&
+                !orderMethod.equalsIgnoreCase("name_asc") &&
+                !orderMethod.equalsIgnoreCase("name_desc")) {
+            throw new BadRequestException("Parámetros inválidos.");
+        }
+
         Stream<FollowedDto> usersFollowedByUserStream = usersFollowedByUser
                 .stream()
-                .map(
-                        followed -> new FollowedDto(followed.getId(), followed.getUserName()));
+                .map(followed -> new FollowedDto(followed.getId(), followed.getUserName()));
 
-        if (orderMethod.equalsIgnoreCase("name_desc")) {
+        if (orderMethod != null && orderMethod.equalsIgnoreCase("name_desc")) {
             usersFollowedByUserStream = usersFollowedByUserStream.sorted(Comparator.comparing(FollowedDto::getUserName).reversed());
         } else {
             usersFollowedByUserStream = usersFollowedByUserStream.sorted(Comparator.comparing(FollowedDto::getUserName));
