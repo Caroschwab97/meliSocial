@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("products")
 public class PostController {
@@ -38,4 +40,10 @@ public class PostController {
     public ResponseEntity<?> getProductsOnPromo(@RequestParam("user_id") int userId){
         return new ResponseEntity<>(service.getProductsOnPromo(userId), HttpStatus.OK);
     }
+
+    @PatchMapping("post/update-price/{id}/{price}")
+    public ResponseEntity<?> updatePrice (@PathVariable int id, @PathVariable double price){
+        return new ResponseEntity<>(service.updatePrice(id,price), HttpStatus.OK);
+    }
+
 }

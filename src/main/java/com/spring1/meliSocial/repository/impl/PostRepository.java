@@ -86,4 +86,18 @@ public class PostRepository implements IPostRepository {
                 .toList()
                 .size();
     }
+
+    @Override
+    public boolean existsById(int id){
+        return posts.stream().anyMatch(value -> value.getId() == id);
+    }
+
+    @Override
+    public void updatePrice(int id, double newPrice) {
+        posts.stream()
+                .filter(post -> post.getId() == id)
+                .findFirst()
+                .ifPresent(post -> post.setPrice(newPrice));
+    }
+
 }
