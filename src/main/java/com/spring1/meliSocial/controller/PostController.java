@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("products")
 public class PostController {
@@ -37,5 +39,16 @@ public class PostController {
     @GetMapping("promo-post/count")
     public ResponseEntity<?> getProductsOnPromo(@RequestParam("user_id") int userId){
         return new ResponseEntity<>(service.getProductsOnPromo(userId), HttpStatus.OK);
+    }
+
+    @PatchMapping("update-promo/{id}/{discount}")
+    public ResponseEntity<String> updatePromoDiscount(@PathVariable int id, @PathVariable double discount) {
+        service.updatePromoDiscount(id, discount);
+        return new ResponseEntity<>("La promoción se actualizó correctamente", HttpStatus.OK);
+    }
+
+    @GetMapping("all")
+    public ResponseEntity<List<PostDto>> getAll() {
+        return ResponseEntity.ok(service.getAll());
     }
 }

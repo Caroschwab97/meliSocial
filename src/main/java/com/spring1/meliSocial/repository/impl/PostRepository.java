@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
+import com.spring1.meliSocial.dto.request.PostDto;
 import com.spring1.meliSocial.exception.BadRequestException;
 import com.spring1.meliSocial.exception.NotFoundException;
 import com.spring1.meliSocial.model.Post;
@@ -86,4 +87,17 @@ public class PostRepository implements IPostRepository {
                 .toList()
                 .size();
     }
+
+    public boolean existsById (int id){
+        return posts.stream().anyMatch(value -> value.getId() == id);
+    }
+
+    @Override
+    public void updatePromoDiscount(int id, double discount) {
+        Post post = posts.stream().filter(value -> value.getId() == id).findFirst().get();
+        post.setDiscount(discount);
+        if (!post.isHasPromo())
+            post.setHasPromo(true);
+    }
+
 }
