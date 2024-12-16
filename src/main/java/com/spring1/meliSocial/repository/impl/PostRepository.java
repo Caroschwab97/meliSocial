@@ -7,8 +7,6 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.spring1.meliSocial.exception.BadRequestException;
 import com.spring1.meliSocial.model.Post;
 import com.spring1.meliSocial.repository.IPostRepository;
-import com.spring1.meliSocial.repository.IProductRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.ResourceUtils;
 
@@ -86,5 +84,10 @@ public class PostRepository implements IPostRepository {
                 .filter(Post::isHasPromo)
                 .toList()
                 .size();
+    }
+
+    @Override
+    public List<Post> getBestProductsOnPromo() {
+        return posts.stream().filter(Post::isHasPromo).toList();
     }
 }

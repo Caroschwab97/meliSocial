@@ -17,4 +17,6 @@ public interface IPostRepository {
     List<Post> getPosts();
 
     int countProductsOnPromo(int userId);
+
+    List<Post> getBestProductsOnPromo();
 }
