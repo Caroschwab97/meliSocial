@@ -1,7 +1,7 @@
 package com.spring1.meliSocial.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.spring1.meliSocial.dto.request.PostDto;
+import com.spring1.meliSocial.dto.request.RequestPostDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -14,5 +14,5 @@ public class FavouritePostsDto {
     private int userId;
 
     @JsonProperty("favourite_posts")
-    private List<PostDto> favouritePosts;
+    private List<ResponsePostDto> favouritePosts;
 }

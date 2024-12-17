@@ -4,8 +4,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
-import com.spring1.meliSocial.dto.request.PostDto;
-import com.spring1.meliSocial.exception.BadRequestException;
 import com.spring1.meliSocial.exception.NotFoundException;
 import com.spring1.meliSocial.model.Post;
 import com.spring1.meliSocial.repository.IPostRepository;
@@ -18,7 +16,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public class PostRepository implements IPostRepository {

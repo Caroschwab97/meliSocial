@@ -1,20 +1,19 @@
 package com.spring1.meliSocial.service.impl;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
-import com.spring1.meliSocial.dto.request.PostDto;
+import com.spring1.meliSocial.dto.request.RequestPostDto;
 import com.spring1.meliSocial.dto.response.*;
 import com.spring1.meliSocial.exception.BadRequestException;
 import com.spring1.meliSocial.exception.InternalServerErrorException;
 import com.spring1.meliSocial.exception.NotFoundException;
 import com.spring1.meliSocial.exception.NotSellerException;
 
+import com.spring1.meliSocial.mapper.IMapper;
 import com.spring1.meliSocial.model.User;
 import com.spring1.meliSocial.repository.IPostRepository;
 import com.spring1.meliSocial.repository.IUserRepository;
-import com.spring1.meliSocial.service.IPostService;
 import com.spring1.meliSocial.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,6 +33,9 @@ public class UserService implements IUserService {
     private IPostRepository postRepository;
 
     ObjectMapper mapper;
+
+    @Autowired
+    private IMapper customMapper;
 
     public UserService(IUserRepository userRepository, IPostRepository postRepository) {
         this.userRepository = userRepository;
@@ -227,7 +229,7 @@ public class UserService implements IUserService {
                 user.getFavouritesPosts()
                         .stream()
                         .map(postId -> postRepository.getPostById(postId))
-                        .map(post -> mapper.convertValue(post, PostDto.class))
+                        .map(post -> customMapper.mapToResponsePostDto(post))
                         .toList()
         );
     }
