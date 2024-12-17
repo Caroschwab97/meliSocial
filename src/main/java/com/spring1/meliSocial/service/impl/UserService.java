@@ -1,20 +1,19 @@
 package com.spring1.meliSocial.service.impl;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
-import com.spring1.meliSocial.dto.request.PostDto;
+import com.spring1.meliSocial.dto.request.RequestPostDto;
 import com.spring1.meliSocial.dto.response.*;
 import com.spring1.meliSocial.exception.BadRequestException;
 import com.spring1.meliSocial.exception.InternalServerErrorException;
 import com.spring1.meliSocial.exception.NotFoundException;
 import com.spring1.meliSocial.exception.NotSellerException;
 
+import com.spring1.meliSocial.mapper.IMapper;
 import com.spring1.meliSocial.model.User;
 import com.spring1.meliSocial.repository.IPostRepository;
 import com.spring1.meliSocial.repository.IUserRepository;
-import com.spring1.meliSocial.service.IPostService;
 import com.spring1.meliSocial.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,18 +32,13 @@ public class UserService implements IUserService {
 
     private IPostRepository postRepository;
 
-    ObjectMapper mapper;
+
+    @Autowired
+    private IMapper customMapper;
 
     public UserService(IUserRepository userRepository, IPostRepository postRepository) {
         this.userRepository = userRepository;
         this.postRepository = postRepository;
-        mapper = new ObjectMapper();
-
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-        JavaTimeModule javaTimeModule = new JavaTimeModule();
-        javaTimeModule.addDeserializer(LocalDate.class, new LocalDateDeserializer(dateFormatter));
-
-        mapper.registerModule(javaTimeModule);
     }
 
     @Override
@@ -72,7 +66,7 @@ public class UserService implements IUserService {
         Stream<FollowerDto> userFollowersDtoStream = userFollowers
                 .stream()
                 .map(
-                follower -> new FollowerDto(follower.getId(), follower.getUserName()));
+                follower -> customMapper.mapToFollowerDto(follower));
 
         if (orderMethod.equalsIgnoreCase("name_desc")) {
             userFollowersDtoStream = userFollowersDtoStream.sorted(Comparator.comparing(FollowerDto::getUserName).reversed());
@@ -104,7 +98,7 @@ public class UserService implements IUserService {
 
         Stream<FollowedDto> usersFollowedByUserStream = usersFollowedByUser
                 .stream()
-                .map(followed -> new FollowedDto(followed.getId(), followed.getUserName()));
+                .map(followed -> customMapper.mapToFollowedDto(followed));
 
         if (orderMethod != null && orderMethod.equalsIgnoreCase("name_desc")) {
             usersFollowedByUserStream = usersFollowedByUserStream.sorted(Comparator.comparing(FollowedDto::getUserName).reversed());
@@ -214,20 +208,12 @@ public class UserService implements IUserService {
             throw new NotFoundException("El usuario no posee ningun post en favoritos");
         }
 
-        ObjectMapper objectMapper = new ObjectMapper();
-
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-        JavaTimeModule javaTimeModule = new JavaTimeModule();
-        javaTimeModule.addDeserializer(LocalDate.class, new LocalDateDeserializer(dateFormatter));
-
-        objectMapper.registerModule(javaTimeModule);
-
         return new FavouritePostsDto(
                 userId,
                 user.getFavouritesPosts()
                         .stream()
                         .map(postId -> postRepository.getPostById(postId))
-                        .map(post -> mapper.convertValue(post, PostDto.class))
+                        .map(post -> customMapper.mapToResponsePostDto(post))
                         .toList()
         );
     }

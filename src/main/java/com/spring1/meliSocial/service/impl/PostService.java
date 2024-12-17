@@ -2,9 +2,10 @@ package com.spring1.meliSocial.service.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.spring1.meliSocial.dto.request.PostDto;
-import com.spring1.meliSocial.dto.response.ResponseDto;
+import com.spring1.meliSocial.dto.request.RequestPostDto;
+import com.spring1.meliSocial.dto.response.*;
 import com.spring1.meliSocial.exception.ExistingDataException;
+import com.spring1.meliSocial.mapper.IMapper;
 import com.spring1.meliSocial.model.Post;
 import com.spring1.meliSocial.model.Product;
 import com.spring1.meliSocial.model.User;
@@ -12,8 +13,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.spring1.meliSocial.dto.request.ProductPromoDto;
 import com.spring1.meliSocial.exception.BadRequestException;
-import com.spring1.meliSocial.dto.response.PostIndexDto;
-import com.spring1.meliSocial.dto.response.PostPromoDto;
 import com.spring1.meliSocial.exception.NotFoundException;
 import com.spring1.meliSocial.repository.IPostRepository;
 import com.spring1.meliSocial.repository.IProductRepository;
@@ -43,25 +42,28 @@ public class PostService implements IPostService {
     private IUserRepository userRepository;
 
     @Autowired
-    final private ObjectMapper mapper;
+    final private ObjectMapper objectMapper;
+
+    @Autowired
+    private IMapper customMapper;
 
     public PostService() {
-        this.mapper = new ObjectMapper();
+        this.objectMapper = new ObjectMapper();
 
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
         JavaTimeModule javaTimeModule = new JavaTimeModule();
         javaTimeModule.addDeserializer(LocalDate.class, new LocalDateDeserializer(dateFormatter));
 
-        this.mapper.registerModule(javaTimeModule);
+        this.objectMapper.registerModule(javaTimeModule);
     }
 
     @Override
-    public void saveNewPost(PostDto postDto) {
-        Optional<User> idUser = userRepository.getUserById(postDto.getUserId());
+    public void saveNewPost(RequestPostDto requestPostDto) {
+        Optional<User> idUser = userRepository.getUserById(requestPostDto.getUserId());
         if(idUser.isEmpty()){
-            throw new NotFoundException("El usuario con id: " + postDto.getUserId() + " no existe");
+            throw new NotFoundException("El usuario con id: " + requestPostDto.getUserId() + " no existe");
         }
-        Post post = mapper.convertValue(postDto,Post.class);
+        Post post = objectMapper.convertValue(requestPostDto,Post.class);
         saveNewProduct(post);
         postRepository.saveNewPost(post);
     }
@@ -76,9 +78,9 @@ public class PostService implements IPostService {
 
     @Override
     public void addNewProductPromo(ProductPromoDto productDto) {
-        Post post = mapper.convertValue(productDto, Post.class);
+        Post post = objectMapper.convertValue(productDto, Post.class);
 
-        Product product = mapper.convertValue(productDto.getProduct(), Product.class);
+        Product product = objectMapper.convertValue(productDto.getProduct(), Product.class);
 
         if(productRepository.existsProductWithId(product.getId()))
             throw new BadRequestException("El id del producto ya existe en una publicación");
@@ -119,7 +121,7 @@ public class PostService implements IPostService {
                 .toList();
 
         return new PostIndexDto(userId, filteredPosts.stream()
-                .map(fp -> mapper.convertValue(fp, PostDto.class))
+                .map(fp -> customMapper.mapToResponsePostDto(fp))
                 .toList());
     }
 
@@ -146,8 +148,8 @@ public class PostService implements IPostService {
         );
     }
 
-    public List<PostDto> getAll(){
-        return mapper.convertValue(postRepository.getPosts(), new TypeReference<List<PostDto>>() {});
+    public List<RequestPostDto> getAll(){
+        return objectMapper.convertValue(postRepository.getPosts(), new TypeReference<List<RequestPostDto>>() {});
     }
 
     @Override
@@ -160,7 +162,7 @@ public class PostService implements IPostService {
 
 
     @Override
-    public List<PostDto> getBestProductsOnPromo(Integer category) {
+    public List<RequestPostDto> getBestProductsOnPromo(Integer category) {
         List<Post> bestProductsOnPromo = postRepository.getBestProductsOnPromo();
 
         if (bestProductsOnPromo.isEmpty()) {
@@ -172,7 +174,7 @@ public class PostService implements IPostService {
                 .filter(post -> category == null || post.getCategory() == (int) category)
                 .sorted((p1, p2) -> Double.compare(p2.getDiscount(), p1.getDiscount()))
                 .limit(10)
-                .map(post -> this.mapper.convertValue(post, PostDto.class))
+                .map(post -> this.objectMapper.convertValue(post, RequestPostDto.class))
                 .toList();
     }
 

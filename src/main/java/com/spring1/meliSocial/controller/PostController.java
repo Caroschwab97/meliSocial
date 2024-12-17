@@ -1,6 +1,7 @@
 package com.spring1.meliSocial.controller;
 
-import com.spring1.meliSocial.dto.request.PostDto;
+import com.spring1.meliSocial.dto.request.RequestPostDto;
+import com.spring1.meliSocial.dto.response.PostIndexDto;
 import com.spring1.meliSocial.dto.response.ResponseDto;
 import com.spring1.meliSocial.dto.request.ProductPromoDto;
 import com.spring1.meliSocial.service.IPostService;
@@ -19,8 +20,8 @@ public class PostController {
     private IPostService service;
 
     @PostMapping("post")
-    public ResponseEntity<?> addNewPost(@RequestBody PostDto postDto){
-        service.saveNewPost(postDto);
+    public ResponseEntity<?> addNewPost(@RequestBody RequestPostDto requestPostDto){
+        service.saveNewPost(requestPostDto);
         return new ResponseEntity<>(new ResponseDto("Publicación creada"), HttpStatus.OK);
     }
 
@@ -43,7 +44,7 @@ public class PostController {
 
     @GetMapping("best/promo-post")
     public ResponseEntity<?> getBestProductsOnPromo(@RequestParam(required = false) Integer category){
-        return new ResponseEntity<List<PostDto>>(service.getBestProductsOnPromo(category), HttpStatus.OK);
+        return new ResponseEntity<List<RequestPostDto>>(service.getBestProductsOnPromo(category), HttpStatus.OK);
     }
 
     @PatchMapping("update-promo/{id}/{discount}")
@@ -53,7 +54,7 @@ public class PostController {
     }
 
     @GetMapping("all")
-    public ResponseEntity<List<PostDto>> getAll() {
+    public ResponseEntity<List<RequestPostDto>> getAll() {
         return ResponseEntity.ok(service.getAll());
     }
 
