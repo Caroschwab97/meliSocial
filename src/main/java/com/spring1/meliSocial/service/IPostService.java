@@ -13,9 +13,9 @@ import java.util.List;
 
 public interface IPostService {
 
-    void saveNewPost(RequestPostDto requestPostDto);
+    ResponseDto saveNewPost(RequestPostDto requestPostDto);
 
-    void addNewProductPromo(ProductPromoDto product);
+    ResponseDto addNewProductPromo(ProductPromoDto product);
 
     PostIndexDto getPostsByUser(int userId, String order);
 
@@ -23,7 +23,7 @@ public interface IPostService {
 
     List<RequestPostDto> getBestProductsOnPromo(Integer category);
 
-    void updatePromoDiscount(int id, double discount);
+    ResponseDto updatePromoDiscount(int id, double discount);
 
     List<RequestPostDto> getAll();
 
