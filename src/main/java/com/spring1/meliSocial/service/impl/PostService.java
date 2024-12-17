@@ -76,11 +76,25 @@ public class PostService implements IPostService {
 
     @Override
     public void addNewProductPromo(ProductPromoDto productDto) {
-        if(productRepository.existsProductWithId(productDto.getId()))
-            throw new BadRequestException("El id del producto ya existe");
+        Post post = mapper.convertValue(productDto, Post.class);
 
-        Post aux = this.mapper.convertValue(productDto, Post.class);
-        postRepository.addNewProductPromo(aux);
+        Product product = mapper.convertValue(productDto.getProduct(), Product.class);
+
+        if(productRepository.existsProductWithId(product.getId()))
+            throw new BadRequestException("El id del producto ya existe en una publicación");
+
+        Optional<User> user = userRepository.getUserById(post.getUserId());
+        if (user.isPresent()){
+            if(!user.get().isSeller())
+                throw new BadRequestException("El id que ingresó es de un usuario comprador");
+        }
+
+        if(!userRepository.existsUserWithId(post.getUserId()))
+            throw new NotFoundException("El id del vendedor no existe");
+
+
+        productRepository.addProduct(product);
+        postRepository.addNewProductPromo(post);
     }
 
     @Override
