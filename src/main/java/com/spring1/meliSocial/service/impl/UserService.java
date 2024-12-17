@@ -1,9 +1,5 @@
 package com.spring1.meliSocial.service.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
-import com.spring1.meliSocial.dto.request.RequestPostDto;
 import com.spring1.meliSocial.dto.response.*;
 import com.spring1.meliSocial.exception.BadRequestException;
 import com.spring1.meliSocial.exception.InternalServerErrorException;
@@ -18,8 +14,6 @@ import com.spring1.meliSocial.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -138,7 +132,7 @@ public class UserService implements IUserService {
         if(!userRepository.unfollowUser(userId,userIdToUnfollow)) {
            throw new InternalServerErrorException("Ocurrió un problema al eliminar seguido");
         }
-        return new ResponseDto("El usuario se borro con exito.");
+        return new ResponseDto("El usuario dejo de seguir a " + userRepository.getUserNameById(userId));
     }
 
     @Override
