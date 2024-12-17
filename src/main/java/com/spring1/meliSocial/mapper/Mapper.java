@@ -1,8 +1,11 @@
 package com.spring1.meliSocial.mapper;
 
+import com.spring1.meliSocial.dto.response.FollowedDto;
+import com.spring1.meliSocial.dto.response.FollowerDto;
 import com.spring1.meliSocial.dto.response.ProductDto;
 import com.spring1.meliSocial.dto.response.ResponsePostDto;
 import com.spring1.meliSocial.model.Post;
+import com.spring1.meliSocial.model.User;
 import lombok.AllArgsConstructor;
 import lombok.Setter;
 import org.springframework.stereotype.Component;
@@ -26,5 +29,15 @@ public class Mapper implements IMapper{
                 post.getPrice(),
                 post.isHasPromo(),
                 post.getDiscount());
+    }
+
+    @Override
+    public FollowedDto mapToFollowedDto(User user) {
+        return new FollowedDto(user.getId(), user.getUserName());
+    }
+
+    @Override
+    public FollowerDto mapToFollowerDto(User user) {
+        return new FollowerDto(user.getId(), user.getUserName());
     }
 }

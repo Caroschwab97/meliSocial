@@ -32,7 +32,6 @@ public class UserService implements IUserService {
 
     private IPostRepository postRepository;
 
-    ObjectMapper mapper;
 
     @Autowired
     private IMapper customMapper;
@@ -40,13 +39,6 @@ public class UserService implements IUserService {
     public UserService(IUserRepository userRepository, IPostRepository postRepository) {
         this.userRepository = userRepository;
         this.postRepository = postRepository;
-        mapper = new ObjectMapper();
-
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-        JavaTimeModule javaTimeModule = new JavaTimeModule();
-        javaTimeModule.addDeserializer(LocalDate.class, new LocalDateDeserializer(dateFormatter));
-
-        mapper.registerModule(javaTimeModule);
     }
 
     @Override
@@ -74,7 +66,7 @@ public class UserService implements IUserService {
         Stream<FollowerDto> userFollowersDtoStream = userFollowers
                 .stream()
                 .map(
-                follower -> new FollowerDto(follower.getId(), follower.getUserName()));
+                follower -> customMapper.mapToFollowerDto(follower));
 
         if (orderMethod.equalsIgnoreCase("name_desc")) {
             userFollowersDtoStream = userFollowersDtoStream.sorted(Comparator.comparing(FollowerDto::getUserName).reversed());
@@ -106,7 +98,7 @@ public class UserService implements IUserService {
 
         Stream<FollowedDto> usersFollowedByUserStream = usersFollowedByUser
                 .stream()
-                .map(followed -> new FollowedDto(followed.getId(), followed.getUserName()));
+                .map(followed -> customMapper.mapToFollowedDto(followed));
 
         if (orderMethod != null && orderMethod.equalsIgnoreCase("name_desc")) {
             usersFollowedByUserStream = usersFollowedByUserStream.sorted(Comparator.comparing(FollowedDto::getUserName).reversed());
@@ -215,14 +207,6 @@ public class UserService implements IUserService {
         if(user.getFavouritesPosts().isEmpty()) {
             throw new NotFoundException("El usuario no posee ningun post en favoritos");
         }
-
-        ObjectMapper objectMapper = new ObjectMapper();
-
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-        JavaTimeModule javaTimeModule = new JavaTimeModule();
-        javaTimeModule.addDeserializer(LocalDate.class, new LocalDateDeserializer(dateFormatter));
-
-        objectMapper.registerModule(javaTimeModule);
 
         return new FavouritePostsDto(
                 userId,
