@@ -69,7 +69,7 @@ A continuación se presenta una breve descripción de los endpoints desarrollado
 ## Cómo Probar los Endpoints con Postman
 1. **Descarga e instala** [Postman](https://www.postman.com/downloads/).
 2. Importa la colección de endpoints de nuestro proyecto en Postman:
-   - [Social Meli.postman_collection.json]
+   - [SocialMeli.postman_collection.json]
 3. Ajusta las variables de entorno si es necesario para autenticarte o para cualquier otro parámetro de configuración.
 4. Realiza las pruebas de los endpoints definidos.
 
@@ -81,7 +81,7 @@ A continuación se presenta una breve descripción de los endpoints desarrollado
 ## Instalación
 1. Clona el repositorio:
    git clone https://github.com/Caroschwab97/meliSocial.git
-2. Branch develop
+2. Branch master
    
 ## Integrantes
 Mariano Chun
