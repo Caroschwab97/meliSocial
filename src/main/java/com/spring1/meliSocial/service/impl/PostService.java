@@ -7,6 +7,7 @@ import com.spring1.meliSocial.dto.response.*;
 import com.spring1.meliSocial.exception.ExistingDataException;
 import com.spring1.meliSocial.mapper.IMapper;
 import com.spring1.meliSocial.model.Post;
+import com.spring1.meliSocial.model.Product;
 import com.spring1.meliSocial.model.User;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
@@ -77,11 +78,25 @@ public class PostService implements IPostService {
 
     @Override
     public void addNewProductPromo(ProductPromoDto productDto) {
-        if(productRepository.existsProductWithId(productDto.getId()))
-            throw new BadRequestException("El id del producto ya existe");
+        Post post = objectMapper.convertValue(productDto, Post.class);
 
-        Post aux = this.objectMapper.convertValue(productDto, Post.class);
-        postRepository.addNewProductPromo(aux);
+        Product product = objectMapper.convertValue(productDto.getProduct(), Product.class);
+
+        if(productRepository.existsProductWithId(product.getId()))
+            throw new BadRequestException("El id del producto ya existe en una publicación");
+
+        Optional<User> user = userRepository.getUserById(post.getUserId());
+        if (user.isPresent()){
+            if(!user.get().isSeller())
+                throw new BadRequestException("El id que ingresó es de un usuario comprador");
+        }
+
+        if(!userRepository.existsUserWithId(post.getUserId()))
+            throw new NotFoundException("El id del vendedor no existe");
+
+
+        productRepository.addProduct(product);
+        postRepository.addNewProductPromo(post);
     }
 
     @Override
