@@ -90,7 +90,7 @@ public class PostService implements IPostService {
         }
 
         if(!userRepository.existsUserWithId(post.getUserId()))
-            throw new BadRequestException("El id del vendedor no existe");
+            throw new NotFoundException("El id del vendedor no existe");
 
 
         productRepository.addProduct(product);
