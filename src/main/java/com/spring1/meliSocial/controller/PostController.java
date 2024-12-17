@@ -1,7 +1,6 @@
 package com.spring1.meliSocial.controller;
 
 import com.spring1.meliSocial.dto.request.RequestPostDto;
-import com.spring1.meliSocial.dto.response.PostIndexDto;
 import com.spring1.meliSocial.dto.response.ResponseDto;
 import com.spring1.meliSocial.dto.request.ProductPromoDto;
 import com.spring1.meliSocial.service.IPostService;
@@ -21,14 +20,12 @@ public class PostController {
 
     @PostMapping("post")
     public ResponseEntity<?> addNewPost(@RequestBody RequestPostDto requestPostDto){
-        service.saveNewPost(requestPostDto);
-        return new ResponseEntity<>(new ResponseDto("Publicación creada"), HttpStatus.OK);
+        return new ResponseEntity<>(service.saveNewPost(requestPostDto), HttpStatus.OK);
     }
 
     @PostMapping("promo-post")
     public ResponseEntity<?> post(@RequestBody ProductPromoDto dto) {
-        service.addNewProductPromo(dto);
-        return new ResponseEntity<>(new ResponseDto("Publicación con promoción creada"), HttpStatus.OK);
+        return new ResponseEntity<>(service.addNewProductPromo(dto), HttpStatus.OK);
     }
 
     @GetMapping("followed/{userId}/list")
@@ -48,9 +45,8 @@ public class PostController {
     }
 
     @PatchMapping("update-promo/{id}/{discount}")
-    public ResponseEntity<String> updatePromoDiscount(@PathVariable int id, @PathVariable double discount) {
-        service.updatePromoDiscount(id, discount);
-        return new ResponseEntity<>("La promoción se actualizó correctamente", HttpStatus.OK);
+    public ResponseEntity<?> updatePromoDiscount(@PathVariable int id, @PathVariable double discount) {
+        return new ResponseEntity<>(service.updatePromoDiscount(id, discount), HttpStatus.OK);
     }
 
     @GetMapping("all")

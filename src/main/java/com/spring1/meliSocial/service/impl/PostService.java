@@ -58,7 +58,7 @@ public class PostService implements IPostService {
     }
 
     @Override
-    public void saveNewPost(RequestPostDto requestPostDto) {
+    public ResponseDto saveNewPost(RequestPostDto requestPostDto) {
         Optional<User> idUser = userRepository.getUserById(requestPostDto.getUserId());
         if(idUser.isEmpty()){
             throw new NotFoundException("El usuario con id: " + requestPostDto.getUserId() + " no existe");
@@ -66,6 +66,7 @@ public class PostService implements IPostService {
         Post post = objectMapper.convertValue(requestPostDto,Post.class);
         saveNewProduct(post);
         postRepository.saveNewPost(post);
+        return new ResponseDto("Publicación creada");
     }
 
     public void saveNewProduct(Post post){
@@ -77,7 +78,7 @@ public class PostService implements IPostService {
     }
 
     @Override
-    public void addNewProductPromo(ProductPromoDto productDto) {
+    public ResponseDto addNewProductPromo(ProductPromoDto productDto) {
         Post post = objectMapper.convertValue(productDto, Post.class);
 
         Product product = objectMapper.convertValue(productDto.getProduct(), Product.class);
@@ -97,6 +98,7 @@ public class PostService implements IPostService {
 
         productRepository.addProduct(product);
         postRepository.addNewProductPromo(post);
+        return new ResponseDto("Publicación con promoción creada");
     }
 
     @Override
@@ -153,10 +155,11 @@ public class PostService implements IPostService {
     }
 
     @Override
-    public void updatePromoDiscount(int id, double discount) {
+    public ResponseDto updatePromoDiscount(int id, double discount) {
         if(!postRepository.existsPost(id))
             throw new NotFoundException("La publicación que quiere modificar no existe");
         postRepository.updatePromoDiscount(id, discount);
+        return new ResponseDto("La promoción se actualizó correctamente");
     }
 
 
