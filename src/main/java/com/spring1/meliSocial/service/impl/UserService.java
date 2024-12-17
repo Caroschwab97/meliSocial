@@ -132,7 +132,7 @@ public class UserService implements IUserService {
         if(!userRepository.unfollowUser(userId,userIdToUnfollow)) {
            throw new InternalServerErrorException("Ocurrió un problema al eliminar seguido");
         }
-        return new ResponseDto("El usuario dejo de seguir a " + userRepository.getUserNameById(userId));
+        return new ResponseDto("El usuario dejó de seguir a " + userRepository.getUserNameById(userId));
     }
 
     @Override
