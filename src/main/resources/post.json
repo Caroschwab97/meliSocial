@@ -219,5 +219,39 @@
     "price": 49.99,
     "hasPromo": false,
     "discount": 0.0
+  },
+  {
+    "id": 14,
+    "userId": 6,
+    "date": "15-12-2024",
+    "product": {
+      "id": 2,
+      "name": "Zapatillas",
+      "type": "Calzado",
+      "brand": "Adidas",
+      "color": "Negro",
+      "notes": "Zapatillas cómodas para uso diario."
+    },
+    "category": 2,
+    "price": 109.87,
+    "hasPromo": false,
+    "discount": 0.0
+  },
+  {
+    "id": 15,
+    "userId": 6,
+    "date": "13-12-2024",
+    "product": {
+      "id": 2,
+      "name": "Mouse",
+      "type": "Tecnología",
+      "brand": "Logitech",
+      "color": "Negro",
+      "notes": "Mouse hergonómico altamente recomendado!."
+    },
+    "category": 55,
+    "price": 15.99,
+    "hasPromo": true,
+    "discount": 0.5
   }
 ]
