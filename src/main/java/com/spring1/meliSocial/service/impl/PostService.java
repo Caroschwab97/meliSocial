@@ -148,8 +148,8 @@ public class PostService implements IPostService {
         );
     }
 
-    public List<RequestPostDto> getAll(){
-        return objectMapper.convertValue(postRepository.getPosts(), new TypeReference<List<RequestPostDto>>() {});
+    public List<ResponsePostDto> getAll(){
+        return postRepository.getPosts().stream().map(p -> customMapper.mapToResponsePostDto(p)).toList();
     }
 
     @Override
@@ -162,7 +162,7 @@ public class PostService implements IPostService {
 
 
     @Override
-    public List<RequestPostDto> getBestProductsOnPromo(Integer category) {
+    public List<ResponsePostDto> getBestProductsOnPromo(Integer category) {
         List<Post> bestProductsOnPromo = postRepository.getBestProductsOnPromo();
 
         if (bestProductsOnPromo.isEmpty()) {
@@ -174,7 +174,7 @@ public class PostService implements IPostService {
                 .filter(post -> category == null || post.getCategory() == (int) category)
                 .sorted((p1, p2) -> Double.compare(p2.getDiscount(), p1.getDiscount()))
                 .limit(10)
-                .map(post -> this.objectMapper.convertValue(post, RequestPostDto.class))
+                .map(post -> customMapper.mapToResponsePostDto(post))
                 .toList();
     }
 

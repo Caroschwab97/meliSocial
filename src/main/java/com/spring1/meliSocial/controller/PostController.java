@@ -4,6 +4,7 @@ import com.spring1.meliSocial.dto.request.RequestPostDto;
 import com.spring1.meliSocial.dto.response.PostIndexDto;
 import com.spring1.meliSocial.dto.response.ResponseDto;
 import com.spring1.meliSocial.dto.request.ProductPromoDto;
+import com.spring1.meliSocial.dto.response.ResponsePostDto;
 import com.spring1.meliSocial.service.IPostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -44,7 +45,7 @@ public class PostController {
 
     @GetMapping("best/promo-post")
     public ResponseEntity<?> getBestProductsOnPromo(@RequestParam(required = false) Integer category){
-        return new ResponseEntity<List<RequestPostDto>>(service.getBestProductsOnPromo(category), HttpStatus.OK);
+        return new ResponseEntity<List<ResponsePostDto>>(service.getBestProductsOnPromo(category), HttpStatus.OK);
     }
 
     @PatchMapping("update-promo/{id}/{discount}")
@@ -54,7 +55,7 @@ public class PostController {
     }
 
     @GetMapping("all")
-    public ResponseEntity<List<RequestPostDto>> getAll() {
+    public ResponseEntity<List<ResponsePostDto>> getAll() {
         return ResponseEntity.ok(service.getAll());
     }
 
