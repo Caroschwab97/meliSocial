@@ -57,8 +57,10 @@ public class PostRepository implements IPostRepository {
     }
 
     @Override
-    public void addNewProductPromo(Post product) {
-        posts.add(product);
+    public void addNewProductPromo(Post post) {
+        int countId = lastId()+1;
+        post.setId(countId);
+        posts.add(post);
     }
 
     @Override
