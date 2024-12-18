@@ -93,6 +93,9 @@ public class PostService implements IPostService {
         if (productDto.getDiscount() > 1)
             throw new BadRequestException("El descuento no puede superar el 100%");
 
+        if (productDto.getDiscount() < 0.01)
+            throw new BadRequestException("El descuento no puede ser menor o igual a 0");
+
         Post post = objectMapper.convertValue(productDto, Post.class);
 
         Product product = objectMapper.convertValue(productDto.getProduct(), Product.class);
@@ -175,6 +178,9 @@ public class PostService implements IPostService {
 
         if (discount > 1)
             throw new BadRequestException("El descuento no puede superar el 100%");
+
+        if (discount < 0.01)
+            throw new BadRequestException("El descuento no puede ser menor o igual a 0");
 
         postRepository.updatePromoDiscount(id, discount);
         return new ResponseDto("La promoción se actualizó correctamente");
