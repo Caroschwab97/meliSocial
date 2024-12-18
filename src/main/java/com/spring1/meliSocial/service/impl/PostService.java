@@ -63,6 +63,10 @@ public class PostService implements IPostService {
         if(idUser.isEmpty()){
             throw new NotFoundException("El usuario con id: " + requestPostDto.getUserId() + " no existe");
         }
+
+        if (requestPostDto.getPrice() <= 0)
+            throw new BadRequestException("El precio no puede ser menor o igual a 0");
+
         Post post = objectMapper.convertValue(requestPostDto,Post.class);
         saveNewProduct(post);
         postRepository.saveNewPost(post);
@@ -81,6 +85,12 @@ public class PostService implements IPostService {
     public ResponseDto addNewProductPromo(ProductPromoDto productDto) {
         if(!productDto.isHasPromo())
             throw new BadRequestException("La publicación no cuenta con promo.");
+
+        if (productDto.getPrice() <= 0)
+            throw new BadRequestException("El precio no puede ser menor o igual a 0");
+
+        if (productDto.getDiscount() > 1)
+            throw new BadRequestException("El descuento no puede superar el 100%");
 
         Post post = objectMapper.convertValue(productDto, Post.class);
 
@@ -110,7 +120,7 @@ public class PostService implements IPostService {
         Optional<User> user = userRepository.getUserById(userId);
 
         if (user.isEmpty()) {
-            throw new NotFoundException("No se encontro el usuario.");
+            throw new NotFoundException("No se encontró el usuario.");
         }
 
         List<Integer> followedIds = user.get().getFollowed();
@@ -192,6 +202,9 @@ public class PostService implements IPostService {
     public ResponseDto updatePrice(int id, double price) {
         if (!postRepository.existsPost(id))
             throw new NotFoundException ("La publicación que quiere modificar con ID: " + id + " no existe.");
+
+        if (price <= 0)
+            throw new BadRequestException("El precio no puede ser menor o igual a 0");
 
         postRepository.updatePrice(id,price);
         return new ResponseDto("Se actualizó el precio del posteo con ID: " + id);
