@@ -18,7 +18,7 @@ public interface IUserService {
 
     ResponseDto addFavouritePost(int userId, int postId);
 
-    ResponseDto removeFavouritePost(int userId, int postId);
+    void removeFavouritePost(int userId, int postId);
 
     FavouritePostsDto getFavouritePostsFromUser(int userId);
 }

@@ -179,7 +179,7 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public ResponseDto removeFavouritePost(int userId, int postId) {
+    public void removeFavouritePost(int userId, int postId) {
         if (!userRepository.existsUserWithId(userId)) {
             throw new NotFoundException("El usuario con ID: " + userId + " no existe.");
         }
@@ -190,8 +190,6 @@ public class UserService implements IUserService {
         }
 
         userRepository.removeFavouritePost(userId, postId);
-
-        return new ResponseDto("El post fue removido de favoritos de forma exitosa");
     }
 
     @Override
