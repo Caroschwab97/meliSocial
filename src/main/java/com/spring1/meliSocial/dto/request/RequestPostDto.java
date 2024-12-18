@@ -27,7 +27,4 @@ public class RequestPostDto {
     private ProductDto product;
     private int category;
     private double price; //precio original
-    private boolean hasPromo;
-    private double discount;
-
 }

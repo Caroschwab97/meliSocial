@@ -74,7 +74,8 @@ public class PostService implements IPostService {
     }
 
     public void saveNewProduct(Post post){
-        if(productRepository.existsProductWithId(post.getProduct().getId())){
+        Product product = objectMapper.convertValue(post.getProduct(), Product.class);
+        if(productRepository.existsProductWithId(product.getId())){
             throw new ExistingDataException("El producto con el id " + post.getProduct().getId() + " ya existe");
         }
 
@@ -91,6 +92,9 @@ public class PostService implements IPostService {
 
         if (productDto.getDiscount() > 1)
             throw new BadRequestException("El descuento no puede superar el 100%");
+
+        if (productDto.getDiscount() < 0.01)
+            throw new BadRequestException("El descuento no puede ser menor o igual a 0");
 
         Post post = objectMapper.convertValue(productDto, Post.class);
 
@@ -174,6 +178,9 @@ public class PostService implements IPostService {
 
         if (discount > 1)
             throw new BadRequestException("El descuento no puede superar el 100%");
+
+        if (discount < 0.01)
+            throw new BadRequestException("El descuento no puede ser menor o igual a 0");
 
         postRepository.updatePromoDiscount(id, discount);
         return new ResponseDto("La promoción se actualizó correctamente");

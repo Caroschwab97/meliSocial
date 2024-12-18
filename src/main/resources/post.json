@@ -208,7 +208,7 @@
     "userId": 1,
     "date": "17-12-2024",
     "product": {
-      "id": 2,
+      "id": 13,
       "name": "Zapatillas",
       "type": "Calzado",
       "brand": "Adidas",
@@ -225,7 +225,7 @@
     "userId": 6,
     "date": "15-12-2024",
     "product": {
-      "id": 2,
+      "id": 14,
       "name": "Zapatillas",
       "type": "Calzado",
       "brand": "Adidas",
@@ -242,7 +242,7 @@
     "userId": 6,
     "date": "13-12-2024",
     "product": {
-      "id": 2,
+      "id": 15,
       "name": "Mouse",
       "type": "Tecnología",
       "brand": "Logitech",
@@ -253,5 +253,22 @@
     "price": 15.99,
     "hasPromo": true,
     "discount": 0.5
+  },
+  {
+    "id": 16,
+    "userId": 8,
+    "date": "17-12-2024",
+    "product": {
+      "id": 16,
+      "name": "Gorro",
+      "type": "Ropa",
+      "brand": "DC",
+      "color": "Negro",
+      "notes": "Gorro negro skater"
+    },
+    "category": 2,
+    "price": 20.99,
+    "hasPromo": true,
+    "discount": 0.3
   }
 ]
