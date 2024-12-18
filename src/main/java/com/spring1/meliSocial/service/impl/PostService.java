@@ -79,6 +79,9 @@ public class PostService implements IPostService {
 
     @Override
     public ResponseDto addNewProductPromo(ProductPromoDto productDto) {
+        if(!productDto.isHasPromo())
+            throw new BadRequestException("La publicación no cuenta con promo.");
+
         Post post = objectMapper.convertValue(productDto, Post.class);
 
         Product product = objectMapper.convertValue(productDto.getProduct(), Product.class);
