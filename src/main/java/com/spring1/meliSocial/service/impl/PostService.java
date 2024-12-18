@@ -74,7 +74,8 @@ public class PostService implements IPostService {
     }
 
     public void saveNewProduct(Post post){
-        if(productRepository.existsProductWithId(post.getProduct().getId())){
+        Product product = objectMapper.convertValue(post.getProduct(), Product.class);
+        if(productRepository.existsProductWithId(product.getId())){
             throw new ExistingDataException("El producto con el id " + post.getProduct().getId() + " ya existe");
         }
 

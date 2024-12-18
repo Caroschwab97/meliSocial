@@ -1,7 +1,6 @@
 package com.spring1.meliSocial.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.spring1.meliSocial.dto.request.RequestPostDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

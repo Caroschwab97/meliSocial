@@ -67,7 +67,7 @@ public class UserRepository implements IUserRepository {
         boolean followed = user.get().getFollowed().remove(Integer.valueOf(userIdToUnfollow));
         boolean followers = userUnfollowed.get().getFollowers().remove(Integer.valueOf(userId));
 
-        return  followed && followers ;
+        return  followed && followers;
     }
 
     @Override
