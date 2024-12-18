@@ -260,18 +260,18 @@
 				{
 					"name": "US00014 - Add favourite post",
 					"request": {
-						"method": "PATCH",
+						"method": "POST",
 						"header": [],
-						"url": "{{base_url}}/users/1/favourite-post/2/add"
+						"url": "{{base_url}}/users/1/favourite-post/2"
 					},
 					"response": []
 				},
 				{
 					"name": "US00014 - Remove favourite post",
 					"request": {
-						"method": "PATCH",
+						"method": "DELETE",
 						"header": [],
-						"url": "{{base_url}}/users/1/favourite-post/2/remove"
+						"url": "{{base_url}}/users/1/favourite-post/2"
 					},
 					"response": []
 				},
