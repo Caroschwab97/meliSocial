@@ -1,31 +1,33 @@
 [
   {
     "id": 1,
-    "userName": "vendedor",
+    "userName": "Agustina Lopez",
     "seller": true,
-    "followers": [2,3],
+    "followers": [2,3,5,6],
     "followed": [],
     "products": [1,2]
   },
   {
     "id": 2,
-    "userName": "comprador2",
+    "userName": "Bautista Gomez",
     "seller": false,
     "followers": [],
     "followed": [1],
-    "products": []
+    "products": [],
+    "favouritesPosts": [1]
   },
   {
     "id": 3,
-    "userName": "comprador3",
+    "userName": "Carlos Perez",
     "seller": false,
     "followers": [],
     "followed": [1],
-    "products": []
+    "products": [],
+    "favouritesPosts": [1,2]
   },
   {
     "id": 4,
-    "userName": "comprador4",
+    "userName": "Diana Carla",
     "seller": false,
     "followers": [],
     "followed": [],
@@ -33,10 +35,34 @@
   },
   {
     "id": 5,
-    "userName": "comprador5",
+    "userName": "Esteban Marquez",
+    "seller": false,
+    "followers": [],
+    "followed": [1, 6],
+    "products": []
+  },
+  {
+    "id": 6,
+    "userName": "Fausto Smith",
+    "seller": true,
+    "followers": [5],
+    "followed": [1],
+    "products": [3]
+  },
+  {
+    "id": 7,
+    "userName": "Jose Pepe",
     "seller": false,
     "followers": [],
     "followed": [],
     "products": []
+  },
+  {
+    "id": 8,
+    "userName": "Juan Roman",
+    "seller": true,
+    "followers": [],
+    "followed": [],
+    "products": [4]
   }
 ]
