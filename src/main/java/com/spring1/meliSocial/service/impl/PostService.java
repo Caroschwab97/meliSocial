@@ -158,6 +158,10 @@ public class PostService implements IPostService {
     public ResponseDto updatePromoDiscount(int id, double discount) {
         if(!postRepository.existsPost(id))
             throw new NotFoundException("La publicación que quiere modificar no existe");
+
+        if (discount > 1)
+            throw new BadRequestException("El descuento no puede superar el 100%");
+
         postRepository.updatePromoDiscount(id, discount);
         return new ResponseDto("La promoción se actualizó correctamente");
     }
