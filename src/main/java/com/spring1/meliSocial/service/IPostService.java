@@ -7,6 +7,7 @@ import com.spring1.meliSocial.dto.request.ProductPromoDto;
 import com.spring1.meliSocial.dto.response.PostIndexDto;
 import com.spring1.meliSocial.dto.response.PostPromoDto;
 import com.spring1.meliSocial.dto.response.ResponseDto;
+import com.spring1.meliSocial.dto.response.ResponsePostDto;
 
 import java.util.List;
 
@@ -21,11 +22,11 @@ public interface IPostService {
 
     PostPromoDto getProductsOnPromo(int userId);
 
-    List<RequestPostDto> getBestProductsOnPromo(Integer category);
+    List<ResponsePostDto> getBestProductsOnPromo(Integer category);
 
     ResponseDto updatePromoDiscount(int id, double discount);
 
-    List<RequestPostDto> getAll();
+    List<ResponsePostDto> getAll();
 
     ResponseDto updatePrice(int id, double price);
 
