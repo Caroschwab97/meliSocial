@@ -11,6 +11,7 @@ import com.spring1.meliSocial.model.User;
 import com.spring1.meliSocial.repository.IPostRepository;
 import com.spring1.meliSocial.repository.IUserRepository;
 import com.spring1.meliSocial.service.IUserService;
+import com.spring1.meliSocial.validation.OrderValidation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -55,7 +56,7 @@ public class UserService implements IUserService {
     }
 
     private List<FollowerDto> getFollowerDtoSortedList(String orderMethod, List<User> userFollowers) {
-        validateOrderMethodParam(orderMethod);
+        OrderValidation.validateOrderMethodParam(orderMethod);
 
         Stream<FollowerDto> userFollowersDtoStream = userFollowers
                 .stream()
@@ -88,7 +89,7 @@ public class UserService implements IUserService {
     }
 
     private List<FollowedDto> getFollowedDtoSortedList(String orderMethod, List<User> usersFollowedByUser) {
-        validateOrderMethodParam(orderMethod);
+        OrderValidation.validateOrderMethodParam(orderMethod);
 
         Stream<FollowedDto> usersFollowedByUserStream = usersFollowedByUser
                 .stream()
@@ -210,13 +211,5 @@ public class UserService implements IUserService {
                         .map(post -> customMapper.mapToResponsePostDto(post))
                         .toList()
         );
-    }
-
-
-    private void validateOrderMethodParam(String orderMethod) {
-        if (orderMethod != null && !orderMethod.isEmpty() && !orderMethod.equalsIgnoreCase("name_asc") &&
-                !orderMethod.equalsIgnoreCase("name_desc")) {
-            throw new BadRequestException("Parámetros inválidos.");
-        }
     }
 }
