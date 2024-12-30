@@ -28,6 +28,7 @@ public class User {
         this.products = new ArrayList<>();
         this.favouritesPosts = new HashSet<>();
     }
+
 }
 
 
