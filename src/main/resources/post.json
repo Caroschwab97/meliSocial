@@ -270,5 +270,39 @@
     "price": 20.99,
     "hasPromo": true,
     "discount": 0.3
+  },
+  {
+    "id": 17,
+    "userId": 8,
+    "date": "17-12-2024",
+    "product": {
+      "id": 16,
+      "name": "Gorro",
+      "type": "Ropa",
+      "brand": "DC",
+      "color": "Negro",
+      "notes": "Gorro negro skater"
+    },
+    "category": 2,
+    "price": 20.99,
+    "hasPromo": true,
+    "discount": 0.3
+  },
+  {
+    "id": 18,
+    "userId": 8,
+    "date": "27-12-2024",
+    "product": {
+      "id": 15,
+      "name": "Mouse",
+      "type": "Tecnología",
+      "brand": "Logitech",
+      "color": "Negro",
+      "notes": "Mouse hergonómico altamente recomendado!."
+    },
+    "category": 55,
+    "price": 15.99,
+    "hasPromo": true,
+    "discount": 0.5
   }
 ]
