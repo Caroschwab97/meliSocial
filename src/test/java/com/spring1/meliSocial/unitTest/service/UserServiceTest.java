@@ -1,15 +1,18 @@
 package com.spring1.meliSocial.unitTest.service;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import com.spring1.meliSocial.dto.response.ResponseDto;
 import com.spring1.meliSocial.exception.InternalServerErrorException;
 import com.spring1.meliSocial.exception.NotFoundException;
 import com.spring1.meliSocial.model.User;
 import com.spring1.meliSocial.repository.IUserRepository;
-import com.spring1.meliSocial.service.IUserService;
 import com.spring1.meliSocial.service.impl.UserService;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
+import com.spring1.meliSocial.dto.response.FollowedByUserDto;
+import com.spring1.meliSocial.dto.response.FollowedDto;
+import com.spring1.meliSocial.dto.response.FollowerDto;
+import com.spring1.meliSocial.dto.response.SellerFollowedDto;
+import com.spring1.meliSocial.mapper.IMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,7 +20,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.*;
@@ -28,6 +30,9 @@ public class UserServiceTest {
     @Mock
     IUserRepository userRepository;
 
+    @Mock
+    private IMapper customMapper;
+
     @InjectMocks
     UserService userService;
 
@@ -35,9 +40,13 @@ public class UserServiceTest {
     private int userIdWithUserToUnfollow;
     private User userWithUserToUnfollow;
     private User userToUnfollow;
+    private User follower1;
+    private User follower2;
+    private User seller;
 
     @BeforeEach
     public void setUp() {
+        // Set up tests unfollowUser
         userIdToUnfollow = 100;
         userIdWithUserToUnfollow = 10;
 
@@ -74,6 +83,76 @@ public class UserServiceTest {
                 followedUserToUnfollow,
                 productsUserToUnfollow,
                 favouritePostsUserToUnfollow);
+
+        // Set up tests getFollowersFromSeller
+        seller = new User(1, "seller1", true, List.of(2, 3), List.of(2, 3), new ArrayList<>(), new HashSet<>());
+
+        follower1 = new User(2, "Rocío", false, List.of(), new ArrayList<>(), new ArrayList<>(), new HashSet<>());
+        follower2 = new User(3, "Bob", false, List.of(),new ArrayList<>(), new ArrayList<>(), new HashSet<>());
+    }
+
+    @Test
+    public void testGetFollowersFromSeller_SortedByNameAscending() {
+        Mockito.when(userRepository.getUserById(1)).thenReturn(Optional.of(seller));
+        Mockito.when(userRepository.getUserById(2)).thenReturn(Optional.of(follower1));
+        Mockito.when(userRepository.getUserById(3)).thenReturn(Optional.of(follower2));
+
+        Mockito.when(customMapper.mapToFollowerDto(follower1)).thenReturn(new FollowerDto(2, "Rocío"));
+        Mockito.when(customMapper.mapToFollowerDto(follower2)).thenReturn(new FollowerDto(3, "Bob"));
+
+        SellerFollowedDto result = userService.getFollowersFromSeller(1, "name_asc");
+
+        List<FollowerDto> followers = result.getFollowers();
+        Assertions.assertEquals("Bob", followers.get(0).getUserName());
+        Assertions.assertEquals("Rocío", followers.get(1).getUserName());
+    }
+
+    @Test
+    public void testGetFollowersFromSeller_SortedByNameDescending() {
+        Mockito.when(userRepository.getUserById(1)).thenReturn(Optional.of(seller));
+        Mockito.when(userRepository.getUserById(2)).thenReturn(Optional.of(follower1));
+        Mockito.when(userRepository.getUserById(3)).thenReturn(Optional.of(follower2));
+
+        Mockito.when(customMapper.mapToFollowerDto(follower1)).thenReturn(new FollowerDto(2, "Rocío"));
+        Mockito.when(customMapper.mapToFollowerDto(follower2)).thenReturn(new FollowerDto(3, "Bob"));
+
+        SellerFollowedDto result = userService.getFollowersFromSeller(1, "name_desc");
+
+        List<FollowerDto> followers = result.getFollowers();
+        Assertions.assertEquals("Rocío", followers.get(0).getUserName());
+        Assertions.assertEquals("Bob", followers.get(1).getUserName());
+    }
+
+    @Test
+    public void testGetFollowedByUser_SortedByNameAscending() {
+        Mockito.when(userRepository.getUserById(1)).thenReturn(Optional.of(seller));
+        Mockito.when(userRepository.getUserById(2)).thenReturn(Optional.of(follower1));
+        Mockito.when(userRepository.getUserById(3)).thenReturn(Optional.of(follower2));
+
+        Mockito.when(customMapper.mapToFollowedDto(follower1)).thenReturn(new FollowedDto(2, "Rocío"));
+        Mockito.when(customMapper.mapToFollowedDto(follower2)).thenReturn(new FollowedDto(3, "Bob"));
+
+        FollowedByUserDto result = userService.getFollowedByUser(1, "name_asc");
+
+        List<FollowedDto> followers = result.getFollowed();
+        Assertions.assertEquals("Bob", followers.get(0).getUserName());
+        Assertions.assertEquals("Rocío", followers.get(1).getUserName());
+    }
+
+    @Test
+    public void testGetFollowedByUser_SortedByNameDescending() {
+        Mockito.when(userRepository.getUserById(1)).thenReturn(Optional.of(seller));
+        Mockito.when(userRepository.getUserById(2)).thenReturn(Optional.of(follower1));
+        Mockito.when(userRepository.getUserById(3)).thenReturn(Optional.of(follower2));
+
+        Mockito.when(customMapper.mapToFollowedDto(follower1)).thenReturn(new FollowedDto(2, "Rocío"));
+        Mockito.when(customMapper.mapToFollowedDto(follower2)).thenReturn(new FollowedDto(3, "Bob"));
+
+        FollowedByUserDto result = userService.getFollowedByUser(1, "name_desc");
+
+        List<FollowedDto> followers = result.getFollowed();
+        Assertions.assertEquals("Rocío", followers.get(0).getUserName());
+        Assertions.assertEquals("Bob", followers.get(1).getUserName());
     }
 
     @Test
