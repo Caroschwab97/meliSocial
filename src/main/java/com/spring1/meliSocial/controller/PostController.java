@@ -5,6 +5,7 @@ import com.spring1.meliSocial.dto.response.ResponseDto;
 import com.spring1.meliSocial.dto.request.ProductPromoDto;
 import com.spring1.meliSocial.dto.response.ResponsePostDto;
 import com.spring1.meliSocial.service.IPostService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,12 +21,12 @@ public class PostController {
     private IPostService service;
 
     @PostMapping("post")
-    public ResponseEntity<?> addNewPost(@RequestBody RequestPostDto requestPostDto){
+    public ResponseEntity<?> addNewPost(@Valid @RequestBody RequestPostDto requestPostDto){
         return new ResponseEntity<>(service.saveNewPost(requestPostDto), HttpStatus.OK);
     }
 
     @PostMapping("promo-post")
-    public ResponseEntity<?> post(@RequestBody ProductPromoDto dto) {
+    public ResponseEntity<?> post(@Valid @RequestBody ProductPromoDto dto) {
         return new ResponseEntity<>(service.addNewProductPromo(dto), HttpStatus.OK);
     }
 
