@@ -4,16 +4,17 @@ import com.spring1.meliSocial.dto.response.FollowedByUserDto;
 import com.spring1.meliSocial.dto.response.FollowedDto;
 import com.spring1.meliSocial.dto.response.FollowerDto;
 import com.spring1.meliSocial.dto.response.SellerFollowedDto;
+import com.spring1.meliSocial.exception.BadRequestException;
 import com.spring1.meliSocial.mapper.IMapper;
 import com.spring1.meliSocial.model.User;
 import com.spring1.meliSocial.repository.IUserRepository;
 import com.spring1.meliSocial.service.impl.UserService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -22,7 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -100,4 +101,49 @@ public class UserServiceTest {
         assertEquals("Rocío", followers.get(0).getUserName());
         assertEquals("Bob", followers.get(1).getUserName());
     }
+
+    @Test
+    @DisplayName("3 - Ante un RequestParam order invalido se verifica que lance una exception")
+    public void testGetFollowersFromSeller_WrongParamOrder() {
+        BadRequestException exception = assertThrows(BadRequestException.class, () -> {
+            userService.getFollowersFromSeller(1, "invalid_order");
+        });
+        assertEquals("Parámetros inválidos.", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("3.1 - Ante un RequestParam order invalido se verifica que lance una exception")
+    public void testGetFollowedByUser_WrongParamOrder() {
+        BadRequestException exception = assertThrows(BadRequestException.class, () -> {
+            userService.getFollowedByUser(1, "invalid_order");
+        });
+        assertEquals("Parámetros inválidos.", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("3.2 - Verificar que el tipo de ordenamiento alfabético exista para followers")
+    public void testGetFollowersFromSeller_CorrectParamOrder() {
+        when(customMapper.mapToFollowerDto(follower1)).thenReturn(new FollowerDto(2, "Rocío"));
+        when(customMapper.mapToFollowerDto(follower2)).thenReturn(new FollowerDto(3, "Bob"));
+
+        SellerFollowedDto result = userService.getFollowersFromSeller(1, "name_asc");
+
+        List<FollowerDto> followers = result.getFollowers();
+        assertNotNull(followers);
+        assertEquals(2, followers.size());
+    }
+
+    @Test
+    @DisplayName("3.3 - Verificar que el tipo de ordenamiento alfabético exista para listado de followes")
+    public void testGetFollowedByUser_CorrectParamOrder() {
+        when(customMapper.mapToFollowedDto(follower1)).thenReturn(new FollowedDto(2, "Rocío"));
+        when(customMapper.mapToFollowedDto(follower2)).thenReturn(new FollowedDto(3, "Bob"));
+
+        FollowedByUserDto result = userService.getFollowedByUser(1, "name_desc");
+
+        List<FollowedDto> followers = result.getFollowed();
+        assertNotNull(followers);
+        assertEquals(2, followers.size());
+    }
+
 }
