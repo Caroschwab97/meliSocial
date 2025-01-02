@@ -153,8 +153,26 @@ public class UserService implements IUserService {
 
     @Override
     public ResponseDto followUser(int userId, int userIdToFollow) {
+        User user = userRepository.getUserById(userId)
+                .orElseThrow(() -> new NotFoundException("El usuario con ID: " + userId + " no existe."));
+
+        User userToFollow = userRepository.getUserById(userIdToFollow)
+                .orElseThrow(() -> new NotFoundException("El usuario a seguir con ID: " + userIdToFollow + " no existe."));
+
         if (userId == userIdToFollow) {
             throw new BadRequestException("Un usuario no puede seguirse a sí mismo.");
+        }
+
+        if (user.getFollowed().contains(userIdToFollow)) {
+            throw new BadRequestException("El usuario con ID: " + userId + " ya sigue al usuario con ID: " + userIdToFollow);
+        }
+
+        if (!user.isSeller() && !userToFollow.isSeller()) {
+            throw new BadRequestException("Un comprador solo puede seguir a un usuario vendedor.");
+        }
+
+        if (!userToFollow.isSeller()) {
+            throw new BadRequestException("Solo se puede seguir a un usuario vendedor.");
         }
 
         userRepository.addFollow(userId,userIdToFollow);
