@@ -333,4 +333,65 @@ public class UserControllerIntegrationTest {
                 )
                 .andDo(print());
     }
+
+    @Test
+    @DisplayName("Agrega a favoritos")
+    public void testAddFavouritePostOK() throws Exception {
+        int user = 1;
+        int postId = 1;
+        ResponseDto result = new ResponseDto("El post fue agregado a favoritos de forma exitosa");
+
+        mockMvc.perform(post("/users/{userId}/favourite-post/{postId}",user,postId))
+                .andExpectAll(
+                        status().isOk(),
+                        content().contentType("application/json"),
+                        content().json(objectMapper.writeValueAsString(result)))
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("Agrega a favoritos - User NotFound")
+    public void testAddFavouritePostNotFoundExceptionUser() throws Exception {
+        int user = 100;
+        int postId = 1;
+        ResponseDto result = new ResponseDto("El usuario con ID: " + user + " no existe.");
+
+        mockMvc.perform(post("/users/{userId}/favourite-post/{postId}",user,postId))
+                .andExpectAll(
+                        status().isNotFound(),
+                        content().contentType("application/json"),
+                        content().json(objectMapper.writeValueAsString(result)))
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("Agrega a favoritos - Post NotFound")
+    public void testAddFavouritePostNotFoundExceptionPost() throws Exception {
+        int user = 1;
+        int postId = 100;
+        ResponseDto result = new ResponseDto("El post con ID: " + postId + " no existe.");
+
+        mockMvc.perform(post("/users/{userId}/favourite-post/{postId}",user,postId))
+                .andExpectAll(
+                        status().isNotFound(),
+                        content().contentType("application/json"),
+                        content().json(objectMapper.writeValueAsString(result)))
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("Agrega a favoritos - BadRequestException el post ya esta agregado")
+    public void testAddFavouritePostBadRequestException() throws Exception {
+        int user = 2;
+        int postId = 1;
+        ResponseDto result = new ResponseDto("El post con id " + postId + " ya está agregado a favoritos");
+
+        mockMvc.perform(post("/users/{userId}/favourite-post/{postId}",user,postId))
+                .andExpectAll(
+                        status().isBadRequest(),
+                        content().contentType("application/json"),
+                        content().json(objectMapper.writeValueAsString(result)))
+                .andDo(print());
+    }
+
 }
