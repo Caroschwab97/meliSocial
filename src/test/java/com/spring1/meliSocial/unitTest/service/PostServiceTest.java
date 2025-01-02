@@ -51,6 +51,7 @@ public class PostServiceTest {
     Post post19;
     Post oldPost200;
     Post oldPost300;
+
     List<Post> postsEsperados;
     ResponsePostDto postDto17;
     ResponsePostDto postDto18;
@@ -65,16 +66,16 @@ public class PostServiceTest {
         //test de post x order
         user9= new User(9, "Lucia Quezada", false, List.of(), List.of(8), List.of(), Set.of());
         post17 = new Post(17, 8, LocalDate.now().minusDays(2), new Product(), 2, 20.99, true, 0.3);
-        post18 = new Post(18, 8, LocalDate.now().minusDays(1), new Product(), 55, 15.99, true, 0.5);
+        post18 = new Post(18, 8, LocalDate.now(), new Product(), 55, 15.99, true, 0.5);
         post19 = new Post(19, 1, LocalDate.now(), new Product(), 55, 25.99, true, 0.5);
         postsEsperados = List.of(post17, post18);
         postDto17 = new ResponsePostDto(17, 8, LocalDate.now().minusDays(2), null, 2, 20.99, true, 0.3);
-        postDto18 = new ResponsePostDto(18, 8, LocalDate.now().minusDays(1), null, 55, 15.99, true, 0.5);
+        postDto18 = new ResponsePostDto(18, 8, LocalDate.now(), null, 55, 15.99, true, 0.5);
         oldPost200 = new Post(200, 1, LocalDate.now().minusDays(15), new Product(), 2, 22.00, false, 0.0);
         oldPost300 = new Post(300, 1, LocalDate.now().minusDays(15), new Product(), 2, 55.00, false, 0.0);
-
+        postDto17 = new ResponsePostDto(17, 8, LocalDate.now().minusDays(2), null, 2, 20.99, true, 0.3);
+        postDto18 = new ResponsePostDto(18, 8, LocalDate.now(), null, 55, 15.99, true, 0.5);
     }
-
 
     @Test
     @DisplayName("6- Verificar el correcto ordenamiento ascendente")
@@ -96,7 +97,7 @@ public class PostServiceTest {
         assertEquals(17, posteos.get(0).getId());
         assertEquals(18, posteos.get(1).getId());
         assertEquals(LocalDate.now().minusDays(2), posteos.get(0).getDate());
-        assertEquals(LocalDate.now().minusDays(1), posteos.get(1).getDate());
+        assertEquals(LocalDate.now(), posteos.get(1).getDate());
     }
 
     @Test
@@ -118,7 +119,7 @@ public class PostServiceTest {
         assertEquals(2, posteos.size());
         assertEquals(18, posteos.get(0).getId());
         assertEquals(17, posteos.get(1).getId());
-        assertEquals(LocalDate.now().minusDays(1), posteos.get(0).getDate());
+        assertEquals(LocalDate.now(), posteos.get(0).getDate());
         assertEquals(LocalDate.now().minusDays(2), posteos.get(1).getDate());
     }
 
