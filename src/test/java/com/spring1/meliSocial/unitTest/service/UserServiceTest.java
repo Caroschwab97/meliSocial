@@ -40,6 +40,7 @@ public class UserServiceTest {
     private User userToUnfollow;
     private User follower1;
     private User follower2;
+    private User follower3;
     private User seller;
 
     @BeforeEach
@@ -87,6 +88,7 @@ public class UserServiceTest {
 
         follower1 = new User(2, "Rocío", false, List.of(), new ArrayList<>(), new ArrayList<>(), new HashSet<>());
         follower2 = new User(3, "Bob", false, List.of(),new ArrayList<>(), new ArrayList<>(), new HashSet<>());
+        follower3 = new User(4, "Toby", false, List.of(),new ArrayList<>(), new ArrayList<>(), new HashSet<>());
     }
 
     @Test
@@ -260,16 +262,16 @@ public class UserServiceTest {
     @Test
     @DisplayName("Verificar que el usuario a seguir exista - OK.")
     public void testFollowUser_exists() {
-        int userId = follower1.getId();
+        int userId = follower3.getId();
         int userIdToFollow = seller.getId();
 
         Mockito.when(userRepository.getUserById(userIdToFollow)).thenReturn(Optional.of(seller));
-        Mockito.when(userRepository.getUserById(userId)).thenReturn(Optional.of(follower1));
+        Mockito.when(userRepository.getUserById(userId)).thenReturn(Optional.of(follower3));
 
         ResponseDto response = userService.followUser(userId, userIdToFollow);
 
         Assertions.assertNotNull(response);
-        Assertions.assertEquals("Siguiendo al usuario: null con ID: 1", response.getMessage());
+        Assertions.assertEquals("Siguiendo al usuario: " + userRepository.getUserNameById(userIdToFollow) + " con ID: " + userIdToFollow, response.getMessage());
     }
 
     @Test
