@@ -1,27 +1,44 @@
 package com.spring1.meliSocial.integrationTest;
 
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.spring1.meliSocial.dto.ExceptionDto;
+import com.spring1.meliSocial.dto.response.PostIndexDto;
 import com.spring1.meliSocial.dto.request.ProductPromoDto;
 import com.spring1.meliSocial.dto.request.RequestPostDto;
 import com.spring1.meliSocial.dto.response.PostPromoDto;
 import com.spring1.meliSocial.dto.response.ProductDto;
-import com.spring1.meliSocial.dto.response.ResponseDto;
-import org.junit.jupiter.api.BeforeEach;
+import com.spring1.meliSocial.dto.response.ResponsePostDto;
+import com.spring1.meliSocial.model.Post;
+import com.spring1.meliSocial.model.Product;
+import com.spring1.meliSocial.model.User;
+import com.spring1.meliSocial.repository.impl.PostRepository;
+import com.spring1.meliSocial.repository.impl.ProductRepository;
+import com.spring1.meliSocial.repository.impl.UserRepository;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.spring1.meliSocial.dto.request.RequestPostDto;
+import com.spring1.meliSocial.dto.response.ResponseDto;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultMatcher;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import java.util.stream.Stream;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -37,16 +54,74 @@ public class PostControllerIntegrationTest {
     @Autowired
     MockMvc mockMvc;
 
+    @Autowired
+    PostRepository postRepository;
+
+    @Autowired
+    ProductRepository productRepository;
+
+    @Autowired
+    UserRepository userRepository;
+
+    static ObjectMapper mapper;
+
     private static final ProductDto product1 = new ProductDto(17, "product1", "Ropa", "Marca", "Color", "");
     private static final RequestPostDto post1 = new RequestPostDto(1, LocalDate.now(), product1, 2, 100.0);
+
     private static final ProductPromoDto postPromo1 = new ProductPromoDto(1, LocalDate.now(), product1, 2, 100.0, true, 0.10);
 
-    ObjectMapper objectMapper = new ObjectMapper();
     String testDesc;
 
-    @BeforeEach
-    public void setUp() {
-        objectMapper.registerModule(new JavaTimeModule());
+    @BeforeAll
+    static void setup() {
+        mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+    }
+
+    public void generateUserWith2FollowedWithPosts(int userId, String username) {
+        int idFirstPost = 1000;
+        int idSecondPost = 1001;
+        int idFirstProduct = 80;
+        int idSecondProduct = 81;
+        int sellerId = 2000;
+
+        Product productFirstPost = new Product(
+                idFirstProduct,
+                "Mouse",
+                "Tecnología",
+                "Logitech",
+                "Negro",
+                "Mouse hergonómico altamente recomendado!.");
+        Product productSecondPost = new Product(
+                idSecondProduct,
+                "Gorro",
+                "Ropa",
+                "DC",
+                "Negro",
+                "Gorro negro skater");
+
+        User seller = new User(sellerId, "Jose Juarez", true, new ArrayList<>(List.of(userId)), new ArrayList<>(), new ArrayList<>(List.of(idFirstPost, idSecondPost)), new HashSet<>());
+        Post post1 = new Post(idFirstPost, seller.getId(), LocalDate.now(),
+                productFirstPost,
+                55,
+                15.99,
+                true,
+                0.5);
+
+        Post post2 = new Post(idSecondPost, seller.getId(), LocalDate.now().minusDays(1),
+                productSecondPost,
+                2,
+                20.99,
+                true,
+                0.3);
+
+        User user = new User(userId, username, false, new ArrayList<>(), new ArrayList<>(List.of(seller.getId())), new ArrayList<>(), new HashSet<>());
+
+        productRepository.addProduct(productFirstPost);
+        productRepository.addProduct(productSecondPost);
+        postRepository.saveNewPost(post1);
+        postRepository.saveNewPost(post2);
+        userRepository.getUsers().add(user);
     }
 
     private static Stream<Arguments> provideInvalidProducts() {
@@ -193,13 +268,13 @@ public class PostControllerIntegrationTest {
     @DisplayName("POST /products/post OK")
     public void testAddNewPost_Ok() throws Exception {
         ResponseDto responseDTO = new ResponseDto("Publicación creada");
-        ResultMatcher bodyEsperado = content().json(objectMapper.writeValueAsString(responseDTO));
+        ResultMatcher bodyEsperado = content().json(mapper.writeValueAsString(responseDTO));
         ResultMatcher statusEsperado = status().isOk();
         ResultMatcher contentTypeEsperado = content().contentType("application/json");
 
         mockMvc.perform(post("/products/post")
                         .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(post1)))
+                        .content(mapper.writeValueAsString(post1)))
                 .andExpect(statusEsperado)
                 .andExpect(contentTypeEsperado)
                 .andExpect(bodyEsperado)
@@ -212,7 +287,7 @@ public class PostControllerIntegrationTest {
     public void testAddNewPost_InvalidPostField(String _testDesc, String expectedMessage, RequestPostDto invalidPost) throws Exception {
         testDesc = _testDesc;
         ExceptionDto exceptionDto = new ExceptionDto(expectedMessage);
-        ResultMatcher bodyEsperado = content().json(objectMapper.writeValueAsString(exceptionDto));
+        ResultMatcher bodyEsperado = content().json(mapper.writeValueAsString(exceptionDto));
         ResultMatcher statusEsperado = status().isBadRequest();
         ResultMatcher contentTypeEsperado = content().contentType("application/json");
 
@@ -220,7 +295,7 @@ public class PostControllerIntegrationTest {
 
         mockMvc.perform(post("/products/post")
                         .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(invalidPost)))
+                        .content(mapper.writeValueAsString(invalidPost)))
                 .andExpect(statusEsperado)
                 .andExpect(contentTypeEsperado)
                 .andExpect(bodyEsperado)
@@ -233,7 +308,7 @@ public class PostControllerIntegrationTest {
     public void testAddNewPost_InvalidProductField(String _testDesc, String expectedMessage, ProductDto invalidProduct) throws Exception {
         testDesc = _testDesc;
         ExceptionDto exceptionDto = new ExceptionDto(expectedMessage);
-        ResultMatcher bodyEsperado = content().json(objectMapper.writeValueAsString(exceptionDto));
+        ResultMatcher bodyEsperado = content().json(mapper.writeValueAsString(exceptionDto));
         ResultMatcher statusEsperado = status().isBadRequest();
         ResultMatcher contentTypeEsperado = content().contentType("application/json");
 
@@ -241,7 +316,7 @@ public class PostControllerIntegrationTest {
 
         mockMvc.perform(post("/products/post")
                         .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(invalidPost)))
+                        .content(mapper.writeValueAsString(invalidPost)))
                 .andExpect(statusEsperado)
                 .andExpect(contentTypeEsperado)
                 .andExpect(bodyEsperado)
@@ -249,11 +324,151 @@ public class PostControllerIntegrationTest {
     }
 
     @Test
+    @DisplayName("Obtener posts de un usuario que no existe")
+    public void testGetPostsByUser_UserNotExists() throws Exception {
+        int userId = 300;
+        String messageExpected = "No se encontró el usuario.";
+
+        ResultMatcher expectedStatus = status().isNotFound();
+        ResultMatcher expectedContentType = content().contentType("application/json");
+        ResultMatcher expectedBody = content().json(mapper.writeValueAsString(new ExceptionDto(messageExpected)));
+
+        this.mockMvc
+                .perform(get("/products/followed/{userId}/list", userId))
+                .andExpectAll(
+                        expectedStatus, expectedContentType, expectedBody
+                ).andDo(print());
+    }
+
+    @Test
+    @DisplayName("Obtener posts de un usuario que existe pero no sigue a nadie")
+    public void testGetPostsByUser_UserWithZeroFollowed() throws Exception {
+        int userId = 1;
+        PostIndexDto expectedJsonContent = new PostIndexDto(userId, new ArrayList<>());
+
+        ResultMatcher expectedStatus = status().isOk();
+        ResultMatcher expectedContentType = content().contentType("application/json");
+        ResultMatcher expectedBody = content().json(mapper.writeValueAsString(expectedJsonContent));
+
+        this.mockMvc
+                .perform(get("/products/followed/{userId}/list", userId))
+                .andExpectAll(
+                        expectedStatus, expectedContentType, expectedBody
+                ).andDo(print());
+    }
+
+    @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
+    @Test
+    @DisplayName("Obtener posts de un usuario con seguidos de manera ascendente")
+    public void testGetPostsByUser_UserWithFollowedByAscOrder() throws Exception {
+        int userId = 10;
+        String userName = "John Doe";
+        int lastId = postRepository.lastId();
+        generateUserWith2FollowedWithPosts(userId, userName);
+
+        ResponsePostDto post1 = new ResponsePostDto(
+                lastId + 1,
+                2000,
+                LocalDate.now(),
+                new ProductDto(80,
+                        "Mouse",
+                        "Tecnología",
+                        "Logitech",
+                        "Negro",
+                        "Mouse hergonómico altamente recomendado!."),
+                55,
+                15.99,
+                true,
+                0.5);
+
+        ResponsePostDto post2 = new ResponsePostDto(
+                lastId + 2,
+                2000,
+                LocalDate.now().minusDays(1),
+                new ProductDto(81,
+                        "Gorro",
+                        "Ropa",
+                        "DC",
+                        "Negro",
+                        "Gorro negro skater"),
+                2,
+                20.99,
+                true,
+                0.3);
+
+        PostIndexDto expectedJsonContent = new PostIndexDto(userId, new ArrayList<>(List.of(post1, post2)));
+
+        ResultMatcher expectedStatus = status().isOk();
+        ResultMatcher expectedContentType = content().contentType("application/json");
+        ResultMatcher expectedBody = content().json(mapper.writeValueAsString(expectedJsonContent));
+
+        this.mockMvc
+                .perform(get("/products/followed/{userId}/list", userId)
+                        .param("order", "date_asc"))
+                .andExpectAll(
+                        expectedStatus, expectedContentType, expectedBody
+                ).andDo(print());
+    }
+
+    @Test
+    @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
+    @DisplayName("Obtener posts de un usuario con seguidos de manera descendente")
+    public void testGetPostsByUser_UserWithFollowedByDescOrder() throws Exception {
+        int userId = 10;
+        String userName = "John Doe";
+        int lastId = postRepository.lastId();
+        generateUserWith2FollowedWithPosts(userId, userName);
+
+        ResponsePostDto post1 = new ResponsePostDto(
+                lastId + 1,
+                2000,
+                LocalDate.now(),
+                new ProductDto(80,
+                        "Mouse",
+                        "Tecnología",
+                        "Logitech",
+                        "Negro",
+                        "Mouse hergonómico altamente recomendado!."),
+                55,
+                15.99,
+                true,
+                0.5);
+
+        ResponsePostDto post2 = new ResponsePostDto(
+                lastId + 2,
+                2000,
+                LocalDate.now().minusDays(1),
+                new ProductDto(81,
+                        "Gorro",
+                        "Ropa",
+                        "DC",
+                        "Negro",
+                        "Gorro negro skater"),
+                2,
+                20.99,
+                true,
+                0.3);
+
+        PostIndexDto expectedJsonContent = new PostIndexDto(userId, new ArrayList<>(List.of(post2, post1)));
+
+        ResultMatcher expectedStatus = status().isOk();
+        ResultMatcher expectedContentType = content().contentType("application/json");
+        ResultMatcher expectedBody = content().json(mapper.writeValueAsString(expectedJsonContent));
+
+        this.mockMvc
+                .perform(get("/products/followed/{userId}/list", userId)
+                        .param("order", "date_desc"))
+                .andExpectAll(
+                        expectedStatus, expectedContentType, expectedBody
+                )
+                .andDo(print());
+    }
+
     @DisplayName("POST /products/post Product already exists")
     public void testAddNewPost_Product_Conflict() throws Exception {
         int invalidProductId = 1;
         ExceptionDto exceptionDTO = new ExceptionDto("El producto con el id " + invalidProductId + " ya existe");
-        ResultMatcher bodyEsperado = content().json(objectMapper.writeValueAsString(exceptionDTO));
+        ResultMatcher bodyEsperado = content().json(mapper.writeValueAsString(exceptionDTO));
         ResultMatcher statusEsperado = status().isConflict();
         ResultMatcher contentTypeEsperado = content().contentType("application/json");
 
@@ -262,10 +477,28 @@ public class PostControllerIntegrationTest {
 
         mockMvc.perform(post("/products/post")
                         .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(invalidPost)))
+                        .content(mapper.writeValueAsString(invalidPost)))
                 .andExpect(statusEsperado)
                 .andExpect(contentTypeEsperado)
-                .andExpect(bodyEsperado)
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("Query param 'order' inválido")
+    public void  testGetPostsByUser_InvalidQueryParam() throws Exception {
+        int userId = 9;
+        String messageExpected = "Parámetros inválidos.";
+
+        ResultMatcher expectedStatus = status().isBadRequest();
+        ResultMatcher expectedContentType = content().contentType("application/json");
+        ResultMatcher expectedBody = content().json(mapper.writeValueAsString(new ExceptionDto(messageExpected)));
+
+        this.mockMvc
+                .perform(get("/products/followed/{userId}/list", userId)
+                        .param("order", "date_desccc"))
+                .andExpectAll(
+                        expectedStatus, expectedContentType, expectedBody
+                )
                 .andDo(print());
     }
 
@@ -274,7 +507,7 @@ public class PostControllerIntegrationTest {
     public void testAddNewPost_User_Not_Found() throws Exception {
         int invalidUserId = 120;
         ExceptionDto exceptionDTO = new ExceptionDto("El usuario con id: " + invalidUserId + " no existe");
-        ResultMatcher bodyEsperado = content().json(objectMapper.writeValueAsString(exceptionDTO));
+        ResultMatcher bodyEsperado = content().json(mapper.writeValueAsString(exceptionDTO));
         ResultMatcher statusEsperado = status().isNotFound();
         ResultMatcher contentTypeEsperado = content().contentType("application/json");
 
@@ -282,7 +515,7 @@ public class PostControllerIntegrationTest {
 
         mockMvc.perform(post("/products/post")
                         .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(postUserNotFound)))
+                        .content(mapper.writeValueAsString(postUserNotFound)))
                 .andExpect(statusEsperado)
                 .andExpect(contentTypeEsperado)
                 .andExpect(bodyEsperado)
@@ -293,13 +526,13 @@ public class PostControllerIntegrationTest {
     @DisplayName("POST /products/promo-post OK")
     public void testPost_Ok() throws Exception {
         ResponseDto responseDTO = new ResponseDto("Publicación con promoción creada");
-        ResultMatcher bodyEsperado = content().json(objectMapper.writeValueAsString(responseDTO));
+        ResultMatcher bodyEsperado = content().json(mapper.writeValueAsString(responseDTO));
         ResultMatcher statusEsperado = status().isOk();
         ResultMatcher contentTypeEsperado = content().contentType("application/json");
 
         mockMvc.perform(post("/products/promo-post")
                         .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(postPromo1)))
+                        .content(mapper.writeValueAsString(postPromo1)))
                 .andExpect(statusEsperado)
                 .andExpect(contentTypeEsperado)
                 .andExpect(bodyEsperado)
@@ -312,7 +545,7 @@ public class PostControllerIntegrationTest {
     public void testPost_InvalidPostField(String _testDesc, String expectedMessage, ProductPromoDto invalidPost) throws Exception {
         testDesc = _testDesc;
         ExceptionDto exceptionDto = new ExceptionDto(expectedMessage);
-        ResultMatcher bodyEsperado = content().json(objectMapper.writeValueAsString(exceptionDto));
+        ResultMatcher bodyEsperado = content().json(mapper.writeValueAsString(exceptionDto));
         ResultMatcher statusEsperado = status().isBadRequest();
         ResultMatcher contentTypeEsperado = content().contentType("application/json");
 
@@ -320,7 +553,7 @@ public class PostControllerIntegrationTest {
 
         mockMvc.perform(post("/products/promo-post")
                         .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(invalidPost)))
+                        .content(mapper.writeValueAsString(invalidPost)))
                 .andExpect(statusEsperado)
                 .andExpect(contentTypeEsperado)
                 .andExpect(bodyEsperado)
@@ -333,7 +566,7 @@ public class PostControllerIntegrationTest {
     public void testPost_InvalidProductField(String _testDesc, String expectedMessage, ProductDto invalidProduct) throws Exception {
         testDesc = _testDesc;
         ExceptionDto exceptionDto = new ExceptionDto(expectedMessage);
-        ResultMatcher bodyEsperado = content().json(objectMapper.writeValueAsString(exceptionDto));
+        ResultMatcher bodyEsperado = content().json(mapper.writeValueAsString(exceptionDto));
         ResultMatcher statusEsperado = status().isBadRequest();
         ResultMatcher contentTypeEsperado = content().contentType("application/json");
 
@@ -341,7 +574,7 @@ public class PostControllerIntegrationTest {
 
         mockMvc.perform(post("/products/promo-post")
                         .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(invalidPost)))
+                        .content(mapper.writeValueAsString(invalidPost)))
                 .andExpect(statusEsperado)
                 .andExpect(contentTypeEsperado)
                 .andExpect(bodyEsperado)
@@ -353,7 +586,7 @@ public class PostControllerIntegrationTest {
     public void testPost_User_Not_Found() throws Exception {
         int invalidUserId = 120;
         ExceptionDto exceptionDTO = new ExceptionDto("El id del vendedor no existe");
-        ResultMatcher bodyEsperado = content().json(objectMapper.writeValueAsString(exceptionDTO));
+        ResultMatcher bodyEsperado = content().json(mapper.writeValueAsString(exceptionDTO));
         ResultMatcher statusEsperado = status().isNotFound();
         ResultMatcher contentTypeEsperado = content().contentType("application/json");
 
@@ -361,7 +594,7 @@ public class PostControllerIntegrationTest {
 
         mockMvc.perform(post("/products/promo-post")
                         .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(postPromoUserNotFound)))
+                        .content(mapper.writeValueAsString(postPromoUserNotFound)))
                 .andExpect(statusEsperado)
                 .andExpect(contentTypeEsperado)
                 .andExpect(bodyEsperado)
@@ -373,7 +606,7 @@ public class PostControllerIntegrationTest {
     public void testPost_Product_Conflict() throws Exception {
         int invalidProductId = 1;
         ExceptionDto exceptionDTO = new ExceptionDto("El id del producto ya existe en una publicación");
-        ResultMatcher bodyEsperado = content().json(objectMapper.writeValueAsString(exceptionDTO));
+        ResultMatcher bodyEsperado = content().json(mapper.writeValueAsString(exceptionDTO));
         ResultMatcher statusEsperado = status().isBadRequest();
         ResultMatcher contentTypeEsperado = content().contentType("application/json");
 
@@ -382,7 +615,7 @@ public class PostControllerIntegrationTest {
 
         mockMvc.perform(post("/products/promo-post")
                         .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(postPromoUserIsNotSeller)))
+                        .content(mapper.writeValueAsString(postPromoUserIsNotSeller)))
                 .andExpect(statusEsperado)
                 .andExpect(contentTypeEsperado)
                 .andExpect(bodyEsperado)
@@ -394,7 +627,7 @@ public class PostControllerIntegrationTest {
     public void testPost_User_Is_Not_Seller() throws Exception {
         int invalidUserId = 2;
         ExceptionDto exceptionDTO = new ExceptionDto("El id que ingresó es de un usuario comprador");
-        ResultMatcher bodyEsperado = content().json(objectMapper.writeValueAsString(exceptionDTO));
+        ResultMatcher bodyEsperado = content().json(mapper.writeValueAsString(exceptionDTO));
         ResultMatcher statusEsperado = status().isBadRequest();
         ResultMatcher contentTypeEsperado = content().contentType("application/json");
 
@@ -402,7 +635,7 @@ public class PostControllerIntegrationTest {
 
         mockMvc.perform(post("/products/promo-post")
                         .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(postPromoUserIsNotSeller)))
+                        .content(mapper.writeValueAsString(postPromoUserIsNotSeller)))
                 .andExpect(statusEsperado)
                 .andExpect(contentTypeEsperado)
                 .andExpect(bodyEsperado)
@@ -413,7 +646,7 @@ public class PostControllerIntegrationTest {
     @DisplayName("POST /products/promo-post Invalid Json")
     public void testPost_testCreateInvalidJson() throws Exception {
         ExceptionDto exceptionDTO = new ExceptionDto("Formato invalido en la request.");
-        ResultMatcher bodyEsperado = content().json(objectMapper.writeValueAsString(exceptionDTO));
+        ResultMatcher bodyEsperado = content().json(mapper.writeValueAsString(exceptionDTO));
         ResultMatcher statusEsperado = status().isBadRequest();
         ResultMatcher contentTypeEsperado = content().contentType("application/json");
 
@@ -430,7 +663,7 @@ public class PostControllerIntegrationTest {
     @DisplayName("POST /products/promo-post Invalid Date Format")
     public void testPost_testCreateInvalidDateFormat() throws Exception {
         ExceptionDto exceptionDTO = new ExceptionDto("Ingrese un formato válido de fecha como dd-MM-YYYY");
-        ResultMatcher bodyEsperado = content().json(objectMapper.writeValueAsString(exceptionDTO));
+        ResultMatcher bodyEsperado = content().json(mapper.writeValueAsString(exceptionDTO));
         ResultMatcher statusEsperado = status().isBadRequest();
         ResultMatcher contentTypeEsperado = content().contentType("application/json");
 
@@ -455,7 +688,7 @@ public class PostControllerIntegrationTest {
 
         ResultMatcher statusEsperado = status().isOk();
         ResultMatcher contentTypeEsperado = content().contentType("application/json");
-        ResultMatcher bodyEsperado = content().json(objectMapper.writeValueAsString(esperado));
+        ResultMatcher bodyEsperado = content().json(mapper.writeValueAsString(esperado));
 
         mockMvc.perform(get("/products/promo-post/count")
                         .param("user_id", String.valueOf(userId)))
