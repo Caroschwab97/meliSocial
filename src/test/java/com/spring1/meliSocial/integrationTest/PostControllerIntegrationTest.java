@@ -268,7 +268,7 @@ public class PostControllerIntegrationTest {
     }
 
     @Test
-    @DisplayName("POST /products/promo-post User Not Found")
+    @DisplayName("POST /products/post User Not Found")
     public void testAddNewPost_User_Not_Found() throws Exception {
         int invalidUserId = 120;
         ExceptionDto exceptionDTO = new ExceptionDto("El usuario con id: " + invalidUserId + " no existe");
