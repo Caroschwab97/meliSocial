@@ -3,10 +3,8 @@ package com.spring1.meliSocial.service;
 
 import com.spring1.meliSocial.dto.response.*;
 
-import java.util.List;
-
 public interface IUserService {
-    SellerFollowedDto getFollowersFromSeller(int sellerId, String orderMethod);
+    SellerFollowersDto getFollowersFromSeller(int sellerId, String orderMethod);
 
     FollowedByUserDto getFollowedByUser(int userId, String orderMethod);
 
