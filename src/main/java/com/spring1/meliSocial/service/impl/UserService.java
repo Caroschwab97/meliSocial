@@ -120,20 +120,23 @@ public class UserService implements IUserService {
 
     @Override
     public ResponseDto unfollowUser(int userId, int userIdToUnfollow) {
-        if(userRepository.getUserById(userId).isEmpty() || userRepository.getUserById(userIdToUnfollow).isEmpty())
-            throw new NotFoundException("No se encontraron los usuarios");
+        Optional<User> mainUser = userRepository.getUserById(userId);
+        Optional<User> userToUnfollow = userRepository.getUserById(userIdToUnfollow);
 
-        if(userRepository.getUserById(userId).get().getFollowed()
-                .stream().filter(u -> u == userIdToUnfollow).findFirst().orElse(null) == null)
-            throw new NotFoundException("El usuario no contiene ese seguido");
+        if(mainUser.isEmpty() || userToUnfollow.isEmpty())
+            throw new NotFoundException("No se encontraron los usuarios");
 
         if(userRepository.followedCount(userId) == 0)
             throw new NotFoundException("El usuario no tiene seguidos");
 
+        if(mainUser.get().getFollowed()
+                .stream().filter(u -> u == userIdToUnfollow).findFirst().orElse(null) == null)
+            throw new NotFoundException("El usuario no contiene ese seguido");
+
         if(!userRepository.unfollowUser(userId,userIdToUnfollow)) {
            throw new InternalServerErrorException("Ocurrió un problema al eliminar seguido");
         }
-        return new ResponseDto("El usuario dejó de seguir a " + userRepository.getUserNameById(userId));
+        return new ResponseDto("El usuario dejó de seguir a " + userRepository.getUserNameById(userIdToUnfollow));
     }
 
     @Override
