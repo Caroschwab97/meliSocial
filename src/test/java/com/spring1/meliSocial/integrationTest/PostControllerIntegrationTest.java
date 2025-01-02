@@ -6,6 +6,12 @@ import com.spring1.meliSocial.dto.ExceptionDto;
 import com.spring1.meliSocial.dto.response.PostIndexDto;
 import com.spring1.meliSocial.dto.response.ProductDto;
 import com.spring1.meliSocial.dto.response.ResponsePostDto;
+import com.spring1.meliSocial.model.Post;
+import com.spring1.meliSocial.model.Product;
+import com.spring1.meliSocial.model.User;
+import com.spring1.meliSocial.repository.impl.PostRepository;
+import com.spring1.meliSocial.repository.impl.ProductRepository;
+import com.spring1.meliSocial.repository.impl.UserRepository;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,6 +32,7 @@ import org.springframework.test.web.servlet.ResultMatcher;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -42,6 +49,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class PostControllerIntegrationTest {
     @Autowired
     MockMvc mockMvc;
+
+    @Autowired
+    PostRepository postRepository;
+
+    @Autowired
+    ProductRepository productRepository;
+
+    @Autowired
+    UserRepository userRepository;
+
     static ObjectMapper mapper;
 
     private static final ProductDto product1 = new ProductDto(17, "product1", "Ropa", "Marca", "Color", "");
@@ -52,8 +69,54 @@ public class PostControllerIntegrationTest {
     static void setup() {
         mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
+
     }
 
+    public void generateUserWith2FollowedWithPosts(int userId, String username) {
+        int idFirstPost = 1000;
+        int idSecondPost = 1001;
+        int idFirstProduct = 80;
+        int idSecondProduct = 81;
+        int sellerId = 2000;
+
+        Product productFirstPost = new Product(
+                idFirstProduct,
+                "Mouse",
+                "Tecnología",
+                "Logitech",
+                "Negro",
+                "Mouse hergonómico altamente recomendado!.");
+        Product productSecondPost = new Product(
+                idSecondProduct,
+                "Gorro",
+                "Ropa",
+                "DC",
+                "Negro",
+                "Gorro negro skater");
+
+        User seller = new User(sellerId, "Jose Juarez", true, new ArrayList<>(List.of(userId)), new ArrayList<>(), new ArrayList<>(List.of(idFirstPost, idSecondPost)), new HashSet<>());
+        Post post1 = new Post(idFirstPost, seller.getId(), LocalDate.now(),
+                productFirstPost,
+                55,
+                15.99,
+                true,
+                0.5);
+
+        Post post2 = new Post(idSecondPost, seller.getId(), LocalDate.now().minusDays(1),
+                productSecondPost,
+                2,
+                20.99,
+                true,
+                0.3);
+
+        User user = new User(userId, username, false, new ArrayList<>(), new ArrayList<>(List.of(seller.getId())), new ArrayList<>(), new HashSet<>());
+
+        productRepository.addProduct(productFirstPost);
+        productRepository.addProduct(productSecondPost);
+        postRepository.saveNewPost(post1);
+        postRepository.saveNewPost(post2);
+        userRepository.getUsers().add(user);
+    }
 
     private static Stream<Arguments> provideInvalidProducts() {
         return Stream.of(
@@ -243,16 +306,20 @@ public class PostControllerIntegrationTest {
                 ).andDo(print());
     }
 
+    @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     @Test
     @DisplayName("Obtener posts de un usuario con seguidos de manera ascendente")
     public void testGetPostsByUser_UserWithFollowedByAscOrder() throws Exception {
-        int userId = 9;
+        int userId = 10;
+        String userName = "John Doe";
+        int lastId = postRepository.lastId();
+        generateUserWith2FollowedWithPosts(userId, userName);
 
         ResponsePostDto post1 = new ResponsePostDto(
-                18,
-                8,
-                LocalDate.parse("02-01-2025", DateTimeFormatter.ofPattern("dd-MM-yyyy")),
-                new ProductDto(15,
+                lastId + 1,
+                2000,
+                LocalDate.now(),
+                new ProductDto(80,
                         "Mouse",
                         "Tecnología",
                         "Logitech",
@@ -264,10 +331,10 @@ public class PostControllerIntegrationTest {
                 0.5);
 
         ResponsePostDto post2 = new ResponsePostDto(
-                17,
-                8,
-                LocalDate.parse("01-01-2025", DateTimeFormatter.ofPattern("dd-MM-yyyy")),
-                new ProductDto(16,
+                lastId + 2,
+                2000,
+                LocalDate.now().minusDays(1),
+                new ProductDto(81,
                         "Gorro",
                         "Ropa",
                         "DC",
@@ -293,15 +360,19 @@ public class PostControllerIntegrationTest {
     }
 
     @Test
+    @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     @DisplayName("Obtener posts de un usuario con seguidos de manera descendente")
     public void testGetPostsByUser_UserWithFollowedByDescOrder() throws Exception {
-        int userId = 9;
+        int userId = 10;
+        String userName = "John Doe";
+        int lastId = postRepository.lastId();
+        generateUserWith2FollowedWithPosts(userId, userName);
 
         ResponsePostDto post1 = new ResponsePostDto(
-                18,
-                8,
-                LocalDate.parse("02-01-2025", DateTimeFormatter.ofPattern("dd-MM-yyyy")),
-                new ProductDto(15,
+                lastId + 1,
+                2000,
+                LocalDate.now(),
+                new ProductDto(80,
                         "Mouse",
                         "Tecnología",
                         "Logitech",
@@ -313,10 +384,10 @@ public class PostControllerIntegrationTest {
                 0.5);
 
         ResponsePostDto post2 = new ResponsePostDto(
-                17,
-                8,
-                LocalDate.parse("01-01-2025", DateTimeFormatter.ofPattern("dd-MM-yyyy")),
-                new ProductDto(16,
+                lastId + 2,
+                2000,
+                LocalDate.now().minusDays(1),
+                new ProductDto(81,
                         "Gorro",
                         "Ropa",
                         "DC",
