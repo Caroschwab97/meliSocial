@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.spring1.meliSocial.dto.ExceptionDto;
 import com.spring1.meliSocial.dto.request.RequestPostDto;
+import com.spring1.meliSocial.dto.response.PostPromoDto;
 import com.spring1.meliSocial.dto.response.ProductDto;
 import com.spring1.meliSocial.dto.response.ResponseDto;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,6 +23,7 @@ import org.springframework.test.web.servlet.ResultMatcher;
 import java.time.LocalDate;
 import java.util.stream.Stream;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -196,6 +198,58 @@ public class PostControllerIntegrationTest {
                 .andExpect(statusEsperado)
                 .andExpect(contentTypeEsperado)
                 .andExpect(bodyEsperado)
+                .andDo(print());
+    }
+
+
+    @Test
+    @DisplayName("Obtener cantidad de productos en promo de un vendedor")
+    public void testGetPromoPostCount() throws Exception {
+        int userId = 1;
+        PostPromoDto esperado = new PostPromoDto(
+                userId,
+                "Agustina Lopez",
+                11);
+
+        ResultMatcher statusEsperado = status().isOk();
+        ResultMatcher contentTypeEsperado = content().contentType("application/json");
+        ResultMatcher bodyEsperado = content().json(objectMapper.writeValueAsString(esperado));
+
+        mockMvc.perform(get("/products/promo-post/count")
+                        .param("user_id", String.valueOf(userId)))
+                .andExpect(statusEsperado)
+                .andExpect(contentTypeEsperado)
+                .andExpect(bodyEsperado)
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("Obtener NotFound de la cantidad de productos en promo de un vendedor que no existe")
+    public void testGetPromoPostCount_WithInvalidUser() throws Exception {
+        int userId = 99;
+
+        ResultMatcher statusEsperado = status().isNotFound();
+        ResultMatcher contentTypeEsperado = content().contentType("application/json");
+
+        mockMvc.perform(get("/products/promo-post/count")
+                        .param("user_id", String.valueOf(userId)))
+                .andExpect(statusEsperado)
+                .andExpect(contentTypeEsperado)
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("Obtener BadRequest de la cantidad de productos en promo de un usuario que no es vendedor")
+    public void testGetPromoPostCount_WithNonSellerUser() throws Exception {
+        int userId = 2;
+
+        ResultMatcher statusEsperado = status().isBadRequest();
+        ResultMatcher contentTypeEsperado = content().contentType("application/json");
+
+        mockMvc.perform(get("/products/promo-post/count")
+                        .param("user_id", String.valueOf(userId)))
+                .andExpect(statusEsperado)
+                .andExpect(contentTypeEsperado)
                 .andDo(print());
     }
 }
