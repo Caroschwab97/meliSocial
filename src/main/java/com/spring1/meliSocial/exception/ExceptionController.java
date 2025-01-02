@@ -58,7 +58,7 @@ public class ExceptionController {
                 error = new ExceptionDto("Ingrese un formato válido de fecha como dd-MM-YYYY");
             }
         } else {
-            error = new ExceptionDto(e.getMessage());
+            error = new ExceptionDto("Formato invalido en la request.");
         }
 
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);

@@ -2,6 +2,7 @@ package com.spring1.meliSocial.integrationTest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spring1.meliSocial.dto.response.*;
+import org.junit.jupiter.api.DisplayName;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,8 +10,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.junit.jupiter.api.DisplayName;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +19,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import org.springframework.test.web.servlet.ResultMatcher;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -38,19 +39,18 @@ public class UserControllerIntegrationTest {
     private FollowerDto follower3;
     private FollowerDto follower4;
 
+
     @Test
     @DisplayName("Obtener el resultado de la cantidad de usuarios que siguen a un determinado vendedor")
     public void testGetFollowerCountOK() throws Exception {
         int parametroEntrada = 1;
         UserFollowersDto result = new UserFollowersDto(1, "Agustina Lopez", 4);
 
-        ResultMatcher statusEsperado = status().isOk();
-        ResultMatcher contentTypeEsperado = content().contentType("application/json");
-        ResultMatcher bodyEsperado = content().json(objectMapper.writeValueAsString(result));
-
         mockMvc.perform(get("/users/{userId}/followers/count", parametroEntrada))
                 .andExpectAll(
-                        statusEsperado, contentTypeEsperado, bodyEsperado
+                        status().isOk(),
+                        content().contentType("application/json"),
+                        content().json(objectMapper.writeValueAsString(result))
                 )
                 .andDo(print());
     }
@@ -60,14 +60,125 @@ public class UserControllerIntegrationTest {
     public void testGetFollowerCountNotFound() throws Exception {
         int parametroEntrada = 10;
         ResponseDto result = new ResponseDto("El id que busca no existe");
-        ResultMatcher statusEsperado = status().isNotFound();
-        ResultMatcher contentTypeEsperado = content().contentType("application/json");
-        ResultMatcher bodyEsperado = content().json(objectMapper.writeValueAsString(result));
 
         mockMvc.perform(get("/users/{userId}/followers/count", parametroEntrada))
                 .andExpectAll(
-                        statusEsperado, contentTypeEsperado, bodyEsperado
+                        status().isNotFound(),
+                        content().contentType("application/json"),
+                        content().json(objectMapper.writeValueAsString(result))
                 )
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("Poder realizar la acción de “Follow” (seguir) a un determinado vendedor")
+    public void testFollowUserOK() throws Exception {
+        ResponseDto result = new ResponseDto("Siguiendo al usuario: Agustina Lopez con ID: 1");
+        int user = 4;
+        int userToFollow = 1;
+
+        mockMvc.perform(post("/users/{userId}/follow/{userIdToFollow}",user,userToFollow))
+                .andExpectAll(
+                        status().isOk(),
+                        content().contentType("application/json"),
+                        content().json(objectMapper.writeValueAsString(result))
+                )
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("“Follow” (seguir) a un determinado vendedor NotFound user")
+    public void testFollowUserNotFoundUser() throws Exception {
+        int user = 40;
+        int userToFollow = 1;
+        ResponseDto result = new ResponseDto("El usuario con ID: " + user + " no existe.");
+
+        mockMvc.perform(post("/users/{userId}/follow/{userIdToFollow}",user,userToFollow))
+                .andExpectAll(
+                        status().isNotFound(),
+                        content().contentType("application/json"),
+                        content().json(objectMapper.writeValueAsString(result))
+                )
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("“Follow” (seguir) a un determinado vendedor NotFound userToFollow")
+    public void testFollowUserNotFoundUserToFollow() throws Exception {
+        int user = 4;
+        int userToFollow = 100;
+        ResponseDto result = new ResponseDto("El usuario a seguir con ID: " + userToFollow + " no existe.");
+
+        mockMvc.perform(post("/users/{userId}/follow/{userIdToFollow}",user,userToFollow))
+                .andExpectAll(
+                        status().isNotFound(),
+                        content().contentType("application/json"),
+                        content().json(objectMapper.writeValueAsString(result))
+                )
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("“Follow” (seguir) a un determinado vendedor con ID iguales")
+    public void testFollowUserBadRequestExceptionEqualsID() throws Exception {
+        int user = 4;
+        int userToFollow = 4;
+        ResponseDto result = new ResponseDto("Un usuario no puede seguirse a sí mismo.");
+
+        mockMvc.perform(post("/users/{userId}/follow/{userIdToFollow}",user,userToFollow))
+                .andExpectAll(
+                        status().isBadRequest(),
+                        content().contentType("application/json"),
+                        content().json(objectMapper.writeValueAsString(result))
+                )
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("“Follow” (seguir) a un determinado vendedor - ya contiene ese seguidor")
+    public void testFollowUserBadRequestExceptionRepeatFollower() throws Exception {
+        int user = 2;
+        int userToFollow = 1;
+        ResponseDto result = new ResponseDto("El usuario con ID: " + user + " ya sigue al usuario con ID: " + userToFollow);
+
+        mockMvc.perform(post("/users/{userId}/follow/{userIdToFollow}",user,userToFollow))
+                .andExpectAll(
+                        status().isBadRequest(),
+                        content().contentType("application/json"),
+                        content().json(objectMapper.writeValueAsString(result))
+                )
+                .andDo(print());
+    }
+
+
+    @Test
+    @DisplayName("“Follow” (seguir) a un determinado vendedor - el usuario a seguir no es vendedor")
+    public void testFollowUserBadRequestExceptionNoASeller() throws Exception {
+        int user = 2;
+        int userToFollow = 3;
+        ResponseDto result = new ResponseDto("Un comprador solo puede seguir a un usuario vendedor.");
+
+        mockMvc.perform(post("/users/{userId}/follow/{userIdToFollow}",user,userToFollow))
+                .andExpectAll(
+                        status().isBadRequest(),
+                        content().contentType("application/json"),
+                        content().json(objectMapper.writeValueAsString(result))
+                )
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("“Follow” (seguir) a un determinado vendedor - el usuario a seguir no es vendedor")
+    public void testFollowUserBadRequestExceptionNoASeller2() throws Exception {
+        int user = 1;
+        int userToFollow = 2;
+        ResponseDto result = new ResponseDto("Solo se puede seguir a un usuario vendedor.");
+
+        mockMvc.perform(post("/users/{userId}/follow/{userIdToFollow}",user,userToFollow))
+                .andExpectAll(
+                        status().isBadRequest(),
+                        content().contentType("application/json"),
+                        content().json(objectMapper.writeValueAsString(result)))
                 .andDo(print());
     }
 
