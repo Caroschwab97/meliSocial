@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spring1.meliSocial.exception.BadRequestException;
 import com.spring1.meliSocial.model.Product;
 import com.spring1.meliSocial.repository.IProductRepository;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.ResourceUtils;
 
@@ -13,21 +14,32 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Properties;
 
 @Repository
 public class ProductRepository implements IProductRepository {
 
     private List<Product> products = new ArrayList<>();
+    private String SCOPE;
 
     public ProductRepository() throws IOException {
-        loadDataBase();
+        Properties properties =  new Properties();
+
+        try {
+            properties.load(new ClassPathResource("application.properties").getInputStream());
+            this.SCOPE = properties.getProperty("api.scope");
+            this.loadDataBase();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     private void loadDataBase() throws IOException {
         File file;
         ObjectMapper objectMapper = new ObjectMapper();
 
-        file = ResourceUtils.getFile("classpath:product.json");
+        file = ResourceUtils.getFile("./src/" + SCOPE + "/resources/product.json");
 
         products = objectMapper.readValue(file,new TypeReference<List<Product>>(){});
     }
