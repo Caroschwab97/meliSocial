@@ -12,9 +12,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-
+import org.junit.jupiter.api.DisplayName;
 import java.util.ArrayList;
 import java.util.List;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import org.springframework.test.web.servlet.ResultMatcher;
+import com.spring1.meliSocial.dto.response.ResponseDto;
+import com.spring1.meliSocial.dto.response.UserFollowersDto;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -23,20 +28,55 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class UserControllerIntegrationTest {
 
     @Autowired
-    private MockMvc mockMvc;
+    MockMvc mockMvc;
+    ObjectMapper objectMapper = new ObjectMapper();
 
 
     private FollowedDto followed1;
     private FollowedDto followed2;
 
-    @BeforeEach
-    public void setUp() {
-        followed1 = new FollowedDto(1, "Agustina Lopez");
-        followed2 = new FollowedDto(6, "Fausto Smith");
+
+    @Test
+    @DisplayName("Obtener el resultado de la cantidad de usuarios que siguen a un determinado vendedor")
+    public void testGetFollowerCountOK() throws Exception {
+        int parametroEntrada = 1;
+        UserFollowersDto result = new UserFollowersDto(1, "Agustina Lopez", 4);
+
+        ResultMatcher statusEsperado = status().isOk();
+        ResultMatcher contentTypeEsperado = content().contentType("application/json");
+        ResultMatcher bodyEsperado = content().json(objectMapper.writeValueAsString(result));
+
+        mockMvc.perform(get("/users/{userId}/followers/count", parametroEntrada))
+                .andExpectAll(
+                        statusEsperado, contentTypeEsperado, bodyEsperado
+                )
+                .andDo(print());
     }
 
     @Test
+    @DisplayName("Obtener NotFound de la cantidad de usuarios que siguen a un determinado vendedor")
+    public void testGetFollowerCountNotFound() throws Exception {
+        int parametroEntrada = 10;
+        ResponseDto result = new ResponseDto("El id que busca no existe");
+        ResultMatcher statusEsperado = status().isNotFound();
+        ResultMatcher contentTypeEsperado = content().contentType("application/json");
+        ResultMatcher bodyEsperado = content().json(objectMapper.writeValueAsString(result));
+
+        mockMvc.perform(get("/users/{userId}/followers/count", parametroEntrada))
+                .andExpectAll(
+                        statusEsperado, contentTypeEsperado, bodyEsperado
+                )
+                .andDo(print());
+    }
+
+
+
+
+    @Test
     public void testFollowedList() throws Exception {
+        followed1 = new FollowedDto(1, "Agustina Lopez");
+        followed2 = new FollowedDto(6, "Fausto Smith");
+
         List<FollowedDto> seguidos = new ArrayList<>(List.of(followed1));
         FollowedByUserDto esperado = new FollowedByUserDto(3,"Carlos Perez",seguidos);
 
@@ -58,6 +98,9 @@ public class UserControllerIntegrationTest {
 
     @Test
     public void testFollowedListAsc() throws Exception {
+        followed1 = new FollowedDto(1, "Agustina Lopez");
+        followed2 = new FollowedDto(6, "Fausto Smith");
+
         List<FollowedDto> seguidos = new ArrayList<>(List.of(followed1, followed2));
 
         ObjectMapper objectMapper = new ObjectMapper();
@@ -75,6 +118,9 @@ public class UserControllerIntegrationTest {
 
     @Test
     public void testFollowedListDesc() throws Exception {
+        followed1 = new FollowedDto(1, "Agustina Lopez");
+        followed2 = new FollowedDto(6, "Fausto Smith");
+
         List<FollowedDto> seguidos = new ArrayList<>(List.of(followed2, followed1));
 
         ObjectMapper objectMapper = new ObjectMapper();
