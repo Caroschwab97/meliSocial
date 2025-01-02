@@ -44,8 +44,14 @@ public class PostServiceTest {
 
     User seller1;
     User user1;
+    User user9;
     Post post1;
     Post post2;
+    Post post17;
+    Post post18;
+    List<Post> postsEsperados;
+    ResponsePostDto postDto17;
+    ResponsePostDto postDto18;
 
     @BeforeEach
     public void setUp() {
@@ -53,6 +59,15 @@ public class PostServiceTest {
         user1 = new User(2, "user1", false, new ArrayList<>(), List.of(1), new ArrayList<>(), new HashSet<>());
         post1 = new Post(1, 1, LocalDate.now(), null, 2, 100.0, false, 0.0);
         post2 = new Post(2, 1, LocalDate.now(), null, 2, 250.0, false, 0.0);
+
+        //test de post x order
+        user9= new User(9, "Lucia Quezada", false, List.of(), List.of(8), List.of(), Set.of());
+        post17 = new Post(17, 8, LocalDate.parse("2025-01-01"), new Product(), 2, 20.99, true, 0.3);
+        post18 = new Post(18, 8, LocalDate.parse("2025-01-02"), new Product(), 55, 15.99, true, 0.5
+        );
+        postsEsperados = List.of(post17, post18);
+        postDto17 = new ResponsePostDto(17, 8, LocalDate.parse("2025-01-01"), null, 2, 20.99, true, 0.3);
+        postDto18 = new ResponsePostDto(18, 8, LocalDate.parse("2025-01-02"), null, 55, 15.99, true, 0.5);
     }
 
     @Test
@@ -62,19 +77,10 @@ public class PostServiceTest {
         int userId = 9;
         String order = "date_asc";
 
-        Optional<User> userEsperado = Optional.of(new User(9, "Lucia Quezada", false, List.of(), List.of(8), List.of(), Set.of()
-        ));
-        Post post1 = new Post(17, 8, LocalDate.parse("2024-12-17"), new Product(), 2, 20.99, true, 0.3
-        );
-        Post post2 = new Post(18, 8, LocalDate.parse("2024-12-27"), new Product(), 55, 15.99, true, 0.5
-        );
-        List<Post> postsEsperados = List.of(post1, post2);
-
-        when(userRepository.getUserById(userId)).thenReturn(userEsperado);
+        when(userRepository.getUserById(userId)).thenReturn(Optional.of(user9));
         when(postRepository.getPosts()).thenReturn(postsEsperados);
-        when(customMapper.mapToResponsePostDto(post1)).thenReturn(new ResponsePostDto(17, 8, LocalDate.parse("2024-12-17"), null, 2, 20.99, true, 0.3));
-        when(customMapper.mapToResponsePostDto(post2)).thenReturn(new ResponsePostDto(18, 8, LocalDate.parse("2024-12-27"), null, 55, 15.99, true, 0.5));
-
+        when(customMapper.mapToResponsePostDto(postsEsperados.get(0))).thenReturn(postDto17);
+        when(customMapper.mapToResponsePostDto(postsEsperados.get(1))).thenReturn(postDto18);
 
         PostIndexDto resultado = postService.getPostsByUser(userId, order);
 
@@ -83,8 +89,8 @@ public class PostServiceTest {
         assertEquals(2, posteos.size());
         assertEquals(17, posteos.get(0).getId());
         assertEquals(18, posteos.get(1).getId());
-        assertEquals(LocalDate.parse("2024-12-17"), posteos.get(0).getDate());
-        assertEquals(LocalDate.parse("2024-12-27"), posteos.get(1).getDate());
+        assertEquals(LocalDate.parse("2025-01-01"), posteos.get(0).getDate());
+        assertEquals(LocalDate.parse("2025-01-02"), posteos.get(1).getDate());
     }
 
     @Test
@@ -94,19 +100,10 @@ public class PostServiceTest {
         int userId = 9;
         String order = "date_desc";
 
-        Optional<User> userEsperado = Optional.of(new User(9, "Lucia Quezada", false, List.of(), List.of(8), List.of(), Set.of()
-        ));
-        Post post1 = new Post(17, 8, LocalDate.parse("2024-12-17"), new Product(), 2, 20.99, true, 0.3
-        );
-        Post post2 = new Post(18, 8, LocalDate.parse("2024-12-27"), new Product(), 55, 15.99, true, 0.5
-        );
-        List<Post> postsEsperados = List.of(post1, post2);
-
-        when(userRepository.getUserById(userId)).thenReturn(userEsperado);
+        when(userRepository.getUserById(userId)).thenReturn(Optional.of(user9));
         when(postRepository.getPosts()).thenReturn(postsEsperados);
-        when(customMapper.mapToResponsePostDto(post1)).thenReturn(new ResponsePostDto(17, 8, LocalDate.parse("2024-12-17"), null, 2, 20.99, true, 0.3));
-        when(customMapper.mapToResponsePostDto(post2)).thenReturn(new ResponsePostDto(18, 8, LocalDate.parse("2024-12-27"), null, 55, 15.99, true, 0.5));
-
+        when(customMapper.mapToResponsePostDto(postsEsperados.get(0))).thenReturn(postDto17);
+        when(customMapper.mapToResponsePostDto(postsEsperados.get(1))).thenReturn(postDto18);
 
         PostIndexDto resultado = postService.getPostsByUser(userId, order);
 
@@ -115,8 +112,8 @@ public class PostServiceTest {
         assertEquals(2, posteos.size());
         assertEquals(18, posteos.get(0).getId());
         assertEquals(17, posteos.get(1).getId());
-        assertEquals(LocalDate.parse("2024-12-27"), posteos.get(0).getDate());
-        assertEquals(LocalDate.parse("2024-12-17"), posteos.get(1).getDate());
+        assertEquals(LocalDate.parse("2025-01-02"), posteos.get(0).getDate());
+        assertEquals(LocalDate.parse("2025-01-01"), posteos.get(1).getDate());
     }
 
     @Test
