@@ -1,7 +1,6 @@
 package com.spring1.meliSocial.controller;
 
 import com.spring1.meliSocial.dto.request.RequestPostDto;
-import com.spring1.meliSocial.dto.response.ResponseDto;
 import com.spring1.meliSocial.dto.request.ProductPromoDto;
 import com.spring1.meliSocial.dto.response.ResponsePostDto;
 import com.spring1.meliSocial.service.IPostService;
@@ -60,5 +59,4 @@ public class PostController {
     public ResponseEntity<?> updatePrice (@PathVariable int id, @PathVariable double price){
         return new ResponseEntity<>(service.updatePrice(id,price), HttpStatus.OK);
     }
-
 }
