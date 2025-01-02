@@ -8,29 +8,36 @@ import com.spring1.meliSocial.exception.NotFoundException;
 import com.spring1.meliSocial.model.Post;
 import com.spring1.meliSocial.model.User;
 import com.spring1.meliSocial.repository.IUserRepository;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.ResourceUtils;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Repository
 public class UserRepository implements IUserRepository {
 
     private List<User> users = new ArrayList<>();
+    private String SCOPE;
 
     public UserRepository() throws IOException {
-        this.loadDataBase();
+        Properties properties =  new Properties();
+
+        try {
+            properties.load(new ClassPathResource("application.properties").getInputStream());
+            this.SCOPE = properties.getProperty("api.scope");
+            this.loadDataBase();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void loadDataBase() throws IOException {
         File file;
         ObjectMapper objectMapper = new ObjectMapper();
 
-        file= ResourceUtils.getFile("classpath:user.json");
+        file= ResourceUtils.getFile("./src/" + SCOPE + "/resources/user.json");
         users= objectMapper.readValue(file,new TypeReference<List<User>>(){});
     }
 
