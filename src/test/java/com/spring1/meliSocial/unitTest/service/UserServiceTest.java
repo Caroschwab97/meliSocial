@@ -313,5 +313,4 @@ public class UserServiceTest {
         Assertions.assertNotNull(followers);
         Assertions.assertEquals(2, followers.size());
     }
-
 }
