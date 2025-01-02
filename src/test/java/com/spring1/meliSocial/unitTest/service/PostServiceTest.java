@@ -62,12 +62,12 @@ public class PostServiceTest {
 
         //test de post x order
         user9= new User(9, "Lucia Quezada", false, List.of(), List.of(8), List.of(), Set.of());
-        post17 = new Post(17, 8, LocalDate.parse("2025-01-01"), new Product(), 2, 20.99, true, 0.3);
-        post18 = new Post(18, 8, LocalDate.parse("2025-01-02"), new Product(), 55, 15.99, true, 0.5
+        post17 = new Post(17, 8, LocalDate.now().minusDays(2), new Product(), 2, 20.99, true, 0.3);
+        post18 = new Post(18, 8, LocalDate.now(), new Product(), 55, 15.99, true, 0.5
         );
         postsEsperados = List.of(post17, post18);
-        postDto17 = new ResponsePostDto(17, 8, LocalDate.parse("2025-01-01"), null, 2, 20.99, true, 0.3);
-        postDto18 = new ResponsePostDto(18, 8, LocalDate.parse("2025-01-02"), null, 55, 15.99, true, 0.5);
+        postDto17 = new ResponsePostDto(17, 8, LocalDate.now().minusDays(2), null, 2, 20.99, true, 0.3);
+        postDto18 = new ResponsePostDto(18, 8, LocalDate.now(), null, 55, 15.99, true, 0.5);
     }
 
     @Test
@@ -89,8 +89,8 @@ public class PostServiceTest {
         assertEquals(2, posteos.size());
         assertEquals(17, posteos.get(0).getId());
         assertEquals(18, posteos.get(1).getId());
-        assertEquals(LocalDate.parse("2025-01-01"), posteos.get(0).getDate());
-        assertEquals(LocalDate.parse("2025-01-02"), posteos.get(1).getDate());
+        assertEquals(LocalDate.now().minusDays(2), posteos.get(0).getDate());
+        assertEquals(LocalDate.now(), posteos.get(1).getDate());
     }
 
     @Test
@@ -112,8 +112,8 @@ public class PostServiceTest {
         assertEquals(2, posteos.size());
         assertEquals(18, posteos.get(0).getId());
         assertEquals(17, posteos.get(1).getId());
-        assertEquals(LocalDate.parse("2025-01-02"), posteos.get(0).getDate());
-        assertEquals(LocalDate.parse("2025-01-01"), posteos.get(1).getDate());
+        assertEquals(LocalDate.now(), posteos.get(0).getDate());
+        assertEquals(LocalDate.now().minusDays(2), posteos.get(1).getDate());
     }
 
     @Test
