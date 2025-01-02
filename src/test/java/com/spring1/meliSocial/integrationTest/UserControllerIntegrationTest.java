@@ -1,6 +1,7 @@
 package com.spring1.meliSocial.integrationTest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.spring1.meliSocial.dto.response.ResponseDto;
 import com.spring1.meliSocial.dto.response.UserFollowersDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,11 +27,27 @@ public class UserControllerIntegrationTest {
 
     @Test
     @DisplayName("Obtener el resultado de la cantidad de usuarios que siguen a un determinado vendedor")
-    public void getFollowerCountIntegrationTest() throws Exception {
+    public void testGetFollowerCountOK() throws Exception {
         int parametroEntrada = 1;
         UserFollowersDto result = new UserFollowersDto(1, "Agustina Lopez", 4);
 
         ResultMatcher statusEsperado = status().isOk();
+        ResultMatcher contentTypeEsperado = content().contentType("application/json");
+        ResultMatcher bodyEsperado = content().json(objectMapper.writeValueAsString(result));
+
+        mockMvc.perform(get("/users/{userId}/followers/count", parametroEntrada))
+                .andExpectAll(
+                        statusEsperado, contentTypeEsperado, bodyEsperado
+                )
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("Obtener NotFound de la cantidad de usuarios que siguen a un determinado vendedor")
+    public void testGetFollowerCountNotFound() throws Exception {
+        int parametroEntrada = 10;
+        ResponseDto result = new ResponseDto("El id que busca no existe");
+        ResultMatcher statusEsperado = status().isNotFound();
         ResultMatcher contentTypeEsperado = content().contentType("application/json");
         ResultMatcher bodyEsperado = content().json(objectMapper.writeValueAsString(result));
 
