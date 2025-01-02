@@ -37,7 +37,7 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public SellerFollowedDto getFollowersFromSeller(int sellerId, String orderMethod) {
+    public SellerFollowersDto getFollowersFromSeller(int sellerId, String orderMethod) {
         Optional<User> optionalUser = userRepository.getUserById(sellerId);
 
         if (optionalUser.isEmpty()) {
@@ -52,7 +52,7 @@ public class UserService implements IUserService {
         List<User> userFollowers = getUsersByListOfId(userFound.getFollowers());
         List<FollowerDto> userFollowersDto = getFollowerDtoSortedList(orderMethod, userFollowers);
 
-        return new SellerFollowedDto(userFound.getId(), userFound.getUserName(), userFollowersDto);
+        return new SellerFollowersDto(userFound.getId(), userFound.getUserName(), userFollowersDto);
     }
 
     private List<FollowerDto> getFollowerDtoSortedList(String orderMethod, List<User> userFollowers) {

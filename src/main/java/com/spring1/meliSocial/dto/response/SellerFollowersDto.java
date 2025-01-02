@@ -8,7 +8,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class SellerFollowedDto {
+public class SellerFollowersDto {
     @JsonProperty("user_id")
     private int userId;
 
