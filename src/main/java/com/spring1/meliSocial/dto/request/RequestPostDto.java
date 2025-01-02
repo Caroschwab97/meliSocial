@@ -23,10 +23,7 @@ import com.fasterxml.jackson.annotation.*;
 @JsonPropertyOrder({"user_id", "post_id", "date", "product", "category", "price"})
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RequestPostDto {
-    //private int id;
-
     @JsonAlias("user_id")
-    @NotNull(message = "El id no puede estar vacío")
     @Min(value = 1, message = "El id debe ser mayor a cero")
     private int userId;
 
@@ -37,11 +34,12 @@ public class RequestPostDto {
     @Valid
     private ProductDto product;
 
-    @NotNull(message = "El campo no puede estar vacío")
+    @NotNull(message = "El campo category no puede estar vacío")
+    @Min(value = 1, message = "El category debe ser mayor a cero")
     private int category;
 
     @NotNull(message = "El campo no puede estar vacío")
-    @DecimalMax(value = "10000000", message = "El precio máximo por proudcto es de 10.000.000")
+    @DecimalMax(value = "10000000", message = "El precio máximo por producto es de 10.000.000")
     @DecimalMin(value = "0.01", message = "El precio mínimo por producto es de 0.01")
-    private double price; //precio original
+    private double price;
 }
