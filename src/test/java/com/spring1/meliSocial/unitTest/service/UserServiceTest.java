@@ -307,7 +307,7 @@ public class UserServiceTest {
         Mockito.when(customMapper.mapToFollowerDto(follower1)).thenReturn(new FollowerDto(2, "Rocío"));
         Mockito.when(customMapper.mapToFollowerDto(follower2)).thenReturn(new FollowerDto(3, "Bob"));
 
-        SellerFollowedDto result = userService.getFollowersFromSeller(1, "name_desc");
+        SellerFollowedDto result = userService.getFollowedByUser(1, "name_desc");
 
         List<FollowerDto> followers = result.getFollowers();
         Assertions.assertNotNull(followers);
