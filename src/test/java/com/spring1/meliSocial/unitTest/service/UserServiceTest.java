@@ -27,7 +27,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -247,7 +246,8 @@ public class UserServiceTest {
     @Test
     @DisplayName("3 - Ante un RequestParam order invalido se verifica que lance una exception")
     public void testGetFollowersFromSeller_WrongParamOrder() {
-        BadRequestException exception = assertThrows(BadRequestException.class, () -> {
+        Mockito.when(userRepository.getUserById(1)).thenReturn(Optional.of(seller));
+        BadRequestException exception = Assertions.assertThrows(BadRequestException.class, () -> {
             userService.getFollowersFromSeller(1, "invalid_order");
         });
         assertEquals("Parámetros inválidos.", exception.getMessage());
@@ -256,7 +256,8 @@ public class UserServiceTest {
     @Test
     @DisplayName("3.1 - Ante un RequestParam order invalido se verifica que lance una exception")
     public void testGetFollowedByUser_WrongParamOrder() {
-        BadRequestException exception = assertThrows(BadRequestException.class, () -> {
+        Mockito.when(userRepository.getUserById(1)).thenReturn(Optional.of(seller));
+        BadRequestException exception = Assertions.assertThrows(BadRequestException.class, () -> {
             userService.getFollowedByUser(1, "invalid_order");
         });
         Assertions.assertEquals("Parámetros inválidos.", exception.getMessage());
@@ -265,6 +266,10 @@ public class UserServiceTest {
     @Test
     @DisplayName("3.2 - Verificar que el tipo de ordenamiento alfabético exista para followers")
     public void testGetFollowersFromSeller_CorrectParamOrder() {
+        Mockito.when(userRepository.getUserById(1)).thenReturn(Optional.of(seller));
+        Mockito.when(userRepository.getUserById(2)).thenReturn(Optional.of(follower1));
+        Mockito.when(userRepository.getUserById(3)).thenReturn(Optional.of(follower2));
+
         Mockito.when(customMapper.mapToFollowerDto(follower1)).thenReturn(new FollowerDto(2, "Rocío"));
         Mockito.when(customMapper.mapToFollowerDto(follower2)).thenReturn(new FollowerDto(3, "Bob"));
 
@@ -278,12 +283,16 @@ public class UserServiceTest {
     @Test
     @DisplayName("3.3 - Verificar que el tipo de ordenamiento alfabético exista para listado de followes")
     public void testGetFollowedByUser_CorrectParamOrder() {
-        Mockito.when(customMapper.mapToFollowedDto(follower1)).thenReturn(new FollowedDto(2, "Rocío"));
-        Mockito.when(customMapper.mapToFollowedDto(follower2)).thenReturn(new FollowedDto(3, "Bob"));
+        Mockito.when(userRepository.getUserById(1)).thenReturn(Optional.of(seller));
+        Mockito.when(userRepository.getUserById(2)).thenReturn(Optional.of(follower1));
+        Mockito.when(userRepository.getUserById(3)).thenReturn(Optional.of(follower2));
 
-        FollowedByUserDto result = userService.getFollowedByUser(1, "name_desc");
+        Mockito.when(customMapper.mapToFollowerDto(follower1)).thenReturn(new FollowerDto(2, "Rocío"));
+        Mockito.when(customMapper.mapToFollowerDto(follower2)).thenReturn(new FollowerDto(3, "Bob"));
 
-        List<FollowedDto> followers = result.getFollowed();
+        SellerFollowedDto result = userService.getFollowersFromSeller(1, "name_desc");
+
+        List<FollowerDto> followers = result.getFollowers();
         Assertions.assertNotNull(followers);
         Assertions.assertEquals(2, followers.size());
     }
