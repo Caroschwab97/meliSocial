@@ -103,7 +103,7 @@ public class UserServiceTest {
         Mockito.when(customMapper.mapToFollowerDto(follower1)).thenReturn(new FollowerDto(2, "Rocío"));
         Mockito.when(customMapper.mapToFollowerDto(follower2)).thenReturn(new FollowerDto(3, "Bob"));
 
-        SellerFollowedDto result = userService.getFollowersFromSeller(1, "name_asc");
+        SellerFollowersDto result = userService.getFollowersFromSeller(1, "name_asc");
 
         List<FollowerDto> followers = result.getFollowers();
         Assertions.assertEquals("Bob", followers.get(0).getUserName());
@@ -119,7 +119,7 @@ public class UserServiceTest {
         Mockito.when(customMapper.mapToFollowerDto(follower1)).thenReturn(new FollowerDto(2, "Rocío"));
         Mockito.when(customMapper.mapToFollowerDto(follower2)).thenReturn(new FollowerDto(3, "Bob"));
 
-        SellerFollowedDto result = userService.getFollowersFromSeller(1, "name_desc");
+        SellerFollowersDto result = userService.getFollowersFromSeller(1, "name_desc");
 
         List<FollowerDto> followers = result.getFollowers();
         Assertions.assertEquals("Rocío", followers.get(0).getUserName());
@@ -366,7 +366,7 @@ public class UserServiceTest {
         Mockito.when(customMapper.mapToFollowerDto(follower1)).thenReturn(new FollowerDto(2, "Rocío"));
         Mockito.when(customMapper.mapToFollowerDto(follower2)).thenReturn(new FollowerDto(3, "Bob"));
 
-        SellerFollowedDto result = userService.getFollowersFromSeller(1, "name_asc");
+        SellerFollowersDto result = userService.getFollowersFromSeller(1, "name_asc");
 
         List<FollowerDto> followers = result.getFollowers();
         Assertions.assertNotNull(followers);
