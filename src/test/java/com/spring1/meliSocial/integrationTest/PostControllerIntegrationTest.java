@@ -3,6 +3,7 @@ package com.spring1.meliSocial.integrationTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.spring1.meliSocial.dto.ExceptionDto;
+import com.spring1.meliSocial.dto.request.ProductPromoDto;
 import com.spring1.meliSocial.dto.request.RequestPostDto;
 import com.spring1.meliSocial.dto.response.PostPromoDto;
 import com.spring1.meliSocial.dto.response.ProductDto;
@@ -38,6 +39,7 @@ public class PostControllerIntegrationTest {
 
     private static final ProductDto product1 = new ProductDto(17, "product1", "Ropa", "Marca", "Color", "");
     private static final RequestPostDto post1 = new RequestPostDto(1, LocalDate.now(), product1, 2, 100.0);
+    private static final ProductPromoDto postPromo1 = new ProductPromoDto(1, LocalDate.now(), product1, 2, 100.0, true, 0.10);
 
     ObjectMapper objectMapper = new ObjectMapper();
     String testDesc;
@@ -142,6 +144,51 @@ public class PostControllerIntegrationTest {
         );
     }
 
+    private static Stream<Arguments> provideInvalidPromoPosts() {
+        return Stream.of(
+                Arguments.of(
+                        "POST /products/promo-post UserId less than zero or null",
+                        "El id debe ser mayor a cero",
+                        new ProductPromoDto(0, LocalDate.now(), null, 2, 100.0, true, 0.10)
+                ),
+                Arguments.of(
+                        "POST /products/promo-post Blank Date",
+                        "La fecha no puede estar vacía",
+                        new ProductPromoDto(1, null, null, 2, 100.0, true, 0.10)
+                ),
+                Arguments.of(
+                        "POST /products/promo-post Category less than zero or null",
+                        "El category debe ser mayor a cero",
+                        new ProductPromoDto(1, LocalDate.now(), null, 0, 100.0, true, 0.10)
+                ),
+                Arguments.of(
+                        "POST /products/promo-post Price less than 0.01 or null",
+                        "El precio mínimo por producto es de 0.01",
+                        new ProductPromoDto(1, LocalDate.now(), null, 2, 0.0, true, 0.10)
+                ),
+                Arguments.of(
+                        "POST /products/promo-post Price more than 10000000",
+                        "El precio máximo por producto es de 10.000.000",
+                        new ProductPromoDto(1, LocalDate.now(), null, 2, 10000001, true, 0.10)
+                ),
+                Arguments.of(
+                        "POST /products/promo-post HasPromo false",
+                        "El valor del campo has_promo debe ser verdadero para admitir la promo",
+                        new ProductPromoDto(1, LocalDate.now(), null, 2, 100.0, false, 0.10)
+                ),
+                Arguments.of(
+                        "POST /products/promo-post Discount more than 100%",
+                        "El descuento máximo no puede superar el 100%",
+                        new ProductPromoDto(1, LocalDate.now(), null, 2, 100.0, true, 1.5)
+                ),
+                Arguments.of(
+                        "POST /products/promo-post Discount is 0%",
+                        "El descuento mínimo no puede ser cero",
+                        new ProductPromoDto(1, LocalDate.now(), null, 2, 100.0, true, 0)
+                )
+        );
+    }
+
     @Test
     @DisplayName("POST /products/post OK")
     public void testAddNewPost_Ok() throws Exception {
@@ -195,6 +242,201 @@ public class PostControllerIntegrationTest {
         mockMvc.perform(post("/products/post")
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(invalidPost)))
+                .andExpect(statusEsperado)
+                .andExpect(contentTypeEsperado)
+                .andExpect(bodyEsperado)
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("POST /products/post Product already exists")
+    public void testAddNewPost_Product_Conflict() throws Exception {
+        int invalidProductId = 1;
+        ExceptionDto exceptionDTO = new ExceptionDto("El producto con el id " + invalidProductId + " ya existe");
+        ResultMatcher bodyEsperado = content().json(objectMapper.writeValueAsString(exceptionDTO));
+        ResultMatcher statusEsperado = status().isConflict();
+        ResultMatcher contentTypeEsperado = content().contentType("application/json");
+
+        ProductDto productPromo = new ProductDto(invalidProductId, "product1", "Ropa", "Marca", "Color", "");
+        RequestPostDto invalidPost = new RequestPostDto(1, LocalDate.now(), productPromo, 2, 100.0);
+
+        mockMvc.perform(post("/products/post")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(invalidPost)))
+                .andExpect(statusEsperado)
+                .andExpect(contentTypeEsperado)
+                .andExpect(bodyEsperado)
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("POST /products/post User Not Found")
+    public void testAddNewPost_User_Not_Found() throws Exception {
+        int invalidUserId = 120;
+        ExceptionDto exceptionDTO = new ExceptionDto("El usuario con id: " + invalidUserId + " no existe");
+        ResultMatcher bodyEsperado = content().json(objectMapper.writeValueAsString(exceptionDTO));
+        ResultMatcher statusEsperado = status().isNotFound();
+        ResultMatcher contentTypeEsperado = content().contentType("application/json");
+
+        RequestPostDto postUserNotFound = new RequestPostDto(invalidUserId, LocalDate.now(), product1, 2, 100.0);
+
+        mockMvc.perform(post("/products/post")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(postUserNotFound)))
+                .andExpect(statusEsperado)
+                .andExpect(contentTypeEsperado)
+                .andExpect(bodyEsperado)
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("POST /products/promo-post OK")
+    public void testPost_Ok() throws Exception {
+        ResponseDto responseDTO = new ResponseDto("Publicación con promoción creada");
+        ResultMatcher bodyEsperado = content().json(objectMapper.writeValueAsString(responseDTO));
+        ResultMatcher statusEsperado = status().isOk();
+        ResultMatcher contentTypeEsperado = content().contentType("application/json");
+
+        mockMvc.perform(post("/products/promo-post")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(postPromo1)))
+                .andExpect(statusEsperado)
+                .andExpect(contentTypeEsperado)
+                .andExpect(bodyEsperado)
+                .andDo(print());
+    }
+
+    @ParameterizedTest(name = "{index} - {0}")
+    @DisplayName("POST /products/promo-post Invalid Posts Field Validation")
+    @MethodSource("provideInvalidPromoPosts")
+    public void testPost_InvalidPostField(String _testDesc, String expectedMessage, ProductPromoDto invalidPost) throws Exception {
+        testDesc = _testDesc;
+        ExceptionDto exceptionDto = new ExceptionDto(expectedMessage);
+        ResultMatcher bodyEsperado = content().json(objectMapper.writeValueAsString(exceptionDto));
+        ResultMatcher statusEsperado = status().isBadRequest();
+        ResultMatcher contentTypeEsperado = content().contentType("application/json");
+
+        invalidPost.setProduct(product1);
+
+        mockMvc.perform(post("/products/promo-post")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(invalidPost)))
+                .andExpect(statusEsperado)
+                .andExpect(contentTypeEsperado)
+                .andExpect(bodyEsperado)
+                .andDo(print());
+    }
+
+    @ParameterizedTest(name = "{index} - {0}")
+    @DisplayName("POST /products/promo-post Invalid Product Field Validation")
+    @MethodSource("provideInvalidProducts")
+    public void testPost_InvalidProductField(String _testDesc, String expectedMessage, ProductDto invalidProduct) throws Exception {
+        testDesc = _testDesc;
+        ExceptionDto exceptionDto = new ExceptionDto(expectedMessage);
+        ResultMatcher bodyEsperado = content().json(objectMapper.writeValueAsString(exceptionDto));
+        ResultMatcher statusEsperado = status().isBadRequest();
+        ResultMatcher contentTypeEsperado = content().contentType("application/json");
+
+        ProductPromoDto invalidPost = new ProductPromoDto(1, LocalDate.now(), invalidProduct, 2, 100.0, true, 0.10);
+
+        mockMvc.perform(post("/products/promo-post")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(invalidPost)))
+                .andExpect(statusEsperado)
+                .andExpect(contentTypeEsperado)
+                .andExpect(bodyEsperado)
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("POST /products/promo-post User Not Found")
+    public void testPost_User_Not_Found() throws Exception {
+        int invalidUserId = 120;
+        ExceptionDto exceptionDTO = new ExceptionDto("El id del vendedor no existe");
+        ResultMatcher bodyEsperado = content().json(objectMapper.writeValueAsString(exceptionDTO));
+        ResultMatcher statusEsperado = status().isNotFound();
+        ResultMatcher contentTypeEsperado = content().contentType("application/json");
+
+        ProductPromoDto postPromoUserNotFound = new ProductPromoDto(invalidUserId, LocalDate.now(), product1, 2, 100.0, true, 0.10);
+
+        mockMvc.perform(post("/products/promo-post")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(postPromoUserNotFound)))
+                .andExpect(statusEsperado)
+                .andExpect(contentTypeEsperado)
+                .andExpect(bodyEsperado)
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("POST /products/promo-post Product already exists")
+    public void testPost_Product_Conflict() throws Exception {
+        int invalidProductId = 1;
+        ExceptionDto exceptionDTO = new ExceptionDto("El id del producto ya existe en una publicación");
+        ResultMatcher bodyEsperado = content().json(objectMapper.writeValueAsString(exceptionDTO));
+        ResultMatcher statusEsperado = status().isBadRequest();
+        ResultMatcher contentTypeEsperado = content().contentType("application/json");
+
+        ProductDto productPromo = new ProductDto(invalidProductId, "product1", "Ropa", "Marca", "Color", "");
+        ProductPromoDto postPromoUserIsNotSeller = new ProductPromoDto(1, LocalDate.now(), productPromo, 2, 100.0, true, 0.10);
+
+        mockMvc.perform(post("/products/promo-post")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(postPromoUserIsNotSeller)))
+                .andExpect(statusEsperado)
+                .andExpect(contentTypeEsperado)
+                .andExpect(bodyEsperado)
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("POST /products/promo-post User Is Not Seller")
+    public void testPost_User_Is_Not_Seller() throws Exception {
+        int invalidUserId = 2;
+        ExceptionDto exceptionDTO = new ExceptionDto("El id que ingresó es de un usuario comprador");
+        ResultMatcher bodyEsperado = content().json(objectMapper.writeValueAsString(exceptionDTO));
+        ResultMatcher statusEsperado = status().isBadRequest();
+        ResultMatcher contentTypeEsperado = content().contentType("application/json");
+
+        ProductPromoDto postPromoUserIsNotSeller = new ProductPromoDto(invalidUserId, LocalDate.now(), product1, 2, 100.0, true, 0.10);
+
+        mockMvc.perform(post("/products/promo-post")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(postPromoUserIsNotSeller)))
+                .andExpect(statusEsperado)
+                .andExpect(contentTypeEsperado)
+                .andExpect(bodyEsperado)
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("POST /products/promo-post Invalid Json")
+    public void testPost_testCreateInvalidJson() throws Exception {
+        ExceptionDto exceptionDTO = new ExceptionDto("Formato invalido en la request.");
+        ResultMatcher bodyEsperado = content().json(objectMapper.writeValueAsString(exceptionDTO));
+        ResultMatcher statusEsperado = status().isBadRequest();
+        ResultMatcher contentTypeEsperado = content().contentType("application/json");
+
+        mockMvc.perform(post("/products/promo-post")
+                        .contentType("application/json")
+                        .content("\"dsa\""))
+                .andExpect(statusEsperado)
+                .andExpect(contentTypeEsperado)
+                .andExpect(bodyEsperado)
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("POST /products/promo-post Invalid Date Format")
+    public void testPost_testCreateInvalidDateFormat() throws Exception {
+        ExceptionDto exceptionDTO = new ExceptionDto("Ingrese un formato válido de fecha como dd-MM-YYYY");
+        ResultMatcher bodyEsperado = content().json(objectMapper.writeValueAsString(exceptionDTO));
+        ResultMatcher statusEsperado = status().isBadRequest();
+        ResultMatcher contentTypeEsperado = content().contentType("application/json");
+
+        mockMvc.perform(post("/products/promo-post")
+                        .contentType("application/json")
+                        .content("{\"userId\":1,\"date\":\"02-01\",\"product\":{\"type\":\"Ropa\",\"brand\":\"Marca\",\"color\":\"Color\",\"notes\":\"\",\"id\":17,\"name\":\"product1\"},\"category\":2,\"price\":100.0,\"hasPromo\":true,\"discount\":0.1}"))
                 .andExpect(statusEsperado)
                 .andExpect(contentTypeEsperado)
                 .andExpect(bodyEsperado)
