@@ -333,4 +333,64 @@ public class UserControllerIntegrationTest {
                 )
                 .andDo(print());
     }
+
+    @Test
+    @DisplayName("Obtener el mensaje de que un usuario dejó de seguir a un usuario vendedor")
+    public void testUnfollowUser_ok() throws Exception{
+        int userId = 9;
+        int userIdToUnfollow = 8;
+
+        mockMvc.perform(post("/users/{userId}/unfollow/{userIdToUnfollow}", userId, userIdToUnfollow))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.message").value("El usuario dejó de seguir a Juan Roman"));
+    }
+
+    @Test
+    @DisplayName("Obtener notFound cuando un usuario vendedor no existe")
+    public void testUnfollowUser_userIdToUnfollowNotFound() throws Exception {
+        int userId = 1;
+        int userIdToUnfollow = 999;
+
+        mockMvc.perform(post("/users/{userId}/unfollow/{userIdToUnfollow}", userId, userIdToUnfollow))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.message").value("No se encontraron los usuarios"));
+    }
+
+    @Test
+    @DisplayName("Obtener notFound cuando un usuario no existe")
+    public void testUnfollowUser_userIdNotFound() throws Exception {
+        int userId = 999;
+        int userIdToUnfollow = 8;
+
+        mockMvc.perform(post("/users/{userId}/unfollow/{userIdToUnfollow}", userId, userIdToUnfollow))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.message").value("No se encontraron los usuarios"));
+    }
+
+    @Test
+    @DisplayName("Obtener notFound cuando un usuario no tiene seguidos")
+    public void testUnfollowUser_userIdToUnfollowNotFoundFollower() throws Exception {
+        int userId = 4;
+        int userIdToUnfollow = 2;
+
+        mockMvc.perform(post("/users/{userId}/unfollow/{userIdToUnfollow}", userId, userIdToUnfollow))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.message").value("El usuario no tiene seguidos"));
+    }
+
+    @Test
+    @DisplayName("Obtener notFound cuando un usuario no tiene ese seguido")
+    public void testUnfollowUser_userIdToUnfollowNotContainFollower() throws Exception {
+        int userId = 5;
+        int userIdToUnfollow = 2;
+
+        mockMvc.perform(post("/users/{userId}/unfollow/{userIdToUnfollow}", userId, userIdToUnfollow))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.message").value("El usuario no contiene ese seguido"));
+    }
 }
