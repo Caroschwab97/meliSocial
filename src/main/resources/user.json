@@ -61,8 +61,16 @@
     "id": 8,
     "userName": "Juan Roman",
     "seller": true,
-    "followers": [],
+    "followers": [9],
     "followed": [],
-    "products": [4]
+    "products": [16,15]
+  },
+  {
+    "id": 9,
+    "userName": "Lucia Quezada",
+    "seller": false,
+    "followers": [],
+    "followed": [8],
+    "products": []
   }
 ]
