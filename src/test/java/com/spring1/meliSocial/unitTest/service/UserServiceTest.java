@@ -298,18 +298,18 @@ public class UserServiceTest {
     }
 
     @Test
-    @DisplayName("3.3 - Verificar que el tipo de ordenamiento alfabético exista para listado de followes")
+    @DisplayName("3.3 - Verificar que el tipo de ordenamiento alfabético exista para listado de followeds")
     public void testGetFollowedByUser_CorrectParamOrder() {
         Mockito.when(userRepository.getUserById(1)).thenReturn(Optional.of(seller));
         Mockito.when(userRepository.getUserById(2)).thenReturn(Optional.of(follower1));
         Mockito.when(userRepository.getUserById(3)).thenReturn(Optional.of(follower2));
 
-        Mockito.when(customMapper.mapToFollowerDto(follower1)).thenReturn(new FollowerDto(2, "Rocío"));
-        Mockito.when(customMapper.mapToFollowerDto(follower2)).thenReturn(new FollowerDto(3, "Bob"));
+        Mockito.when(customMapper.mapToFollowedDto(follower1)).thenReturn(new FollowedDto(2, "Rocío"));
+        Mockito.when(customMapper.mapToFollowedDto(follower2)).thenReturn(new FollowedDto(3, "Bob"));
 
-        SellerFollowedDto result = userService.getFollowedByUser(1, "name_desc");
+        FollowedByUserDto result = userService.getFollowedByUser(1, "name_desc");
 
-        List<FollowerDto> followers = result.getFollowers();
+        List<FollowedDto> followers = result.getFollowed();
         Assertions.assertNotNull(followers);
         Assertions.assertEquals(2, followers.size());
     }
