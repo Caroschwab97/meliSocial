@@ -26,7 +26,7 @@ public class UserControllerIntegrationTest {
 
     @Test
     @DisplayName("Obtener el resultado de la cantidad de usuarios que siguen a un determinado vendedor")
-    public void obtener() throws Exception {
+    public void getFollowerCountIntegrationTest() throws Exception {
         int parametroEntrada = 1;
         UserFollowersDto result = new UserFollowersDto(1, "Agustina Lopez", 4);
 
