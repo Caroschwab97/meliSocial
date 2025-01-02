@@ -1,17 +1,13 @@
 package com.spring1.meliSocial.unitTest.service;
 
 
-import com.spring1.meliSocial.dto.response.ResponseDto;
+import com.spring1.meliSocial.dto.response.*;
 import com.spring1.meliSocial.exception.InternalServerErrorException;
 import com.spring1.meliSocial.exception.NotFoundException;
 import com.spring1.meliSocial.model.User;
 import com.spring1.meliSocial.repository.IUserRepository;
 import com.spring1.meliSocial.service.impl.UserService;
 import org.junit.jupiter.api.Assertions;
-import com.spring1.meliSocial.dto.response.FollowedByUserDto;
-import com.spring1.meliSocial.dto.response.FollowedDto;
-import com.spring1.meliSocial.dto.response.FollowerDto;
-import com.spring1.meliSocial.dto.response.SellerFollowedDto;
 import com.spring1.meliSocial.mapper.IMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -235,5 +231,27 @@ public class UserServiceTest {
 
         Assertions.assertNotNull(responseUnfollow);
         Assertions.assertEquals(expectedMessage, responseUnfollow.getMessage());
+    }
+
+    @Test
+    public void testFindFollowers(){
+        int id = 1;
+
+        Mockito.when(userRepository.followersCount(id)).thenReturn(2);
+        Mockito.when(userRepository.getUserById(id)).thenReturn(Optional.of(seller));
+        UserFollowersDto esperado = new UserFollowersDto(id, "seller1", 2);
+
+        UserFollowersDto obtenido = userService.findFollowers(id);
+        Assertions.assertEquals(esperado, obtenido);
+    }
+
+    @Test
+    public void testFindFollowersException(){
+        int id = 5;
+
+        Mockito.when(userRepository.followersCount(id)).thenReturn(-1);
+        Mockito.when(userRepository.getUserById(id)).thenReturn(Optional.empty());
+
+        Assertions.assertThrows(NotFoundException.class, () -> userService.findFollowers(id));
     }
 }
