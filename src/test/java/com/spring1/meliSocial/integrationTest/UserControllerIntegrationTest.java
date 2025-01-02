@@ -33,6 +33,9 @@ public class UserControllerIntegrationTest {
     private FollowedDto followed1;
     private FollowedDto followed2;
     private FollowerDto follower1;
+    private FollowerDto follower2;
+    private FollowerDto follower3;
+    private FollowerDto follower4;
 
     @Test
     @DisplayName("Obtener el resultado de la cantidad de usuarios que siguen a un determinado vendedor")
@@ -135,7 +138,6 @@ public class UserControllerIntegrationTest {
     @Test
     @DisplayName("Obtener listado de seguidores de un usuario con el ordenamiento por default (asc)")
     void testGetFollowersFromSeller_WithDefaultOrder() throws Exception {
-
         int userId = 6;
         follower1 = new FollowerDto(5, "Esteban Marquez");
 
@@ -154,6 +156,25 @@ public class UserControllerIntegrationTest {
                 .andExpectAll(
                         statusEsperado, contentTypeEsperado, bodyEsperado
                 )
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("Obtener listado de seguidores de un usuario con el ordenamiento descendente")
+    void testGetFollowersFromSeller_WithDescOrder() throws Exception {
+        int userId = 1;
+
+        ResultMatcher statusEsperado = status().isOk();
+        ResultMatcher contentTypeEsperado = content().contentType("application/json");
+
+        mockMvc.perform(get(USERS_PATH + "{userId}/followers/list", userId)
+                        .param("order", "name_desc"))
+                .andExpect(jsonPath("$.followers", Matchers.hasSize(4)))
+                .andExpectAll(
+                        statusEsperado, contentTypeEsperado
+                )
+                .andExpect(jsonPath("$.followers[0].user_name").value("Fausto Smith"))
+                .andExpect(jsonPath("$.followers[3].user_name").value("Bautista Gomez"))
                 .andDo(print());
     }
 
