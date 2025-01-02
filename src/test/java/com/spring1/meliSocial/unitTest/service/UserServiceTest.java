@@ -152,7 +152,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void user_to_unfollow_not_exists() {
+    public void testUnfollowUser_UserToUnfollowNotExists() {
         Optional<User> userWithUserToUnfollow = Optional.of(new User());
         Optional<User> userToUnfollow = Optional.empty();
 
@@ -165,7 +165,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void user_with_user_to_unfollow_not_exists() {
+    public void testUnfollowUser_UserWithUserToUnfollowNotExists() {
         Optional<User> userWithUserToUnfollow = Optional.empty();
 
         Mockito.when(userRepository.getUserById(userIdWithUserToUnfollow)).thenReturn(userWithUserToUnfollow);
@@ -176,7 +176,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void user_not_contains_any_followed_to_unfollow() {
+    public void testUnfollowUser_UserNotContainsAnyFollowedToUnfollow() {
         userWithUserToUnfollow.setFollowed(new ArrayList<>());
 
         Mockito.when(userRepository.getUserById(userIdWithUserToUnfollow)).thenReturn(Optional.of(userWithUserToUnfollow));
@@ -189,7 +189,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void user_not_contains_user_to_unfollow_as_a_followed() {
+    public void testUnfollowUser_UserNotContainsUserToUnfollowAsAFollowed() {
         userWithUserToUnfollow.setFollowed(new ArrayList<>(List.of(
                 15,
                 22,
@@ -206,7 +206,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void user_unfollow_failed_at_repository() {
+    public void testUnfollowUser_UserUnfollowFailedAtRepository() {
         Mockito.when(userRepository.getUserById(userIdWithUserToUnfollow)).thenReturn(Optional.of(userWithUserToUnfollow));
         Mockito.when(userRepository.getUserById(userIdToUnfollow)).thenReturn(Optional.of(userToUnfollow));
         Mockito.when(userRepository.followedCount(userIdWithUserToUnfollow)).thenReturn(3);
@@ -218,7 +218,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void user_unfollowed_successfully() {
+    public void testUnfollowUser_UserUnfollowedSuccessfully() {
         String expectedMessage = "El usuario dejó de seguir a " + userToUnfollow.getUserName();
 
         Mockito.when(userRepository.getUserById(userIdWithUserToUnfollow)).thenReturn(Optional.of(userWithUserToUnfollow));
