@@ -727,6 +727,38 @@ public class PostControllerIntegrationTest {
     }
 
     @Test
+    @DisplayName("No existen posts para mostrar")
+    public void testGetAll_NoPostsExists() throws Exception {
+        postRepository.emptyPosts();
+
+        ResultMatcher statusEsperado = status().isOk();
+        ResultMatcher contentTypeEsperado = content().contentType("application/json");
+        ResultMatcher bodyEsperado = content().json("[]");
+
+        mockMvc.perform(get("/products/all"))
+                .andExpectAll(statusEsperado, contentTypeEsperado, bodyEsperado)
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("Devolución de todos los posts existentes")
+    public void testGetAll_ObtainAllPosts() throws Exception {
+        int expectedSize = postRepository.getPosts().size();
+        ResultMatcher statusEsperado = status().isOk();
+        ResultMatcher contentTypeEsperado = content().contentType("application/json");
+
+
+        MvcResult result = mockMvc.perform(get("/products/all"))
+                .andExpectAll(statusEsperado, contentTypeEsperado)
+                .andDo(print())
+                .andReturn();
+
+        List<ResponsePostDto> allPosts = mapper.readValue(result.getResponse().getContentAsString(), new TypeReference<List<ResponsePostDto>>() {});
+
+        Assertions.assertEquals(expectedSize, allPosts.size());
+    }
+
+    @Test
     @DisplayName("Obtener mejores descuentos de categoria que no existe")
     public void testGetBestProductsOnPromo_UserNotExists() throws Exception {
         ResultMatcher statusEsperado = status().isOk();
