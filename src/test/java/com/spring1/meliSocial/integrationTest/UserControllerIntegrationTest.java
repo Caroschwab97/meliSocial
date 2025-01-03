@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import java.util.ArrayList;
@@ -24,6 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class UserControllerIntegrationTest {
 
     @Autowired
@@ -380,4 +382,125 @@ public class UserControllerIntegrationTest {
                 .andExpect(content().json(expectedErrorMessage))
                 .andDo(print());
     }
+
+    @Test
+    @DisplayName("Obtener el mensaje de que un usuario dejó de seguir a un usuario vendedor")
+    public void testUnfollowUser_ok() throws Exception{
+        int userId = 9;
+        int userIdToUnfollow = 8;
+
+        mockMvc.perform(post("/users/{userId}/unfollow/{userIdToUnfollow}", userId, userIdToUnfollow))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.message").value("El usuario dejó de seguir a Juan Roman"));
+    }
+
+    @Test
+    @DisplayName("Obtener notFound cuando un usuario vendedor no existe")
+    public void testUnfollowUser_userIdToUnfollowNotFound() throws Exception {
+        int userId = 1;
+        int userIdToUnfollow = 999;
+
+        mockMvc.perform(post("/users/{userId}/unfollow/{userIdToUnfollow}", userId, userIdToUnfollow))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.message").value("No se encontraron los usuarios"));
+    }
+
+    @Test
+    @DisplayName("Obtener notFound cuando un usuario no existe")
+    public void testUnfollowUser_userIdNotFound() throws Exception {
+        int userId = 999;
+        int userIdToUnfollow = 8;
+
+        mockMvc.perform(post("/users/{userId}/unfollow/{userIdToUnfollow}", userId, userIdToUnfollow))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.message").value("No se encontraron los usuarios"));
+    }
+
+    @Test
+    @DisplayName("Obtener notFound cuando un usuario no tiene seguidos")
+    public void testUnfollowUser_userIdToUnfollowNotFoundFollower() throws Exception {
+        int userId = 4;
+        int userIdToUnfollow = 2;
+
+        mockMvc.perform(post("/users/{userId}/unfollow/{userIdToUnfollow}", userId, userIdToUnfollow))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.message").value("El usuario no tiene seguidos"));
+    }
+
+    @Test
+    @DisplayName("Obtener notFound cuando un usuario no tiene ese seguido")
+    public void testUnfollowUser_userIdToUnfollowNotContainFollower() throws Exception {
+        int userId = 5;
+        int userIdToUnfollow = 2;
+
+        mockMvc.perform(post("/users/{userId}/unfollow/{userIdToUnfollow}", userId, userIdToUnfollow))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.message").value("El usuario no contiene ese seguido"));
+    }
+
+    @Test
+    @DisplayName("Agrega a favoritos")
+    public void testAddFavouritePostOK() throws Exception {
+        int user = 1;
+        int postId = 1;
+        ResponseDto result = new ResponseDto("El post fue agregado a favoritos de forma exitosa");
+
+        mockMvc.perform(post("/users/{userId}/favourite-post/{postId}",user,postId))
+                .andExpectAll(
+                        status().isOk(),
+                        content().contentType("application/json"),
+                        content().json(objectMapper.writeValueAsString(result)))
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("Agrega a favoritos - User NotFound")
+    public void testAddFavouritePostNotFoundExceptionUser() throws Exception {
+        int user = 100;
+        int postId = 1;
+        ResponseDto result = new ResponseDto("El usuario con ID: " + user + " no existe.");
+
+        mockMvc.perform(post("/users/{userId}/favourite-post/{postId}",user,postId))
+                .andExpectAll(
+                        status().isNotFound(),
+                        content().contentType("application/json"),
+                        content().json(objectMapper.writeValueAsString(result)))
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("Agrega a favoritos - Post NotFound")
+    public void testAddFavouritePostNotFoundExceptionPost() throws Exception {
+        int user = 1;
+        int postId = 100;
+        ResponseDto result = new ResponseDto("El post con ID: " + postId + " no existe.");
+
+        mockMvc.perform(post("/users/{userId}/favourite-post/{postId}",user,postId))
+                .andExpectAll(
+                        status().isNotFound(),
+                        content().contentType("application/json"),
+                        content().json(objectMapper.writeValueAsString(result)))
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("Agrega a favoritos - BadRequestException el post ya esta agregado")
+    public void testAddFavouritePostBadRequestException() throws Exception {
+        int user = 2;
+        int postId = 1;
+        ResponseDto result = new ResponseDto("El post con id " + postId + " ya está agregado a favoritos");
+
+        mockMvc.perform(post("/users/{userId}/favourite-post/{postId}",user,postId))
+                .andExpectAll(
+                        status().isBadRequest(),
+                        content().contentType("application/json"),
+                        content().json(objectMapper.writeValueAsString(result)))
+                .andDo(print());
+    }
+
 }
