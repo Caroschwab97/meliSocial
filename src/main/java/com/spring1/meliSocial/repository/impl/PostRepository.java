@@ -132,4 +132,7 @@ public class PostRepository implements IPostRepository {
                 .ifPresent(post -> post.setPrice(newPrice));
     }
 
+    public void emptyPosts() {
+        this.posts = new ArrayList<>();
+    }
 }
