@@ -763,7 +763,7 @@ public class PostControllerIntegrationTest {
     @DisplayName("Obtener BadRequest al querer actualizar con valor >1 un post")
     public void testUpdatePromoDiscount_WithDiscountGreaterThanOne() throws Exception{
         int postPromo = 1;
-        double discount = 1.1;
+        double discount = 1.01;
         ResponseDto resultado = new ResponseDto("El descuento no puede superar el 100%");
 
         ResultMatcher statusEsperado = status().isBadRequest();
