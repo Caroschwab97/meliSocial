@@ -1,7 +1,6 @@
 package com.spring1.meliSocial.integrationTest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.spring1.meliSocial.dto.ExceptionDto;
 import com.spring1.meliSocial.dto.response.*;
 import org.junit.jupiter.api.DisplayName;
 import org.hamcrest.Matchers;
@@ -37,10 +36,6 @@ public class UserControllerIntegrationTest {
     private FollowedDto followed1;
     private FollowedDto followed2;
     private FollowerDto follower1;
-    private FollowerDto follower2;
-    private FollowerDto follower3;
-    private FollowerDto follower4;
-
 
     @Test
     @DisplayName("Obtener el resultado de la cantidad de usuarios que siguen a un determinado vendedor")

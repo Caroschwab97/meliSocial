@@ -21,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.spring1.meliSocial.dto.request.RequestPostDto;
 import com.spring1.meliSocial.dto.response.ResponseDto;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -32,16 +31,13 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultMatcher;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import java.util.stream.Stream;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -723,6 +719,80 @@ public class PostControllerIntegrationTest {
                         .param("user_id", String.valueOf(userId)))
                 .andExpect(statusEsperado)
                 .andExpect(contentTypeEsperado)
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("Actualizar correctamente el descuento de una promo")
+    public void testUpdatePromoDiscount() throws Exception{
+        int postPromo = 1;
+        double discount = 0.8;
+        ResponseDto resultado = new ResponseDto("La promoción se actualizó correctamente");
+
+        ResultMatcher statusEsperado = status().isOk();
+        ResultMatcher contentTypeEsperado = content().contentType("application/json");
+        String jsonEsperado = mapper.writeValueAsString(resultado);
+
+        // Realizar la solicitud PATCH
+        mockMvc.perform(patch("/products/update-promo/{id}/{discount}", postPromo, discount))
+                .andExpect(statusEsperado)
+                .andExpect(contentTypeEsperado)
+                .andExpect(content().json(jsonEsperado))
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("Obtener NotFound al querer actualizar un post que no existe")
+    public void testUpdatePromoDiscount_WithInvalidId() throws Exception{
+        int postPromo = 99;
+        double discount = 0.8;
+        ResponseDto resultado = new ResponseDto("La publicación que quiere modificar no existe");
+
+        ResultMatcher statusEsperado = status().isNotFound();
+        ResultMatcher contentTypeEsperado = content().contentType("application/json");
+        String jsonEsperado = mapper.writeValueAsString(resultado);
+
+        mockMvc.perform(patch("/products/update-promo/{id}/{discount}", postPromo, discount))
+                .andExpect(statusEsperado)
+                .andExpect(contentTypeEsperado)
+                .andExpect(content().json(jsonEsperado))
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("Obtener BadRequest al querer actualizar con valor >1 un post")
+    public void testUpdatePromoDiscount_WithDiscountGreaterThanOne() throws Exception{
+        int postPromo = 1;
+        double discount = 1.01;
+        ResponseDto resultado = new ResponseDto("El descuento no puede superar el 100%");
+
+        ResultMatcher statusEsperado = status().isBadRequest();
+        ResultMatcher contentTypeEsperado = content().contentType("application/json");
+        String jsonEsperado = mapper.writeValueAsString(resultado);
+
+        mockMvc.perform(patch("/products/update-promo/{id}/{discount}", postPromo, discount))
+                .andExpect(statusEsperado)
+                .andExpect(contentTypeEsperado)
+                .andExpect(content().json(jsonEsperado))
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("Obtener BadRequest al querer actualizar con valor <1 un post")
+    public void testUpdatePromoDiscount_WithDiscountLessThanOrEqualZero() throws Exception{
+        int postPromo = 1;
+        double discount = 0;
+        ResponseDto resultado = new ResponseDto("El descuento no puede ser menor o igual a 0");
+
+        ResultMatcher statusEsperado = status().isBadRequest();
+        ResultMatcher contentTypeEsperado = content().contentType("application/json");
+        String jsonEsperado = mapper.writeValueAsString(resultado);
+
+
+        mockMvc.perform(patch("/products/update-promo/{id}/{discount}", postPromo, discount))
+                .andExpect(statusEsperado)
+                .andExpect(contentTypeEsperado)
+                .andExpect(content().json(jsonEsperado))
                 .andDo(print());
     }
 
