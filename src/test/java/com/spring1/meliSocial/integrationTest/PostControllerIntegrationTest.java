@@ -43,8 +43,7 @@ import java.util.stream.Stream;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -757,5 +756,68 @@ public class PostControllerIntegrationTest {
         List<ResponsePostDto> allPosts = mapper.readValue(result.getResponse().getContentAsString(), new TypeReference<List<ResponsePostDto>>() {});
 
         Assertions.assertEquals(expectedSize, allPosts.size());
+    }
+
+    @Test
+    @DisplayName("Obtener mejores descuentos de categoria que no existe")
+    public void testGetBestProductsOnPromo_UserNotExists() throws Exception {
+        ResultMatcher statusEsperado = status().isOk();
+        ResultMatcher contentTypeEsperado = content().contentType("application/json");
+        ResultMatcher bodyEsperado = content().json("[]");
+
+        mockMvc.perform(get("/products/best/promo-post")
+                        .param("category", String.valueOf(3000)))
+                .andExpectAll(statusEsperado, contentTypeEsperado, bodyEsperado)
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("Obtener mejores descuentos globales de todas las categorias, sin especificar categoria")
+    public void testGetBestProductsOnPromo_GetBestTenGlobalDiscounts() throws Exception {
+        ResultMatcher statusEsperado = status().isOk();
+        ResultMatcher contentTypeEsperado = content().contentType("application/json");
+
+
+        MvcResult result = mockMvc.perform(get("/products/best/promo-post"))
+                .andExpectAll(statusEsperado, contentTypeEsperado)
+                .andDo(print())
+                .andReturn();
+
+        List<ResponsePostDto> bestPromos = mapper.readValue(result.getResponse().getContentAsString(), new TypeReference<List<ResponsePostDto>>() {});
+
+        Assertions.assertEquals(10, bestPromos.size());
+    }
+
+    @Test
+    @DisplayName("Obtener mejores descuentos de categoria 55")
+    public void testGetBestProductsOnPromo_GetBestDiscountsForSpecificCategory() throws Exception {
+        ResultMatcher statusEsperado = status().isOk();
+        ResultMatcher contentTypeEsperado = content().contentType("application/json");
+
+
+        MvcResult result = mockMvc.perform(get("/products/best/promo-post"))
+                .andExpectAll(statusEsperado, contentTypeEsperado).
+                andExpect(jsonPath("$[0].category").value(55))
+                .andDo(print())
+                .andReturn();
+
+        List<ResponsePostDto> bestPromos = mapper.readValue(result.getResponse().getContentAsString(), new TypeReference<List<ResponsePostDto>>() {});
+
+        Assertions.assertEquals(10, bestPromos.size());
+    }
+
+    @Test
+    @DisplayName("No existen descuentos generados de momento")
+    public void testGetBestProductsOnPromo_NoDiscountExistsYet() throws Exception {
+        postRepository.emptyPosts();
+
+        ExceptionDto expectedJsonContent = new ExceptionDto("No hay productos en promo");
+        ResultMatcher statusEsperado = status().isNotFound();
+        ResultMatcher contentTypeEsperado = content().contentType("application/json");
+        ResultMatcher bodyEsperado = content().json(mapper.writeValueAsString(expectedJsonContent));
+
+        mockMvc.perform(get("/products/best/promo-post"))
+                .andExpectAll(statusEsperado, contentTypeEsperado, bodyEsperado)
+                .andDo(print());
     }
 }
