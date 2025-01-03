@@ -774,4 +774,18 @@ public class PostControllerIntegrationTest {
         Assertions.assertEquals(10, bestPromos.size());
     }
 
+    @Test
+    @DisplayName("No existen descuentos generados de momento")
+    public void testGetBestProductsOnPromo_NoDiscountExistsYet() throws Exception {
+        postRepository.emptyPosts();
+
+        ExceptionDto expectedJsonContent = new ExceptionDto("No hay productos en promo");
+        ResultMatcher statusEsperado = status().isNotFound();
+        ResultMatcher contentTypeEsperado = content().contentType("application/json");
+        ResultMatcher bodyEsperado = content().json(mapper.writeValueAsString(expectedJsonContent));
+
+        mockMvc.perform(get("/products/best/promo-post"))
+                .andExpectAll(statusEsperado, contentTypeEsperado, bodyEsperado)
+                .andDo(print());
+    }
 }
