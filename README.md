@@ -84,6 +84,114 @@ A continuación se presenta una breve descripción de los endpoints desarrollado
    git clone https://github.com/Caroschwab97/meliSocial.git
 2. Branch master
 
+## Validaciones
+| Dato/Parametro| Validación |
+|---------------|---------------|
+| user_id | Que el campo no esté vacío. Mayor 0 |
+| date | Que el campo no esté vacío|
+| product_id | Que el campo no esté vacío. Mayor 0 |
+| product_name | Que el campo no esté vacío. Longitud máxima de 40 caracteres.Que no posea caracteres especiales (%, &, $, etc), permite espacios. |
+| type | Que el campo no esté vacío. Longitud máxima de 15 caracteres. Que no posea caracteres especiales (%, &, $, etc)|
+| brand| Que el campo no esté vacío. Longitud máxima de 25 caracteres. Que no posea caracteres especiales (%, &, $, etc) |
+| color | Que el campo no esté vacío. Longitud máxima de 15 caracteres. Que no posea caracteres especiales (%, &, $, etc)|
+| notes | Longitud máxima de 80 caracteres. Que no posea caracteres especiales (%, &, $, etc), permite espacios. |
+| category | Que el campo no esté vacío.|
+| price | Que el campo no esté vacío. El precio máximo puede ser 10.000.000.|
+
+## Pruebas
+Este proyecto incluye pruebas unitarias e integraciones para asegurar la funcionalidad y estabilidad de los endpoints de la API.
+
+### Tipos de Pruebas
+  **Pruebas Unitarias**
+   - Se han creado pruebas unitarias para verificar la lógica de negocio de cada uno de los componentes del sistema. Estas pruebas aseguran que las funciones individuales se comporten como se espera.
+   1. **T0001 - Verificar que el usuario exista - US0001**
+    - Se cumple:
+      Permite continuar con normalidad.
+    - No se cumple:
+      Notifica la no existencia del usuario a seguir mediante una excepción NotFoundException.
+      Notifica la no existencia del usuario seguidor mediante una excepción NotFoundException.
+      Notifica si el usuario a seguir no es un vendedor mediante una excepción BadRequestException.
+      Notifica si el usuario a seguir es el mismo mediante una excepción BadRequestException.
+      **Responsable**: [Azucena Panez]
+
+   2. **T0002 - Verificar que el usuario a dejar de seguir exista - US0007**
+    - Se cumple:
+      Permite continuar con normalidad.
+    - No se cumple:
+      Notifica la no existencia del usuario a dejar de seguir mediante una excepción NotFoundException.
+      Notifica la no existencia del usuario seguidor mediante una excepción NotFoundException.
+      Notifica si el usuario no contiene ningun seguido para dejar de seguir mediante una excepción NotFoundException.
+      Notifica si el usuario no contiene usuario para dejar de seguir como seguido mediante una excepción NotFoundException.
+      **Responsable**: [Mariano Chun]
+
+   3. **T0003 - Verificar que el tipo de ordenamiento alfabetico exista - US0008**
+    - Se cumple:
+      Permite continuar con normalidad el correcto ordenamiento alfabetico para una lista de seguidores de un vendedor.
+      Permite continuar con normalidad el correcto ordenamiento alfabetico para una lista de seguidos de un usuario.
+    - No se cumple:
+      Notificar si pasa un parametro de order invalido para listar los seguidores de un vendedor mediante una excepción BadRequestException.
+      Notificar si pasa un parametro de order invalido para listar a los que sigue un usuario mediante una excepción BadRequestException.
+      **Responsable**: [Camila Lopez]
+   4. **T0004 - Verificar el correcto ordenamiento ascendente y descendente por nombre - US0008**
+    - Se cumple:
+      Permite continuar con normalidad.
+      **Responsable**: [Carolina Schwab]
+
+   5. **T0005 - Verificar que el tipo de ordenamiento por fecha exista - US0009**
+    - Se cumple:
+      Permite continuar con normalidad.
+      Notificar si el usuario no tiene publicaciones.
+    - No se cumple:
+      Notificar si el usuario es invalido mediante una excepción BadRequestException.
+      Notificar si el parametro de order es invalido mediante una excepción BadRequestException.
+      **Responsable**: [Joaquin Seita]
+
+   6. **T0006 - Verificar el correcto ordenamiento ascendente y descendente por fecha - US0009**
+   - Se cumple:
+      Permite continuar con normalidad.
+      **Responsable**: [Nuria Robledo]
+   
+   7. **T0007 - Verificar que la cantidad de seguidores de un determinado usuario sea - US0002**
+   - Se cunple:
+      Permite continuar con normalidad.
+    - No se cumple:
+      Notificar si se pasa un usuario invalido mediante una excepción NotFoundException.
+      **Responsable**: [Carolina Schwab]
+
+   8. **T0008 - Verificar que la consulta de publicaciones realizadas en las últimas dos semanas de un determinado vendedor sean efectivamente de las últimas dos semanas - US0006**
+    - Se cunple:
+      Permite continuar con normalidad al consultar por publicaciones en las últimas dos semanas.
+      **Responsable**: [Mariano Chun]
+
+
+2. **Pruebas de Integración**
+   - Las pruebas de integración se han implementado para evaluar cómo los diferentes módulos de la API interactúan entre sí. Estas pruebas validan que los endpoints funcionen correctamente cuando se invocan en conjunto.
+   1. **IT 0001 - Follow User**
+      **Responsable**: [Camila Lopez]
+   2. **IT 0002 - Followers count**
+      **Responsable**: [Camila Lopez]
+   3. **IT 0003 - Followers list**
+      **Responsable**: [Nuria Robledo]
+   4. **IT 0004 - Followed list**
+      **Responsable**: [Carolina Schwab]
+   5. **IT 0005 - Create post**
+      **Responsable**: [Joaquin Seita]
+   6. **IT 0006 - Posts by Followed Users**
+      **Responsable**: [Mariano Chun]
+   7. **IT 0007 - Unfollow user**
+      **Responsable**: [Azucena Panez]
+   8. **IT 0008 - Followers list and Followed list (with order)** 
+      Se testea al probar 3 y 4
+   9. **IT 0009 - Posts by Followed Users (with order)**
+      Se testea al probar el 6
+   10. **IT 0010 - Create Post Promo**
+      **Responsable**: [Joaquin Seita]
+   11. **IT 0011 - Posts with promo by user count**
+      **Responsable**: [Nuria Robledo]
+
+## Corevage
+ Coverage final del 83%
+
 ## Integrantes
 - Mariano Chun
 - Camila Lopez
@@ -91,4 +199,3 @@ A continuación se presenta una breve descripción de los endpoints desarrollado
 - Nuria Robledo
 - Carolina Schwab
 - Joaquin Seita
-
