@@ -189,7 +189,7 @@ Este proyecto incluye pruebas unitarias e integraciones para asegurar la funcion
    11. **IT 0011 - Posts with promo by user count**
       **Responsable**: [Nuria Robledo]
 
-## Corevage
+## Coverage
  Coverage final del 83%
 
 ## Integrantes
