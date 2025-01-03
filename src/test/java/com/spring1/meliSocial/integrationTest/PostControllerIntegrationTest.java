@@ -1,6 +1,7 @@
 package com.spring1.meliSocial.integrationTest;
 
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spring1.meliSocial.dto.ExceptionDto;
 import com.spring1.meliSocial.dto.response.PostIndexDto;
@@ -15,21 +16,19 @@ import com.spring1.meliSocial.model.User;
 import com.spring1.meliSocial.repository.impl.PostRepository;
 import com.spring1.meliSocial.repository.impl.ProductRepository;
 import com.spring1.meliSocial.repository.impl.UserRepository;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.spring1.meliSocial.dto.request.RequestPostDto;
 import com.spring1.meliSocial.dto.response.ResponseDto;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultMatcher;
 
 import java.time.LocalDate;
@@ -726,5 +725,37 @@ public class PostControllerIntegrationTest {
                 .andExpect(statusEsperado)
                 .andExpect(contentTypeEsperado)
                 .andDo(print());
+    }
+
+    @Test
+    @DisplayName("No existen posts para mostrar")
+    public void testGetAll_NoPostsExists() throws Exception {
+        postRepository.emptyPosts();
+
+        ResultMatcher statusEsperado = status().isOk();
+        ResultMatcher contentTypeEsperado = content().contentType("application/json");
+        ResultMatcher bodyEsperado = content().json("[]");
+
+        mockMvc.perform(get("/products/all"))
+                .andExpectAll(statusEsperado, contentTypeEsperado, bodyEsperado)
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("Devolución de todos los posts existentes")
+    public void testGetAll_ObtainAllPosts() throws Exception {
+        int expectedSize = postRepository.getPosts().size();
+        ResultMatcher statusEsperado = status().isOk();
+        ResultMatcher contentTypeEsperado = content().contentType("application/json");
+
+
+        MvcResult result = mockMvc.perform(get("/products/all"))
+                .andExpectAll(statusEsperado, contentTypeEsperado)
+                .andDo(print())
+                .andReturn();
+
+        List<ResponsePostDto> allPosts = mapper.readValue(result.getResponse().getContentAsString(), new TypeReference<List<ResponsePostDto>>() {});
+
+        Assertions.assertEquals(expectedSize, allPosts.size());
     }
 }
