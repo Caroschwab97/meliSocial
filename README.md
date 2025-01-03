@@ -152,14 +152,14 @@ Este proyecto incluye pruebas unitarias e integraciones para asegurar la funcion
       **Responsable**: [Nuria Robledo]
    
    7. **T0007 - Verificar que la cantidad de seguidores de un determinado usuario sea - US0002**
-   - Se cunple:
+   - Se cumple:
       Permite continuar con normalidad.
     - No se cumple:
       Notificar si se pasa un usuario invalido mediante una excepción NotFoundException.
       **Responsable**: [Carolina Schwab]
 
    8. **T0008 - Verificar que la consulta de publicaciones realizadas en las últimas dos semanas de un determinado vendedor sean efectivamente de las últimas dos semanas - US0006**
-    - Se cunple:
+    - Se cumple:
       Permite continuar con normalidad al consultar por publicaciones en las últimas dos semanas.
       **Responsable**: [Mariano Chun]
 
