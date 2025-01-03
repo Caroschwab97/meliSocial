@@ -24,7 +24,7 @@ import com.fasterxml.jackson.annotation.*;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RequestPostDto {
     @JsonAlias("user_id")
-    @Min(value = 1, message = "El id debe ser mayor a cero")
+    @Min(value = 1, message = "El id del usuario debe ser mayor a cero")
     private int userId;
 
     @NotNull(message = "La fecha no puede estar vacía")

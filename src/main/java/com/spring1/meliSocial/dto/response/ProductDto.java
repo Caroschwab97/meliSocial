@@ -15,7 +15,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonPropertyOrder({"product_id", "product_name", "type", "brand", "color", "notes"})
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ProductDto {
-    @Min(value = 1, message = "El id debe ser mayor a cero")
+    @Min(value = 1, message = "El id del producto debe ser mayor a cero")
     @JsonAlias("product_id")
     private int id;
 

@@ -122,7 +122,7 @@ public class PostControllerIntegrationTest {
         return Stream.of(
                 Arguments.of(
                         "POST /products/post Invalid Product Id",
-                        "El id debe ser mayor a cero",
+                        "El id del producto debe ser mayor a cero",
                         new ProductDto(0, "ValidName", "Ropa", "Marca", "Color", "")
                 ),
                 Arguments.of(
@@ -187,7 +187,7 @@ public class PostControllerIntegrationTest {
         return Stream.of(
                 Arguments.of(
                         "POST /products/post UserId less than zero or null",
-                        "El id debe ser mayor a cero",
+                        "El id del usuario debe ser mayor a cero",
                         new RequestPostDto(0, LocalDate.now(), null, 2, 100.0)
                 ),
                 Arguments.of(
@@ -217,7 +217,7 @@ public class PostControllerIntegrationTest {
         return Stream.of(
                 Arguments.of(
                         "POST /products/promo-post UserId less than zero or null",
-                        "El id debe ser mayor a cero",
+                        "El id del usuario debe ser mayor a cero",
                         new ProductPromoDto(0, LocalDate.now(), null, 2, 100.0, true, 0.10)
                 ),
                 Arguments.of(

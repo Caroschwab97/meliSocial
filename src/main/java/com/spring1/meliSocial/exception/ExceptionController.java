@@ -2,6 +2,7 @@ package com.spring1.meliSocial.exception;
 
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.spring1.meliSocial.dto.ExceptionDto;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -45,8 +46,13 @@ public class ExceptionController {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     protected ResponseEntity<?> handleValidationExceptions(MethodArgumentNotValidException e) {
-        ExceptionDto error = new ExceptionDto(e.getBindingResult().getFieldError().getDefaultMessage());
-        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+        ExceptionDto errorDTO = new ExceptionDto(
+                e.getAllErrors().stream()
+                        .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                        .toList().toString());
+
+        errorDTO.setMessage( errorDTO.getMessage().substring(1, errorDTO.getMessage().length() - 1));
+        return ResponseEntity.badRequest().body(errorDTO);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
