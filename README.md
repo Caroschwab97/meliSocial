@@ -164,7 +164,7 @@ Este proyecto incluye pruebas unitarias e integraciones para asegurar la funcion
       **Responsable**: [Mariano Chun]
 
 
-2. **Pruebas de Integración**
+   **Pruebas de Integración**
    - Las pruebas de integración se han implementado para evaluar cómo los diferentes módulos de la API interactúan entre sí. Estas pruebas validan que los endpoints funcionen correctamente cuando se invocan en conjunto.
    1. **IT 0001 - Follow User**
       **Responsable**: [Camila Lopez]
