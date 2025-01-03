@@ -190,7 +190,7 @@ Este proyecto incluye pruebas unitarias e integraciones para asegurar la funcion
       **Responsable**: [Nuria Robledo]
 
 ## Coverage
- Coverage final del 83%
+ Coverage final del 87%
 
 ## Integrantes
 - Mariano Chun
