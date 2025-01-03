@@ -16,7 +16,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class ProductPromoDto {
     @JsonAlias("user_id")
-    @Min(value = 1, message = "El id debe ser mayor a cero")
+    @Min(value = 1, message = "El id del usuario debe ser mayor a cero")
     private int userId;
 
     @NotNull(message = "La fecha no puede estar vacía")
