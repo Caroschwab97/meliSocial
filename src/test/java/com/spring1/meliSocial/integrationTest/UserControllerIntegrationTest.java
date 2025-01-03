@@ -14,8 +14,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -37,10 +36,6 @@ public class UserControllerIntegrationTest {
     private FollowedDto followed1;
     private FollowedDto followed2;
     private FollowerDto follower1;
-    private FollowerDto follower2;
-    private FollowerDto follower3;
-    private FollowerDto follower4;
-
 
     @Test
     @DisplayName("Obtener el resultado de la cantidad de usuarios que siguen a un determinado vendedor")
@@ -337,6 +332,53 @@ public class UserControllerIntegrationTest {
     }
 
     @Test
+    @DisplayName("DELETE /users/{userId}/favourite-post/{postId} Delete favourite post Ok")
+    public void testRemoveFavouritePostOk() throws Exception {
+        int userId = 2;
+        int postId = 1;
+
+        mockMvc.perform(delete("/users/{userId}/favourite-post/{postId}", userId, postId))
+                .andExpectAll(status().isNoContent())
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("DELETE /users/{userId}/favourite-post/{postId} Delete favourite post User not found")
+    public void testRemoveFavouritePost_User_Not_Found() throws Exception {
+        int userId = 123;
+        int postId = 1;
+        String expectedErrorMessage = """
+                    {
+                        "message": "El usuario con ID: 123 no existe."
+                    }
+                """;
+
+        mockMvc.perform(delete("/users/{userId}/favourite-post/{postId}", userId, postId))
+                .andExpectAll(status().isNotFound())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(content().json(expectedErrorMessage))
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("DELETE /users/{userId}/favourite-post/{postId} Delete favourite Post not found")
+    public void testRemoveFavouritePost_Post_Not_Found() throws Exception {
+        int userId = 1;
+        int postId = 123;
+        String expectedErrorMessage = """
+                    {
+                        "message": "El post con id 123 no está agregado a favoritos para el usuario"
+                    }
+                """;
+
+        mockMvc.perform(delete("/users/{userId}/favourite-post/{postId}", userId, postId))
+                .andExpectAll(status().isBadRequest())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(content().json(expectedErrorMessage))
+                .andDo(print());
+    }
+
+    @Test
     @DisplayName("Obtener el mensaje de que un usuario dejó de seguir a un usuario vendedor")
     public void testUnfollowUser_ok() throws Exception{
         int userId = 9;
@@ -395,4 +437,65 @@ public class UserControllerIntegrationTest {
                 .andExpect(content().contentType("application/json"))
                 .andExpect(jsonPath("$.message").value("El usuario no contiene ese seguido"));
     }
+
+    @Test
+    @DisplayName("Agrega a favoritos")
+    public void testAddFavouritePostOK() throws Exception {
+        int user = 1;
+        int postId = 1;
+        ResponseDto result = new ResponseDto("El post fue agregado a favoritos de forma exitosa");
+
+        mockMvc.perform(post("/users/{userId}/favourite-post/{postId}",user,postId))
+                .andExpectAll(
+                        status().isOk(),
+                        content().contentType("application/json"),
+                        content().json(objectMapper.writeValueAsString(result)))
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("Agrega a favoritos - User NotFound")
+    public void testAddFavouritePostNotFoundExceptionUser() throws Exception {
+        int user = 100;
+        int postId = 1;
+        ResponseDto result = new ResponseDto("El usuario con ID: " + user + " no existe.");
+
+        mockMvc.perform(post("/users/{userId}/favourite-post/{postId}",user,postId))
+                .andExpectAll(
+                        status().isNotFound(),
+                        content().contentType("application/json"),
+                        content().json(objectMapper.writeValueAsString(result)))
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("Agrega a favoritos - Post NotFound")
+    public void testAddFavouritePostNotFoundExceptionPost() throws Exception {
+        int user = 1;
+        int postId = 100;
+        ResponseDto result = new ResponseDto("El post con ID: " + postId + " no existe.");
+
+        mockMvc.perform(post("/users/{userId}/favourite-post/{postId}",user,postId))
+                .andExpectAll(
+                        status().isNotFound(),
+                        content().contentType("application/json"),
+                        content().json(objectMapper.writeValueAsString(result)))
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("Agrega a favoritos - BadRequestException el post ya esta agregado")
+    public void testAddFavouritePostBadRequestException() throws Exception {
+        int user = 2;
+        int postId = 1;
+        ResponseDto result = new ResponseDto("El post con id " + postId + " ya está agregado a favoritos");
+
+        mockMvc.perform(post("/users/{userId}/favourite-post/{postId}",user,postId))
+                .andExpectAll(
+                        status().isBadRequest(),
+                        content().contentType("application/json"),
+                        content().json(objectMapper.writeValueAsString(result)))
+                .andDo(print());
+    }
+
 }
