@@ -37,7 +37,7 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public SellerFollowedDto getFollowersFromSeller(int sellerId, String orderMethod) {
+    public SellerFollowersDto getFollowersFromSeller(int sellerId, String orderMethod) {
         Optional<User> optionalUser = userRepository.getUserById(sellerId);
 
         if (optionalUser.isEmpty()) {
@@ -52,7 +52,7 @@ public class UserService implements IUserService {
         List<User> userFollowers = getUsersByListOfId(userFound.getFollowers());
         List<FollowerDto> userFollowersDto = getFollowerDtoSortedList(orderMethod, userFollowers);
 
-        return new SellerFollowedDto(userFound.getId(), userFound.getUserName(), userFollowersDto);
+        return new SellerFollowersDto(userFound.getId(), userFound.getUserName(), userFollowersDto);
     }
 
     private List<FollowerDto> getFollowerDtoSortedList(String orderMethod, List<User> userFollowers) {
@@ -120,20 +120,23 @@ public class UserService implements IUserService {
 
     @Override
     public ResponseDto unfollowUser(int userId, int userIdToUnfollow) {
-        if(userRepository.getUserById(userId).isEmpty() || userRepository.getUserById(userIdToUnfollow).isEmpty())
-            throw new NotFoundException("No se encontraron los usuarios");
+        Optional<User> mainUser = userRepository.getUserById(userId);
+        Optional<User> userToUnfollow = userRepository.getUserById(userIdToUnfollow);
 
-        if(userRepository.getUserById(userId).get().getFollowed()
-                .stream().filter(u -> u == userIdToUnfollow).findFirst().orElse(null) == null)
-            throw new NotFoundException("El usuario no contiene ese seguido");
+        if(mainUser.isEmpty() || userToUnfollow.isEmpty())
+            throw new NotFoundException("No se encontraron los usuarios");
 
         if(userRepository.followedCount(userId) == 0)
             throw new NotFoundException("El usuario no tiene seguidos");
 
+        if(mainUser.get().getFollowed()
+                .stream().filter(u -> u == userIdToUnfollow).findFirst().orElse(null) == null)
+            throw new NotFoundException("El usuario no contiene ese seguido");
+
         if(!userRepository.unfollowUser(userId,userIdToUnfollow)) {
            throw new InternalServerErrorException("Ocurrió un problema al eliminar seguido");
         }
-        return new ResponseDto("El usuario dejó de seguir a " + userRepository.getUserNameById(userId));
+        return new ResponseDto("El usuario dejó de seguir a " + userRepository.getUserNameById(userIdToUnfollow));
     }
 
     @Override
@@ -150,8 +153,26 @@ public class UserService implements IUserService {
 
     @Override
     public ResponseDto followUser(int userId, int userIdToFollow) {
+        User user = userRepository.getUserById(userId)
+                .orElseThrow(() -> new NotFoundException("El usuario con ID: " + userId + " no existe."));
+
+        User userToFollow = userRepository.getUserById(userIdToFollow)
+                .orElseThrow(() -> new NotFoundException("El usuario a seguir con ID: " + userIdToFollow + " no existe."));
+
         if (userId == userIdToFollow) {
             throw new BadRequestException("Un usuario no puede seguirse a sí mismo.");
+        }
+
+        if (user.getFollowed().contains(userIdToFollow)) {
+            throw new BadRequestException("El usuario con ID: " + userId + " ya sigue al usuario con ID: " + userIdToFollow);
+        }
+
+        if (!user.isSeller() && !userToFollow.isSeller()) {
+            throw new BadRequestException("Un comprador solo puede seguir a un usuario vendedor.");
+        }
+
+        if (!userToFollow.isSeller()) {
+            throw new BadRequestException("Solo se puede seguir a un usuario vendedor.");
         }
 
         userRepository.addFollow(userId,userIdToFollow);

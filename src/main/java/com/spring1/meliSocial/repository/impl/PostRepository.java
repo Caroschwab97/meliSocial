@@ -7,6 +7,7 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.spring1.meliSocial.exception.NotFoundException;
 import com.spring1.meliSocial.model.Post;
 import com.spring1.meliSocial.repository.IPostRepository;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.ResourceUtils;
 
@@ -16,13 +17,23 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 @Repository
 public class PostRepository implements IPostRepository {
     private List<Post> posts = new ArrayList<>();
+    private String SCOPE;
 
     public PostRepository() throws IOException {
-        loadDataBase();
+        Properties properties =  new Properties();
+
+        try {
+            properties.load(new ClassPathResource("application.properties").getInputStream());
+            this.SCOPE = properties.getProperty("api.scope");
+            this.loadDataBase();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void loadDataBase() throws IOException {
@@ -35,7 +46,7 @@ public class PostRepository implements IPostRepository {
 
         objectMapper.registerModule(javaTimeModule);
 
-        file= ResourceUtils.getFile("classpath:post.json");
+        file= ResourceUtils.getFile("./src/" + SCOPE + "/resources/post.json");
 
         posts = objectMapper.readValue(file,new TypeReference<List<Post>>(){});;
     }
@@ -121,4 +132,7 @@ public class PostRepository implements IPostRepository {
                 .ifPresent(post -> post.setPrice(newPrice));
     }
 
+    public void emptyPosts() {
+        this.posts = new ArrayList<>();
+    }
 }
